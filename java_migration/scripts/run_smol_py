@@ -1,8 +1,10 @@
 from smolagents import CodeAgent, DuckDuckGoSearchTool
 from smolagents.models import LiteLLMModel
+from dotenv import load_dotenv
 
+load_dotenv()
 
-model = LiteLLMModel(model_id="vertex_ai/gemini-1.5-pro-002")
+model = LiteLLMModel(model_id="gemini/gemini-1.5-flash")
 agent = CodeAgent(tools=[DuckDuckGoSearchTool()], model=model)
 
 print(agent.run("How many seconds would it take for a leopard at full speed to run through Pont des Arts?"))
