@@ -1,4 +1,4 @@
-from smolagents import Tool
+from smolagents import Tool, DuckDuckGoSearchTool
 import os
 from pathlib import Path
 import subprocess
@@ -93,3 +93,21 @@ class WriteFile(Tool):
         with open(resolved_path, "w") as fout:
             fout.write(content)
         return True
+
+
+def get_tools(tool_names: list[str], root_path: Path):
+    tools = []
+    for tool_name in tool_names:
+        if tool_name == "read_file":
+            tools.append(ReadFile(root_path))
+        elif tool_name == "list_dir":
+            tools.append(ListDir(root_path))
+        elif tool_name == "maven_install":
+            tools.append(MavenInstall(root_path))
+        elif tool_name == "write_file":
+            tools.append(WriteFile(root_path))
+        elif tool_name == "duckduckgo":
+            tools.append(DuckDuckGoSearch())
+        else:
+            raise ValueError(f"Unknown tool name: {tool_name}")
+    return tools

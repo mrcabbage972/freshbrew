@@ -16,6 +16,8 @@ smolagents = "^1.9.2"
 litellm = "^1.61.20"
 google-api-python-client = "^2.162.0"
 ruff = "^0.9.9"
+pydantic = "^2.10.6"
+pygithub = "^2.6.1"
 
 [build-system]
 requires = ["poetry-core"]
