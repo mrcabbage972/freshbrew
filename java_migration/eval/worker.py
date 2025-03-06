@@ -1,4 +1,4 @@
-from java_migration.eval.data_model import JobCfg, JobResult
+from java_migration.eval.data_model import JobCfg, JobResult, AgentConfig
 from java_migration.smol_tools import get_tools
 from git import Repo
 import logging
@@ -18,14 +18,12 @@ class Worker:
     def __call__(self, job: JobCfg) -> JobResult:
         try:
             logger.info(f"Processing job {job}")
-            tools = get_tools(job.tools, job.workspace_dir)
             self._clone_repo(job.repo_name, job.workspace_dir)
+            agent = self._get_agent(job)
 
             buffer = io.StringIO()
             with contextlib.redirect_stdout(buffer):
-                model = LiteLLMModel(model_id=job.model_name)
-                agent = CodeAgent(tools=tools, model=model, max_steps=job.max_num_steps)
-                result = agent.run(job.prompt)
+                result = agent.run(job.agent_config.prompt)
 
             repo_diff = create_git_patch(job.workspace_dir)
             logger.info("Successfully finished job")
@@ -36,15 +34,21 @@ class Worker:
         finally:
             self._clean_workspace(job.workspace_dir)
 
+    def _get_agent(self, job: JobCfg):
+        tools = get_tools(job.agent_config.tools, job.workspace_dir)
+        model = LiteLLMModel(model_id=job.agent_config.model_name)
+        agent = CodeAgent(tools=tools, model=model, max_steps=job.agent_config.max_num_steps)
+        return agent
+
     def _clone_repo(self, repo_name: str, workspace_dir: Path):
-        repo_url = f"git@github.com:{job.repo_name}.git"
-        Repo.clone_from(repo_url, job.workspace_dir)
-        logger.info(f"Cloned repository {job.repo_name} to {job.workspace_dir}")
+        repo_url = f"git@github.com:{repo_name}.git"
+        Repo.clone_from(repo_url, workspace_dir)
+        logger.info(f"Cloned repository {repo_name} to {workspace_dir}")
 
     def _clean_workspace(self, workspace_dir: Path):
         if workspace_dir.exists():
             shutil.rmtree(workspace_dir)
-            logger.info(f"Cleaned workspace {job.workspace_dir}")
+            logger.info(f"Cleaned workspace {workspace_dir}")
 
 
 if __name__ == "__main__":
@@ -54,11 +58,10 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
     worker = Worker()
     with tempfile.TemporaryDirectory() as tmpdirname:
+        agent_cfg = AgentConfig(tools=[], model_name="gemini/gemini-1.5-flash", max_num_steps=1)
         job = JobCfg(
             repo_name="nydiarra/springboot-jwt",
-            model_name="gemini/gemini-1.5-flash",
-            tools=[],
             workspace_dir=tmpdirname,
-            max_num_steps=1,
+            agent_config=agent_cfg,
         )
         print(worker(job))

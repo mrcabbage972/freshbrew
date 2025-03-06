@@ -3,13 +3,17 @@ from pathlib import Path
 from java_migration.eval.utils import collapse_middle, escape_newlines
 
 
-class JobCfg(BaseModel):
+class AgentConfig(BaseModel):
     max_num_steps: int
     tools: list[str]
     model_name: str
+    prompt: str = "Upgrade the project to use JDK 17. Ensure that the build and the tests pass."
+
+
+class JobCfg(BaseModel):
+    agent_config: AgentConfig
     repo_name: str
     workspace_dir: Path
-    prompt: str = "Upgrade the project to use JDK 17. Ensure that the build and the tests pass."
 
 
 class JobResult(BaseModel):
