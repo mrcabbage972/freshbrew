@@ -18,6 +18,7 @@ google-api-python-client = "^2.162.0"
 ruff = "^0.9.9"
 pydantic = "^2.10.6"
 pygithub = "^2.6.1"
+gitpython = "^3.1.44"
 
 [build-system]
 requires = ["poetry-core"]
