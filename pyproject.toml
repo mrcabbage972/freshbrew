@@ -15,6 +15,7 @@ seaborn = "^0.13.2"
 smolagents = "^1.9.2"
 litellm = "^1.61.20"
 google-api-python-client = "^2.162.0"
+ruff = "^0.9.9"
 
 [build-system]
 requires = ["poetry-core"]
