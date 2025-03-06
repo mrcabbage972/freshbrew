@@ -16,14 +16,14 @@ class JobCfg(BaseModel):
     workspace_dir: Path
 
 
-class JobResult(BaseModel):
-    status: bool
+class MigrationResult(BaseModel):
+    build_success: bool | None
     output: str
-    stdout: str | None = None
-    diff: str | None = None
+    stdout: str
+    diff: str
 
     def __repr__(self) -> str:
-        status_str = "Success" if self.status else "Failure"
+        status_str = "Success" if self.build_success else "Failure"
         output_str = f"output='{escape_newlines(collapse_middle(self.output))}'"
         stdout_str = f", stdout='{escape_newlines(collapse_middle(self.stdout))}'" if self.stdout is not None else ""
         diff_str = f", diff='{escape_newlines(collapse_middle(self.diff))}'" if self.diff is not None else ""
@@ -33,6 +33,12 @@ class JobResult(BaseModel):
         combined_str = ", ".join(non_empty_parts)
 
         return f"JobResult({combined_str})"
+
+
+class JobResult(BaseModel):
+    run_success: bool
+    error: str | None = None
+    migration_result: MigrationResult | None = None
 
     def __str__(self) -> str:
         return self.__repr__()

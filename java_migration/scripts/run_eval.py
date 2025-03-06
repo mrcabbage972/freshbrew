@@ -42,13 +42,16 @@ class EvalRunner:
         output_path.mkdir(parents=True, exist_ok=True)
         for job_cfg, job_result in zip(job_configs, job_results):
             job_dict = job_result.model_dump()
-            job_dict["output"] = [x.strip() for x in job_dict["output"].split("\n")]
+            if job_result.migration_result is not None:
+                job_dict["migration_result"]["output"] = [
+                    x.strip() for x in job_dict["migration_result"]["output"].split("\n")
+                ]
             output_file_path = output_path / f"{safe_repo_name(job_cfg.repo_name)}.yaml"
             with open(output_file_path, "w") as file:
                 yaml.dump(job_dict, file)
 
 
 if __name__ == "__main__":
-    repo_names = ["springboot-jwt"]
+    repo_names = ["nydiarra/springboot-jwt"]
     agent_cfg_path = "/Users/mayvic/Documents/git/java-migration-paper/java_migration/config/smol_default.yaml"
     EvalRunner().run(repo_names, agent_cfg_path)

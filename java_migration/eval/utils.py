@@ -18,8 +18,8 @@ def generate_experiment_dir(prefix: str) -> Path:
     return exp_path
 
 
-def create_git_patch(repo_path: str) -> str:
-    repo = git.Repo(repo_path)
+def create_git_patch(repo_path: Path) -> str:
+    repo = git.Repo(str(repo_path))
 
     # Get a list of modified (unstaged) files
     changed_files = repo.git.diff("--name-only").splitlines()
@@ -71,4 +71,5 @@ def escape_newlines(s: str) -> str:
 
 
 if __name__ == "__main__":
-    print(create_git_patch("/Users/mayvic/Documents/git/springboot-jwt"))
+    pass
+    #print(create_git_patch("/Users/mayvic/Documents/git/springboot-jwt"))

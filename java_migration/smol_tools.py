@@ -2,6 +2,7 @@ from smolagents import Tool, DuckDuckGoSearchTool
 import os
 from pathlib import Path
 import subprocess
+from java_migration.utils import maven_install
 
 
 def resolve_path(root: str, path: str) -> Path:
@@ -62,15 +63,7 @@ class MavenInstall(Tool):
         self.root_path = root_path
 
     def forward(self):
-        cmd = [
-            "mvn",
-            "-B",
-            "-U",
-            "install",
-            "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn",
-        ]
-        result = subprocess.run(cmd, capture_output=True, cwd=self.root_path)
-        return result.stdout.decode("utf-8")
+        return maven_install(self.root_path)
 
 
 class WriteFile(Tool):

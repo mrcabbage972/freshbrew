@@ -1,4 +1,4 @@
-from java_migration.eval.data_model import JobCfg, JobResult, AgentConfig
+from java_migration.eval.data_model import JobCfg, JobResult, AgentConfig, MigrationResult
 from java_migration.smol_tools import get_tools
 from git import Repo
 import logging
@@ -10,6 +10,8 @@ import contextlib
 from smolagents import CodeAgent
 from smolagents.models import LiteLLMModel
 from java_migration.eval.utils import create_git_patch
+from java_migration.eval.maven_build_verifier import MavenBuildVerifier
+
 
 logger = logging.getLogger(__name__)
 
@@ -21,16 +23,23 @@ class Worker:
             self._clone_repo(job.repo_name, job.workspace_dir)
             agent = self._get_agent(job)
 
+            logger.info("Running agent")
             buffer = io.StringIO()
-            with contextlib.redirect_stdout(buffer):
+            with contextlib.redirect_stdout(buffer):                
                 result = agent.run(job.agent_config.prompt)
+
+            logger.info("Verifying build")
+            build_success = MavenBuildVerifier().verify(job.workspace_dir)
 
             repo_diff = create_git_patch(job.workspace_dir)
             logger.info("Successfully finished job")
-            return JobResult(status=True, output=result, stdout=buffer.getvalue(), diff=repo_diff)
+            migration_result = MigrationResult(
+                build_success=build_success, output=result, stdout=buffer.getvalue(), diff=repo_diff
+            )
+            return JobResult(run_success=True, migration_result=migration_result)
         except Exception as e:
             logger.exception(e)
-            return JobResult(status=False, output=str(e))
+            return JobResult(run_success=False, error=str(e))
         finally:
             self._clean_workspace(job.workspace_dir)
 
@@ -61,7 +70,7 @@ if __name__ == "__main__":
         agent_cfg = AgentConfig(tools=[], model_name="gemini/gemini-1.5-flash", max_num_steps=1)
         job = JobCfg(
             repo_name="nydiarra/springboot-jwt",
-            workspace_dir=tmpdirname,
+            workspace_dir=Path(tmpdirname),
             agent_config=agent_cfg,
         )
         print(worker(job))
