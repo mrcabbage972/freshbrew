@@ -5,7 +5,6 @@ from tqdm import tqdm
 import os
 import time
 from dotenv import load_dotenv
-from tqdm import tqdm
 
 load_dotenv()
 
