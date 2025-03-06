@@ -5,6 +5,11 @@ import logging
 import tempfile
 import shutil
 from pathlib import Path
+import io
+import contextlib
+from smolagents import CodeAgent
+from smolagents.models import LiteLLMModel
+from java_migration.eval.utils import create_git_patch
 
 logger = logging.getLogger(__name__)
 
@@ -15,8 +20,16 @@ class Worker:
             logger.info(f"Processing job {job}")
             tools = get_tools(job.tools, job.workspace_dir)
             self._clone_repo(job.repo_name, job.workspace_dir)
+
+            buffer = io.StringIO()
+            with contextlib.redirect_stdout(buffer):
+                model = LiteLLMModel(model_id=job.model_name)
+                agent = CodeAgent(tools=tools, model=model, max_steps=job.max_num_steps)
+                result = agent.run(job.prompt)
+
+            repo_diff = create_git_patch(job.workspace_dir)
             logger.info("Successfully finished job")
-            return JobResult(status=True, output="hello")
+            return JobResult(status=True, output=result, stdout=buffer.getvalue(), diff=repo_diff)
         except Exception as e:
             logger.exception(e)
             return JobResult(status=False, output=str(e))
@@ -41,5 +54,11 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
     worker = Worker()
     with tempfile.TemporaryDirectory() as tmpdirname:
-        job = JobCfg(repo_name="nydiarra/springboot-jwt", tools=[], workspace_dir=tmpdirname, max_num_steps=1)
-        worker(job)
+        job = JobCfg(
+            repo_name="nydiarra/springboot-jwt",
+            model_name="gemini/gemini-1.5-flash",
+            tools=[],
+            workspace_dir=tmpdirname,
+            max_num_steps=1,
+        )
+        print(worker(job))

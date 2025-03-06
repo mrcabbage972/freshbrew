@@ -107,7 +107,7 @@ def get_tools(tool_names: list[str], root_path: Path):
         elif tool_name == "write_file":
             tools.append(WriteFile(root_path))
         elif tool_name == "duckduckgo":
-            tools.append(DuckDuckGoSearch())
+            tools.append(DuckDuckGoSearchTool())
         else:
             raise ValueError(f"Unknown tool name: {tool_name}")
     return tools
