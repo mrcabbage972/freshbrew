@@ -17,7 +17,7 @@ def maven_install(repo_path: Path) -> str:
     return result.stdout.decode("utf-8")
 
 
-def maven_test(repo_path: Path) -> str:
+def maven_test(repo_path: Path, skip_tests=False) -> str:
     cmd = [
         "mvn",
         "-B",
@@ -25,5 +25,7 @@ def maven_test(repo_path: Path) -> str:
         "test",
         "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn",
     ]
+    if skip_tests:
+        cmd.append("-DskipTests")
     result = subprocess.run(cmd, capture_output=True, cwd=repo_path)
     return result.stdout.decode("utf-8")
