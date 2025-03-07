@@ -417,6 +417,21 @@ files = [
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
+name = "cmdkit"
+version = "2.7.7"
+description = "A command-line utility toolkit for Python."
+optional = false
+python-versions = "<4.0,>=3.9"
+files = [
+    {file = "cmdkit-2.7.7-py3-none-any.whl", hash = "sha256:9dfb1ae63329d0ce1970886206ef14a9773d5ebcc15608c96df119bc82abf023"},
+    {file = "cmdkit-2.7.7.tar.gz", hash = "sha256:afe20b60ee60658e299dba465248b74c1801bfe24f891ef745b3a6810251c280"},
+]
+
+[package.extras]
+toml = ["tomli (>=2.1.0,<3.0.0)", "tomli-w (>=1.1.0,<2.0.0)"]
+yaml = ["pyyaml (>=6.0.1,<7.0.0)"]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 description = "Cross-platform colored terminal text."
@@ -1807,6 +1822,20 @@ files = [
     {file = "multidict-6.1.0-py3-none-any.whl", hash = "sha256:48e171e52d1c4d33888e529b999e5900356b9ae588c2f09a52dcefb158b27506"},
     {file = "multidict-6.1.0.tar.gz", hash = "sha256:22ae2ebf9b0c69d206c003e2f6a914ea33f0a932d4aa16f236afc049d9958f4a"},
 ]
+
+[[package]]
+name = "names-generator"
+version = "0.2.0"
+description = "Clone of the Moby/Docker random name generator as a Python package."
+optional = false
+python-versions = "*"
+files = [
+    {file = "names_generator-0.2.0-py3-none-any.whl", hash = "sha256:693e8e48e9a54a2a8f714b01d1bd70945743a15d4587059e7e4e16efc361be11"},
+    {file = "names_generator-0.2.0.tar.gz", hash = "sha256:de60e354b8ca8f2d1ce0816079d3ba569417371867b94328021f03c9dd47a5be"},
+]
+
+[package.dependencies]
+cmdkit = ">=2.7.4"
 
 [[package]]
 name = "nodeenv"
@@ -3420,4 +3449,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "a4d51389809e8dc42abf2dc7a2af8dcd1e5539bf628a8a49ebd7e922c3568a8c"
+content-hash = "388d373bf9fb5f72f0464487d8429146f844a2db05c91b7d513ffb996ed5cd22"

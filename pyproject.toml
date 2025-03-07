@@ -20,6 +20,7 @@ pydantic = "^2.10.6"
 pygithub = "^2.6.1"
 gitpython = "^3.1.44"
 pyright = "^1.1.396"
+names-generator = "^0.2.0"
 
 [build-system]
 requires = ["poetry-core"]

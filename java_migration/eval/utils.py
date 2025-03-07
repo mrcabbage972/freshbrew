@@ -2,18 +2,24 @@ from datetime import datetime
 from pathlib import Path
 import git
 import os
+import logging
+import re
+from names_generator import generate_name
+
+logger = logging.getLogger(__name__)
 
 
 def safe_repo_name(repo_name: str) -> str:
     return repo_name.replace("/", "_")
 
 
-def generate_experiment_dir(prefix: str) -> Path:
+def generate_experiment_dir(prefix: Path) -> Path:
     """Generates a unique experiment directory name based on the date and time."""
     timestamp = datetime.now()
     date_str = timestamp.strftime("%Y-%m-%d")
     time_str = timestamp.strftime("%H-%M-%S")
-    exp_path = Path(prefix) / date_str / time_str
+    experiment_name = generate_name(style="hyphen")
+    exp_path = prefix / date_str / f"{time_str}-{experiment_name}"
     exp_path.mkdir(parents=True, exist_ok=True)
     return exp_path
 
@@ -70,6 +76,10 @@ def escape_newlines(s: str) -> str:
     return s.replace("\n", "\\n").replace("\r", "\\r")
 
 
-if __name__ == "__main__":
-    pass
-    # print(create_git_patch("/Users/mayvic/Documents/git/springboot-jwt"))
+def clean_log_string(log_string: str) -> str:
+    try:
+        ansi_escape = re.compile(r"(?:\x1B[@-_][0-?]*[ -/]*[@-~])")
+        return ansi_escape.sub("", log_string)
+    except Exception as e:
+        logger.warning(f"Error cleaning log string: {e}")
+        return log_string

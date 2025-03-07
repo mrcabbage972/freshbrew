@@ -1,8 +1,7 @@
-from java_migration.eval.data_model import JobCfg, JobResult, AgentConfig, MigrationResult
+from java_migration.eval.data_model import JobCfg, JobResult, MigrationResult
 from java_migration.smol_tools import get_tools
 from git import Repo
 import logging
-import tempfile
 import shutil
 from pathlib import Path
 import io
@@ -30,12 +29,12 @@ class Worker:
                 result = agent.run(job.agent_config.prompt)
 
             logger.info("Verifying build")
-            build_success = MavenBuildVerifier().verify(job.workspace_dir)
+            build_result = MavenBuildVerifier().verify(job.workspace_dir)
 
             repo_diff = create_git_patch(job.workspace_dir)
             logger.info("Successfully finished job")
             migration_result = MigrationResult(
-                build_success=build_success, output=result, stdout=buffer.getvalue(), diff=repo_diff
+                build_result=build_result, output=str(result), stdout=buffer.getvalue(), diff=repo_diff
             )
             return JobResult(run_success=True, migration_result=migration_result)
         except Exception as e:

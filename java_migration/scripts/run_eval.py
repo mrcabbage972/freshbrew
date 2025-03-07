@@ -1,5 +1,5 @@
 import multiprocessing
-from java_migration.eval.utils import safe_repo_name, generate_experiment_dir
+from java_migration.eval.utils import safe_repo_name, generate_experiment_dir, clean_log_string
 from java_migration.eval.worker import Worker
 from java_migration.eval.data_model import JobCfg, AgentConfig, JobResult, EvalMetrics
 from java_migration.utils import REPO_ROOT
@@ -9,6 +9,7 @@ import logging
 
 
 logger = logging.getLogger(__name__)
+
 
 class EvalRunner:
     def __init__(self, concurrency=4) -> None:
@@ -37,21 +38,28 @@ class EvalRunner:
             yaml.dump(metrics.model_dump(), fout)
 
     def _compute_metrics(self, job_results: list[JobResult]) -> EvalMetrics:
-        num_build_success = 0
+        num_overall_success = 0
         num_failed_to_run = 0
+        num_build_success = 0
+        num_test_success = 0
 
         for job_result in job_results:
-            if job_result.run_success:
-                if job_result.migration_result.build_success:
+            if job_result.migration_result:
+                if job_result.migration_result.build_result.overall_success:
+                    num_overall_success += 1
+                if job_result.migration_result.build_result.test_success:
+                    num_test_success += 1
+                if job_result.migration_result.build_result.build_success:
                     num_build_success += 1
             else:
                 num_failed_to_run += 1
 
         return EvalMetrics(
+            num_overall_success=num_overall_success,
             num_build_success=num_build_success,
+            num_test_success=num_test_success,
             num_failed_to_run=num_failed_to_run,
             num_total=len(job_results),
-            build_success_rate=1.0 * num_build_success / len(job_results),
         )
 
     def _load_agent_config(self, agent_config_path: Path) -> AgentConfig:
@@ -76,11 +84,16 @@ class EvalRunner:
             with open(job_result_dir / "result.yaml", "w") as fout:
                 summary_dict = {"run_success": job_result.run_success, "error": job_result.error}
                 if job_result.migration_result:
-                    summary_dict.update({"build_success": job_result.migration_result.build_success})
+                    build_result_dict = job_result.migration_result.build_result.model_dump()
+                    build_log = build_result_dict.pop("build_log")
+                    summary_dict.update({"build_result": build_result_dict})
                     yaml.dump(summary_dict, fout)
 
+                    with open(job_result_dir / "build.log", "w") as fout:
+                        fout.write(build_log)
+
                     with open(job_result_dir / "stdout.log", "w") as fout:
-                        fout.write(job_result.migration_result.stdout)
+                        fout.write(clean_log_string(job_result.migration_result.stdout))
 
                     with open(job_result_dir / "diff.patch", "w") as fout:
                         fout.write(job_result.migration_result.diff)
@@ -89,5 +102,5 @@ class EvalRunner:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
     repo_names = ["nydiarra/springboot-jwt"]
-    agent_cfg_path = REPO_ROOT / "config" / "smol_default.yaml"
+    agent_cfg_path = REPO_ROOT / "java_migration" / "config" / "smol_default.yaml"
     EvalRunner().run(repo_names, agent_cfg_path)
