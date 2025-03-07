@@ -16,7 +16,6 @@ class TestResults(BaseModel):
 
 class BuildResults(BaseModel):
     build_log: str
-    overall_success: bool | None
     build_success: bool | None
     test_success: bool | None
     test_results: TestResults | None
@@ -68,9 +67,19 @@ class JobResult(BaseModel):
         return self.__repr__()
 
 
+class StageMetrics(BaseModel):
+    started: int
+    succeeded: int
+
+
 class EvalMetrics(BaseModel):
-    num_overall_success: int
-    num_build_success: int
-    num_test_success: int
-    num_failed_to_run: int
-    num_total: int
+    run_job: StageMetrics
+    compile: StageMetrics
+    test: StageMetrics
+    overall: StageMetrics
+
+    # num_overall_success: int
+    # num_build_success: int
+    # num_test_success: int
+    # num_failed_to_run: int
+    # num_total: int

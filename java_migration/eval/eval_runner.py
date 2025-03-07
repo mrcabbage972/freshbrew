@@ -1,7 +1,14 @@
 import multiprocessing
 from java_migration.eval.utils import safe_repo_name, generate_experiment_dir, clean_log_string
 from java_migration.eval.worker import Worker
-from java_migration.eval.data_model import JobCfg, AgentConfig, JobResult, EvalMetrics, MigrationDatasetItem
+from java_migration.eval.data_model import (
+    JobCfg,
+    AgentConfig,
+    JobResult,
+    EvalMetrics,
+    StageMetrics,
+    MigrationDatasetItem,
+)
 from java_migration.utils import REPO_ROOT
 from pathlib import Path
 import yaml
@@ -66,18 +73,15 @@ class EvalRunner:
     def _save_metrics(self, metrics: EvalMetrics, output_path: Path):
         output_path.mkdir(parents=True, exist_ok=True)
         with open(output_path / "metrics.yaml", "w") as fout:
-            yaml.dump(metrics.model_dump(), fout)
+            yaml.dump(metrics.model_dump(), fout, sort_keys=False)
 
     def _compute_metrics(self, job_results: list[JobResult]) -> EvalMetrics:
-        num_overall_success = 0
         num_failed_to_run = 0
         num_build_success = 0
         num_test_success = 0
 
         for job_result in job_results:
             if job_result.migration_result:
-                if job_result.migration_result.build_result.overall_success:
-                    num_overall_success += 1
                 if job_result.migration_result.build_result.test_success:
                     num_test_success += 1
                 if job_result.migration_result.build_result.build_success:
@@ -85,12 +89,18 @@ class EvalRunner:
             else:
                 num_failed_to_run += 1
 
+        num_started_build = len(job_results) - num_failed_to_run
+
         return EvalMetrics(
-            num_overall_success=num_overall_success,
-            num_build_success=num_build_success,
-            num_test_success=num_test_success,
-            num_failed_to_run=num_failed_to_run,
-            num_total=len(job_results),
+            run_job=StageMetrics(started=len(job_results), succeeded=num_started_build),
+            compile=StageMetrics(started=num_started_build, succeeded=num_build_success),
+            test=StageMetrics(started=num_build_success, succeeded=num_test_success),
+            overall=StageMetrics(started=len(job_results), succeeded=num_test_success),
+            # num_overall_success=num_overall_success,
+            # num_build_success=num_build_success,
+            # num_test_success=num_test_success,
+            # num_failed_to_run=num_failed_to_run,
+            # num_total=len(job_results),
         )
 
     def _load_agent_config(self, agent_config_path: Path) -> AgentConfig:
