@@ -1,4 +1,5 @@
-max_num_steps: 50
+agent_type: smol
+max_num_steps: 10
 tools: [read_file, write_file, list_dir, maven_install, duckduckgo]
-model_name: gemini/gemini-1.5-pro
+model_name: gemini/gemini-2.0-flash
 prompt: Upgrade the project to use JDK 17. Ensure that the build and the tests pass.

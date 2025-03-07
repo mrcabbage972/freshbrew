@@ -1,7 +1,6 @@
 from smolagents import Tool, DuckDuckGoSearchTool
 import os
 from pathlib import Path
-import subprocess
 from java_migration.utils import maven_install
 
 
@@ -29,7 +28,7 @@ class ReadFile(Tool):
         super().__init__()
         self.root_path = root_path
 
-    def forward(self, path):
+    def forward(self, path):  # type: ignore
         resolved_path = resolve_path(self.root_path, path)
         with open(resolved_path, "r") as fin:
             return fin.read()
@@ -47,7 +46,7 @@ class ListDir(Tool):
         super().__init__()
         self.root_path = root_path
 
-    def forward(self, path):
+    def forward(self, path):  # type: ignore
         resolved_path = resolve_path(self.root_path, path)
         return os.listdir(resolved_path)
 
@@ -62,7 +61,7 @@ class MavenInstall(Tool):
         super().__init__()
         self.root_path = root_path
 
-    def forward(self):
+    def forward(self):  # type: ignore
         return maven_install(self.root_path)
 
 
@@ -79,7 +78,7 @@ class WriteFile(Tool):
         super().__init__()
         self.root_path = root_path
 
-    def forward(self, path, content):
+    def forward(self, path, content):  # type: ignore
         resolved_path = resolve_path(self.root_path, path)
         if os.path.exists(resolved_path):
             os.remove(resolved_path)

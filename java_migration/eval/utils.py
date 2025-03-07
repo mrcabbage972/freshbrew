@@ -72,4 +72,4 @@ def escape_newlines(s: str) -> str:
 
 if __name__ == "__main__":
     pass
-    #print(create_git_patch("/Users/mayvic/Documents/git/springboot-jwt"))
+    # print(create_git_patch("/Users/mayvic/Documents/git/springboot-jwt"))

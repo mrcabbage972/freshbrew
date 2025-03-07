@@ -8,6 +8,7 @@ class AgentConfig(BaseModel):
     tools: list[str]
     model_name: str
     prompt: str = "Upgrade the project to use JDK 17. Ensure that the build and the tests pass."
+    agent_type: str
 
 
 class JobCfg(BaseModel):
@@ -42,3 +43,10 @@ class JobResult(BaseModel):
 
     def __str__(self) -> str:
         return self.__repr__()
+
+
+class EvalMetrics(BaseModel):
+    num_build_success: int
+    num_failed_to_run: int
+    num_total: int
+    build_success_rate: float
