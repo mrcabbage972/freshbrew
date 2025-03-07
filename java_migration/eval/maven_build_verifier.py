@@ -8,10 +8,16 @@ class MavenBuildVerifier:
     BUILD_SUCCESS = "BUILD SUCCESS"
     BUILD_FAILURE = "BUILD FAILURE"
     FATAL_TAG = "[FATAL]"
+    ERROR_TAG = "[ERROR]"
 
     def verify(self, repo_path: Path) -> BuildResults:
         compile_only_log = maven_test(repo_path, skip_tests=True)
-        if self._detect_compilation_failure(compile_only_log):
+        if (
+            self._detect_compilation_failure(compile_only_log)
+            or self.ERROR_TAG in compile_only_log
+            or self.FATAL_TAG in compile_only_log
+            or self.BUILD_FAILURE in compile_only_log
+        ):
             return BuildResults(
                 build_log=compile_only_log,
                 overall_success=False,
@@ -77,3 +83,10 @@ class MavenBuildVerifier:
             errors=counters["errors"],
             skipped=counters["skipped"],
         )
+
+
+if __name__ == "__main__":
+    repo_path = Path("/Users/mayvic/Documents/git/springboot-jwt")
+    verifier = MavenBuildVerifier()
+    results = verifier.verify(repo_path)
+    print(results)
