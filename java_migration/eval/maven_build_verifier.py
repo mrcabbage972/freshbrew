@@ -10,25 +10,27 @@ class MavenBuildVerifier:
     FATAL_TAG = "[FATAL]"
 
     def verify(self, repo_path: Path) -> BuildResults:
+        compile_only_log = maven_test(repo_path, skip_tests=True)
+        if self._detect_compilation_failure(compile_only_log):
+            return BuildResults(
+                build_log=compile_only_log,
+                overall_success=False,
+                build_success=False,
+                test_success=None,
+                test_results=None,
+            )
+
         build_log = maven_test(repo_path)
+
+        assert self._detect_compilation_failure(build_log) is False
+        build_success = True
         overall_success = self._extract_overall_success(build_log)
         test_run_status = self._extract_test_run_status(build_log)
 
         if test_run_status is None:
             test_success = None
         else:
-            test_success = (
-                test_run_status.failures == 0 and test_run_status.errors == 0 and test_run_status.tests_run > 0
-            )
-
-        if overall_success:
-            build_success = True
-        elif test_success:
-            build_success = True
-        elif self._detect_compilation_failure(build_log):
-            build_success = False
-        else:
-            build_success = None
+            test_success = overall_success
 
         return BuildResults(
             build_log=build_log,

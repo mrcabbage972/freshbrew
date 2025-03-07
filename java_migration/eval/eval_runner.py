@@ -6,9 +6,23 @@ from java_migration.utils import REPO_ROOT
 from pathlib import Path
 import yaml
 import logging
-
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
+
+
+def listener(progress_queue: multiprocessing.Queue, total: int):
+    pbar = tqdm(total=total)
+    for _ in range(total):
+        progress_queue.get()
+        pbar.update(1)
+    pbar.close()
+
+
+def worker_wrapper(worker: Worker, job_cfg: JobCfg, progress_queue: multiprocessing.Queue):
+    result = worker(job_cfg)
+    progress_queue.put(1)
+    return result
 
 
 class EvalRunner:
@@ -24,13 +38,23 @@ class EvalRunner:
         job_cfgs = self._get_job_configs(agent_config, experiment_dir / "repo", repo_names)
 
         logger.info("Submitting jobs")
-        worker = Worker()
-        with multiprocessing.Pool(processes=self.concurrency) as pool:
-            job_results = pool.map(worker, job_cfgs)
+        job_results = self._run_jobs(job_cfgs)
+
         logging.info("Computing metrics")
         metrics = self._compute_metrics(job_results)
         self._save_metrics(metrics, experiment_dir)
         self._save_job_results(job_cfgs, job_results, experiment_dir / "job_results")
+
+    def _run_jobs(self, job_cfgs: list[JobCfg]) -> list[JobResult]:
+        worker = Worker()
+        manager = multiprocessing.Manager()
+        progress_queue = manager.Queue()
+        progress_process = multiprocessing.Process(target=listener, args=(progress_queue, len(job_cfgs)))
+        progress_process.start()
+        with multiprocessing.Pool(processes=self.concurrency) as pool:
+            job_results = pool.starmap(worker_wrapper, [(worker, job_cfg, progress_queue) for job_cfg in job_cfgs])
+        progress_process.join()
+        return job_results
 
     def _save_metrics(self, metrics: EvalMetrics, output_path: Path):
         output_path.mkdir(parents=True, exist_ok=True)
