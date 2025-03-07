@@ -20,7 +20,6 @@ class MavenBuildVerifier:
         ):
             return BuildResults(
                 build_log=compile_only_log,
-                overall_success=False,
                 build_success=False,
                 test_success=None,
                 test_results=None,
@@ -30,17 +29,11 @@ class MavenBuildVerifier:
 
         assert self._detect_compilation_failure(build_log) is False
         build_success = True
-        overall_success = self._extract_overall_success(build_log)
+        test_success = self._extract_overall_success(build_log)
         test_run_status = self._extract_test_run_status(build_log)
-
-        if test_run_status is None:
-            test_success = None
-        else:
-            test_success = overall_success
 
         return BuildResults(
             build_log=build_log,
-            overall_success=overall_success,
             build_success=build_success,
             test_success=test_success,
             test_results=test_run_status,

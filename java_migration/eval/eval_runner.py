@@ -26,9 +26,32 @@ def listener(progress_queue: multiprocessing.Queue, total: int):
     pbar.close()
 
 
-def worker_wrapper(worker: Worker, job_cfg: JobCfg, progress_queue: multiprocessing.Queue):
+def save_job_results(job_cfg: JobCfg, job_result: JobResult, output_path: Path):
+    job_result_dir = output_path / safe_repo_name(job_cfg.repo_name)
+    job_result_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(job_result_dir / "result.yaml", "w") as fout:
+        summary_dict = {"run_success": job_result.run_success, "error": job_result.error}
+        if job_result.migration_result:
+            build_result_dict = job_result.migration_result.build_result.model_dump()
+            build_log = build_result_dict.pop("build_log")
+            summary_dict.update({"build_result": build_result_dict})
+            yaml.dump(summary_dict, fout)
+
+            with open(job_result_dir / "build.log", "w") as fout:
+                fout.write(build_log)
+
+            with open(job_result_dir / "stdout.log", "w") as fout:
+                fout.write(clean_log_string(job_result.migration_result.stdout))
+
+            with open(job_result_dir / "diff.patch", "w") as fout:
+                fout.write(job_result.migration_result.diff)
+
+
+def worker_wrapper(worker: Worker, job_cfg: JobCfg, results_dir: Path, progress_queue: multiprocessing.Queue):
     result = worker(job_cfg)
     progress_queue.put(1)
+    save_job_results(job_cfg, result, results_dir)
     return result
 
 
@@ -47,26 +70,27 @@ class EvalRunner:
         job_cfgs = self._get_job_configs(agent_config, experiment_dir / "repo", dataset)
 
         logger.info("Submitting jobs")
-        job_results = self._run_jobs(job_cfgs)
+        job_results = self._run_jobs(job_cfgs, experiment_dir / "job_results")
 
         logging.info("Computing metrics")
         metrics = self._compute_metrics(job_results)
         self._save_metrics(metrics, experiment_dir)
-        self._save_job_results(job_cfgs, job_results, experiment_dir / "job_results")
 
     def _load_dataset(self, dataset_path: Path) -> list[MigrationDatasetItem]:
         with open(dataset_path, "r") as fin:
             dataset_dict = yaml.safe_load(fin)
         return [MigrationDatasetItem.model_validate(x) for x in dataset_dict]
 
-    def _run_jobs(self, job_cfgs: list[JobCfg]) -> list[JobResult]:
+    def _run_jobs(self, job_cfgs: list[JobCfg], results_dir: Path) -> list[JobResult]:
         worker = Worker()
         manager = multiprocessing.Manager()
         progress_queue = manager.Queue()
         progress_process = multiprocessing.Process(target=listener, args=(progress_queue, len(job_cfgs)))
         progress_process.start()
         with multiprocessing.Pool(processes=self.concurrency) as pool:
-            job_results = pool.starmap(worker_wrapper, [(worker, job_cfg, progress_queue) for job_cfg in job_cfgs])
+            job_results = pool.starmap(
+                worker_wrapper, [(worker, job_cfg, results_dir, progress_queue) for job_cfg in job_cfgs]
+            )
         progress_process.join()
         return job_results
 
@@ -96,11 +120,6 @@ class EvalRunner:
             compile=StageMetrics(started=num_started_build, succeeded=num_build_success),
             test=StageMetrics(started=num_build_success, succeeded=num_test_success),
             overall=StageMetrics(started=len(job_results), succeeded=num_test_success),
-            # num_overall_success=num_overall_success,
-            # num_build_success=num_build_success,
-            # num_test_success=num_test_success,
-            # num_failed_to_run=num_failed_to_run,
-            # num_total=len(job_results),
         )
 
     def _load_agent_config(self, agent_config_path: Path) -> AgentConfig:
@@ -121,25 +140,3 @@ class EvalRunner:
             for item in dataset
         ]
         return job_cfgs
-
-    def _save_job_results(self, job_configs: list[JobCfg], job_results: list[JobResult], output_path: Path):
-        for job_cfg, job_result in zip(job_configs, job_results):
-            job_result_dir = output_path / safe_repo_name(job_cfg.repo_name)
-            job_result_dir.mkdir(parents=True, exist_ok=True)
-
-            with open(job_result_dir / "result.yaml", "w") as fout:
-                summary_dict = {"run_success": job_result.run_success, "error": job_result.error}
-                if job_result.migration_result:
-                    build_result_dict = job_result.migration_result.build_result.model_dump()
-                    build_log = build_result_dict.pop("build_log")
-                    summary_dict.update({"build_result": build_result_dict})
-                    yaml.dump(summary_dict, fout)
-
-                    with open(job_result_dir / "build.log", "w") as fout:
-                        fout.write(build_log)
-
-                    with open(job_result_dir / "stdout.log", "w") as fout:
-                        fout.write(clean_log_string(job_result.migration_result.stdout))
-
-                    with open(job_result_dir / "diff.patch", "w") as fout:
-                        fout.write(job_result.migration_result.diff)
