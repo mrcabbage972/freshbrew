@@ -7,6 +7,7 @@
 - Filter succesful.
 - Build these with JDK17. 
 - Filter on either compilation or tests failing.
+- Deduplicate
 ### Where Is The Data
 The raw 10k dataset: `data/10k_repo_features.csv`
 
@@ -27,3 +28,10 @@ Create key with ssh-keygen
 
 Follow
 https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account
+
+## Running the eval script
+The eval script is at `java_migration/scripts/run_eval.py`. Currently the input dataset path is hardcoded.
+The script prints the path where the results are written.
+The results dir contains:
+- `metrics.yaml`: the aggregate metrics.
+- `job_results`: a folder for each repo in the dataset with run details.
