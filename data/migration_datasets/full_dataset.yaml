@@ -99,7 +99,7 @@
 - commit: 5c3db36f8b15e96bea237e372a82bc242d2a8c30
   repo_name: Jeromeyoung/JNDIExploit-1
 - commit: 85703c495663ad38057283379be0758221e54d10
-  repo_name: JinBinPeng/springboot-jwt
+  repo_name: nydiarra/springboot-jwt
 - commit: 6e17c712d142177598f8190f5e08a363e2c207e2
   repo_name: JosephZhu1983/java-common-mistakes
 - commit: dad76acd05c6dbcf477cdc2cda2817b4f9bb2d89
@@ -666,8 +666,6 @@
   repo_name: ninjaframework/ninja
 - commit: c1c73fc65bea98f7059a55e9339101e573192450
   repo_name: octo-technology/sonar-objective-c
-- commit: 5aa238cc8ada09e0974760b9e58b6131f1b945a5
-  repo_name: nydiarra/springboot-jwt
 - commit: fe77928c7064fd8fb25655e1946a7965b41b7ecf
   repo_name: olacabs/jackhammer
 - commit: 383d17d4dbc2f0cfcf73ce5b1477204b86f1992a
@@ -862,8 +860,6 @@
   repo_name: vatri/spring-rest-ecommerce
 - commit: 68484bf13622efc363e03f805ad44151ca3bb583
   repo_name: vdenotaris/spring-boot-security-saml-sample
-- commit: b809449c4b44535e6e56174d91c9e868020147a3
-  repo_name: watson-developer-cloud/java-sdk
 - commit: 5403edae6373ea4ff47cfccda0d61135e77db5b4
   repo_name: webbit/webbit
 - commit: b04da32a2725b533d12bc2c8f5c5b4119bef605a
