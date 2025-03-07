@@ -1,6 +1,6 @@
 # java-migration-paper
 
-## Data
+## Dataset Construction
 ### Process
 - Get top 10k repos from Github with the script `java_migration/- scripts/get_repos_from_github.py`
 - Build them with Maven on JDK8. 
@@ -12,6 +12,10 @@ The raw 10k dataset: `data/10k_repo_features.csv`
 
 The filtered dataset: `data/10k_filtered.yaml`
 
+## Processed Dataset
+The datasets are in `data/migration_datasets`:
+- `full_dataset.yaml`: the full dataset.
+- `tiniy_dataset.yaml`: a small dataset for testing functionality during development.
 
 ## Development Environment Setup
 Run `poetry install`
