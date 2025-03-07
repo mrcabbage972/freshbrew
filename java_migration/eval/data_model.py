@@ -2,6 +2,11 @@ from pydantic import BaseModel
 from pathlib import Path
 
 
+class MigrationDatasetItem(BaseModel):
+    repo_name: str
+    commit: str
+
+
 class TestResults(BaseModel):
     tests_run: int
     failures: int
@@ -28,6 +33,7 @@ class AgentConfig(BaseModel):
 class JobCfg(BaseModel):
     agent_config: AgentConfig
     repo_name: str
+    commit: str
     workspace_dir: Path
 
 

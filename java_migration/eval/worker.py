@@ -20,7 +20,7 @@ class Worker:
     def __call__(self, job: JobCfg) -> JobResult:
         try:
             logger.info(f"Processing job {job}")
-            self._clone_repo(job.repo_name, job.workspace_dir)
+            self._clone_repo(job.repo_name, job.workspace_dir, job.commit)
             agent = self._get_agent(job)
 
             logger.info("Running agent")
@@ -54,10 +54,11 @@ class Worker:
             raise ValueError(f"Unknown agent type: {job.agent_config.agent_type}")
         return agent
 
-    def _clone_repo(self, repo_name: str, workspace_dir: Path):
+    def _clone_repo(self, repo_name: str, workspace_dir: Path, commit_sha: str):
         repo_url = f"git@github.com:{repo_name}.git"
-        Repo.clone_from(repo_url, workspace_dir)
-        logger.info(f"Cloned repository {repo_name} to {workspace_dir}")
+        repo = Repo.clone_from(repo_url, workspace_dir)
+        repo.git.checkout(commit_sha)
+        logger.info(f"Cloned repository {repo_name} to {workspace_dir} and checked out commit {commit_sha}")
 
     def _clean_workspace(self, workspace_dir: Path):
         if workspace_dir.exists():

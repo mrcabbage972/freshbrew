@@ -1,7 +1,7 @@
 import multiprocessing
 from java_migration.eval.utils import safe_repo_name, generate_experiment_dir, clean_log_string
 from java_migration.eval.worker import Worker
-from java_migration.eval.data_model import JobCfg, AgentConfig, JobResult, EvalMetrics
+from java_migration.eval.data_model import JobCfg, AgentConfig, JobResult, EvalMetrics, MigrationDatasetItem
 from java_migration.utils import REPO_ROOT
 from pathlib import Path
 import yaml
@@ -30,12 +30,14 @@ class EvalRunner:
         self.concurrency = concurrency
 
     def run(
-        self, repo_names: list[str], agent_config_path: Path, experiment_root_dir: Path = REPO_ROOT / "data/experiments"
+        self, dataset_path: Path, agent_config_path: Path, experiment_root_dir: Path = REPO_ROOT / "data/experiments"
     ):
+        dataset = self._load_dataset(dataset_path)
         agent_config = self._load_agent_config(agent_config_path)
 
         experiment_dir = generate_experiment_dir(experiment_root_dir)
-        job_cfgs = self._get_job_configs(agent_config, experiment_dir / "repo", repo_names)
+        logger.info(f"Experiment dir: {experiment_dir}")
+        job_cfgs = self._get_job_configs(agent_config, experiment_dir / "repo", dataset)
 
         logger.info("Submitting jobs")
         job_results = self._run_jobs(job_cfgs)
@@ -44,6 +46,11 @@ class EvalRunner:
         metrics = self._compute_metrics(job_results)
         self._save_metrics(metrics, experiment_dir)
         self._save_job_results(job_cfgs, job_results, experiment_dir / "job_results")
+
+    def _load_dataset(self, dataset_path: Path) -> list[MigrationDatasetItem]:
+        with open(dataset_path, "r") as fin:
+            dataset_dict = yaml.safe_load(fin)
+        return [MigrationDatasetItem.model_validate(x) for x in dataset_dict]
 
     def _run_jobs(self, job_cfgs: list[JobCfg]) -> list[JobResult]:
         worker = Worker()
@@ -91,12 +98,17 @@ class EvalRunner:
             config_dict = yaml.safe_load(file)
             return AgentConfig(**config_dict)
 
-    def _get_job_configs(self, agent_config: AgentConfig, experiment_dir: Path, repo_names: list[str]) -> list[JobCfg]:
+    def _get_job_configs(
+        self, agent_config: AgentConfig, experiment_dir: Path, dataset: list[MigrationDatasetItem]
+    ) -> list[JobCfg]:
         job_cfgs = [
             JobCfg(
-                agent_config=agent_config, workspace_dir=experiment_dir / safe_repo_name(repo_name), repo_name=repo_name
+                agent_config=agent_config,
+                workspace_dir=experiment_dir / safe_repo_name(item.repo_name),
+                repo_name=item.repo_name,
+                commit=item.commit,
             )
-            for repo_name in repo_names
+            for item in dataset
         ]
         return job_cfgs
 
