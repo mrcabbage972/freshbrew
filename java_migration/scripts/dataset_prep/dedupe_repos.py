@@ -12,7 +12,7 @@ output = []
 for repo in data:
     cur_repo_name = repo["repo_name"].split("/")[1]
     if cur_repo_name in known_repos:
-        print(f"Skipping {repo["repo_name"]}")
+        print(f"Skipping {repo['repo_name']}")
         continue
     known_repos.add(cur_repo_name)
     output.append(repo)

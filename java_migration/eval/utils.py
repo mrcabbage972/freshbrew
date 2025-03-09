@@ -13,6 +13,11 @@ def safe_repo_name(repo_name: str) -> str:
     return repo_name.replace("/", "_")
 
 
+def recover_safe_repo_name(repo_name: str) -> str:
+    split_idx = repo_name.index("_")
+    return repo_name[:split_idx] + "/" + repo_name[split_idx + 1 :]
+
+
 def generate_experiment_dir(prefix: Path) -> Path:
     """Generates a unique experiment directory name based on the date and time."""
     timestamp = datetime.now()
