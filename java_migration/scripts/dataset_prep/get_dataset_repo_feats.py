@@ -9,7 +9,7 @@ output_path = Path("/Users/mayvic/Documents/git/java-migration-paper/data/repo_f
 with open(dataset_path, "r") as fin:
     dataset = yaml.safe_load(fin)
 
-repo_feats = []
+repo_feats = {}
 
 for item in dataset:
     safe_name = item["repo_name"].replace("/", "-")
@@ -19,8 +19,7 @@ for item in dataset:
         continue
     with open(repo_feats_path, "r") as fin:
         cur_repo_feats = yaml.safe_load(fin)
-        cur_repo_feats["repo_name"] = item["repo_name"]
-        repo_feats.append(cur_repo_feats)
+        repo_feats[item["repo_name"]] = cur_repo_feats
 
 with open(output_path, "w") as fout:
     yaml.safe_dump(repo_feats, fout)

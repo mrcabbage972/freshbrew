@@ -87,6 +87,35 @@ class WriteFile(Tool):
         return True
 
 
+class ValidateXMLTool(Tool):
+    name = "validate_xml"
+    description = (
+        "Validates a given XML string to ensure it is well-formed. "
+        "Returns a success message if the XML is valid, or error details if not."
+    )
+    inputs = {
+        "xml_content": {
+            "type": "string",
+            "description": "The XML content to validate.",
+        }
+    }
+    output_type = "string"
+
+    def forward(self, xml_content: str):  # type: ignore
+        try:
+            import xml.etree.ElementTree as ET
+        except ImportError as e:
+            raise ImportError("Python's built-in xml.etree.ElementTree module is required but not available.") from e
+        try:
+            # Try parsing the XML content
+            ET.fromstring(xml_content)
+            return "XML is well-formed."
+        except ET.ParseError as pe:
+            return f"XML is not well-formed: {str(pe)}"
+        except Exception as e:
+            return f"An unexpected error occurred: {str(e)}"
+
+
 def get_tools(tool_names: list[str], root_path: Path):
     tools = []
     for tool_name in tool_names:
@@ -100,6 +129,8 @@ def get_tools(tool_names: list[str], root_path: Path):
             tools.append(WriteFile(root_path))
         elif tool_name == "duckduckgo":
             tools.append(DuckDuckGoSearchTool())
+        elif tool_name == "validate_xml":
+            tools.append(ValidateXMLTool())
         else:
             raise ValueError(f"Unknown tool name: {tool_name}")
     return tools
