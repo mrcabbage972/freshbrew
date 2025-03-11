@@ -23,6 +23,12 @@ Run `poetry install`
 
 Get Gemini API Key (Or any other model...) and put it in a `.env` file at the repo root.
 
+Install JDK 17
+
+Install Maven:
+```sudo apt-get update
+ sudo apt-get install maven```
+
 Register SSH Key on Github:
 Create key with ssh-keygen
 
