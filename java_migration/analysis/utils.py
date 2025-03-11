@@ -136,4 +136,3 @@ def get_maven_logs(repo_data):
         return [x for x in maven_statuses if x["status"] != MavenStatus.NO_MAVEN]
     except:
         return []
-
