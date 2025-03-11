@@ -149,7 +149,7 @@ class StatefulFileTool(Tool):
             "nullable": True,
         },
         "path": {
-            "description": "Absolute path to file or directory, e.g. `/repo/file.py` or `/repo`.",
+            "description": "Relative path to file or directory.",
             "type": "string",
         },
         "view_range": {
