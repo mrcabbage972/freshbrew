@@ -56,7 +56,7 @@ class Worker:
 
     def _clone_repo(self, repo_name: str, workspace_dir: Path, commit_sha: str):
         repo_url = f"git@github.com:{repo_name}.git"
-        repo = Repo.clone_from(repo_url, workspace_dir)
+        repo = Repo.clone_from(repo_url, workspace_dir, depth=1)
         repo.git.checkout(commit_sha)
         logger.info(f"Cloned repository {repo_name} to {workspace_dir} and checked out commit {commit_sha}")
 
