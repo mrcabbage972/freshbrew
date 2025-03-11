@@ -1,4 +1,5 @@
 import multiprocessing
+import multiprocessing.context
 from java_migration.eval.utils import safe_repo_name, generate_experiment_dir, clean_log_string
 from java_migration.eval.worker import Worker
 from java_migration.eval.data_model import (
@@ -56,8 +57,9 @@ def worker_wrapper(worker: Worker, job_cfg: JobCfg, results_dir: Path, progress_
 
 
 class EvalRunner:
-    def __init__(self, concurrency=4) -> None:
+    def __init__(self, concurrency=4, timeout_seconds=900) -> None:
         self.concurrency = concurrency
+        self.timeout_seconds = timeout_seconds
 
     def run(
         self, dataset_path: Path, agent_config_path: Path, experiment_root_dir: Path = REPO_ROOT / "data/experiments"
@@ -75,6 +77,11 @@ class EvalRunner:
         logging.info("Computing metrics")
         metrics = self._compute_metrics(job_results)
         self._save_metrics(metrics, experiment_dir)
+        self._save_job_results(job_results, experiment_dir)
+
+    def _save_job_results(self, job_results: list[JobResult], output_path: Path):
+        with open(output_path / "job_results.yaml", "w") as fout:
+            yaml.dump([job_result.model_dump() for job_result in job_results], fout)
 
     def _load_dataset(self, dataset_path: Path) -> list[MigrationDatasetItem]:
         with open(dataset_path, "r") as fin:
@@ -87,10 +94,21 @@ class EvalRunner:
         progress_queue = manager.Queue()
         progress_process = multiprocessing.Process(target=listener, args=(progress_queue, len(job_cfgs)))
         progress_process.start()
+
         with multiprocessing.Pool(processes=self.concurrency) as pool:
-            job_results = pool.starmap(
-                worker_wrapper, [(worker, job_cfg, results_dir, progress_queue) for job_cfg in job_cfgs]
-            )
+            task_futures = [
+                pool.apply_async(worker_wrapper, (worker, job_cfg, results_dir, progress_queue)) for job_cfg in job_cfgs
+            ]
+            job_results = []
+            for task_futures in task_futures:
+                try:
+                    result = task_futures.get(timeout=self.timeout_seconds)
+                    job_results.append(result)
+                except multiprocessing.context.TimeoutError:
+                    progress_queue.put(1)
+                    job_results.append(
+                        JobResult(run_success=False, error=f"Job timed out after {self.timeout_seconds} seconds")
+                    )
         progress_process.join()
         return job_results
 
