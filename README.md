@@ -19,6 +19,7 @@ The datasets are in `data/migration_datasets`:
 - `tiniy_dataset.yaml`: a small dataset for testing functionality during development.
 
 ## Development Environment Setup
+Install poetry: `curl -sSL https://install.python-poetry.org | python3 -`
 Run `poetry install`
 
 Get Gemini API Key (Or any other model...) and put it in a `.env` file at the repo root.
