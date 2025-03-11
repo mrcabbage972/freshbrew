@@ -23,6 +23,8 @@ class Step(BaseModel):
     out: Optional[str] = None
     # Metadata extracted from the final line (e.g. duration and token counts)
     meta: StepMeta
+    # New field to capture steps that only contain unstructured text (e.g. error messages)
+    raw_text: Optional[str] = None
 
 
 class Log(BaseModel):
@@ -37,8 +39,7 @@ class Log(BaseModel):
 
 
 def parse_log(log_text: str) -> Log:
-    # Find all occurrences of step delimiters.
-    # They are lines with a long sequence of "━" characters that also mention "Step <number>"
+    # Find step delimiters (lines with many "━" and "Step <number>")
     step_delim_pattern = re.compile(r"^(━+.*Step\s+(\d+).*)$", re.MULTILINE)
     step_delims = list(step_delim_pattern.finditer(log_text))
 
@@ -64,7 +65,7 @@ def parse_log(log_text: str) -> Log:
             description = stripped
             break
 
-    # Look for the model info (e.g. a line containing "LiteLLMModel")
+    # Look for model info (e.g. a line containing "LiteLLMModel")
     for line in header_lines:
         if "LiteLLMModel" in line:
             model_info = line.strip("╰─").strip()
@@ -72,49 +73,46 @@ def parse_log(log_text: str) -> Log:
 
     # --- Parse each step ---
     steps = []
-    # Iterate over each found step section using the indices from our regex match.
     for i, delim in enumerate(step_delims):
-        # The step section goes from the current delimiter until the next one
+        # Determine the block for this step.
         start_index = delim.start()
         end_index = step_delims[i + 1].start() if i + 1 < len(step_delims) else len(log_text)
         step_text = log_text[start_index:end_index]
 
-        # Extract the header step number from the delimiter line (e.g. "Step 1")
+        # Extract the header step number (e.g. "Step 17")
         header_line = delim.group(1)
         header_step = int(delim.group(2)) if delim.group(2) else i
 
-        # Prepare containers for different parts
+        # Containers for capturing step details
         code_block = []
         warnings_lines = []
         execution_logs_lines = []
         out_line = None
         meta_obj = None
 
-        # Define a state machine for parsing the step content
-        state = None  # possible states: None, "code", "warnings", "logs"
+        state = None  # possible states: "code", "warnings", "logs"
         for line in step_text.splitlines():
             # Start of code block
             if "─ Executing parsed code:" in line:
                 state = "code"
                 continue
-            # End code block when hitting a border line again
+            # End a code block when hitting a border line
             if state == "code" and line.startswith("─") and set(line.strip()) in [set("─"), set("─ ")]:
                 state = None
                 continue
             # Switch state when warnings appear
             if line.startswith("Warning to user:"):
                 state = "warnings"
-            # Switch state when execution logs are introduced
+            # Switch state when execution logs are indicated
             if line.startswith("Execution logs:"):
                 state = "logs"
                 continue
-            # Capture the out value when a line starts with "Out:"
+            # Capture output line
             if line.startswith("Out:"):
                 out_line = line[len("Out:") :].strip()
                 state = None
                 continue
-            # Look for the metadata line which follows the format:
-            # [Step X: Duration 9.61 seconds| Input tokens: 2,485 | Output tokens: 108]
+            # Look for metadata (duration, tokens, etc.)
             if re.match(r"\[Step\s+\d+:", line):
                 meta_match = re.search(
                     r"\[Step\s+(\d+): Duration ([\d\.]+) seconds\| Input tokens: ([\d,]+) \| Output tokens: ([\d,]+)\]",
@@ -129,7 +127,7 @@ def parse_log(log_text: str) -> Log:
                     )
                 continue
 
-            # Depending on the current state, accumulate lines
+            # Accumulate lines based on the current state.
             if state == "code":
                 code_block.append(line)
             elif state == "warnings":
@@ -137,9 +135,19 @@ def parse_log(log_text: str) -> Log:
             elif state == "logs":
                 execution_logs_lines.append(line)
 
-        # If metadata was not found, create a default meta with zeros.
+        # If metadata wasn't found, assign a default meta.
         if not meta_obj:
             meta_obj = StepMeta(step_number=header_step, duration=0.0, input_tokens=0, output_tokens=0)
+
+        # If nothing was captured in code, warnings, logs, or out, assume this is an unstructured step.
+        raw_text = None
+        if not code_block and not warnings_lines and not execution_logs_lines and not out_line:
+            lines = step_text.splitlines()
+            # Remove the header/delimiter line
+            if len(lines) > 1:
+                raw_text = "\n".join(lines[1:]).strip()
+            else:
+                raw_text = step_text.strip()
 
         step_obj = Step(
             header_step=header_step,
@@ -148,6 +156,7 @@ def parse_log(log_text: str) -> Log:
             execution_logs="\n".join(execution_logs_lines).strip() if execution_logs_lines else None,
             out=out_line,
             meta=meta_obj,
+            raw_text=raw_text,
         )
         steps.append(step_obj)
 

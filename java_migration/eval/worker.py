@@ -11,7 +11,7 @@ from smolagents.models import LiteLLMModel
 from java_migration.eval.utils import create_git_patch
 from java_migration.eval.maven_build_verifier import MavenBuildVerifier
 from java_migration.dummy_agent import DummyAgent
-
+from tenacity import retry, stop_after_attempt
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +54,7 @@ class Worker:
             raise ValueError(f"Unknown agent type: {job.agent_config.agent_type}")
         return agent
 
+    @retry(stop=stop_after_attempt(3))
     def _clone_repo(self, repo_name: str, workspace_dir: Path, commit_sha: str):
         repo_url = f"git@github.com:{repo_name}.git"
         repo = Repo.clone_from(repo_url, workspace_dir, depth=1)

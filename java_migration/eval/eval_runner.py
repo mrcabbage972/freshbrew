@@ -77,7 +77,7 @@ class EvalRunner:
         logging.info("Computing metrics")
         metrics = self._compute_metrics(job_results)
         self._save_metrics(metrics, experiment_dir)
-        self._save_job_results(job_results, experiment_dir)
+        # self._save_job_results(job_results, experiment_dir)
 
     def _save_job_results(self, job_results: list[JobResult], output_path: Path):
         with open(output_path / "job_results.yaml", "w") as fout:
