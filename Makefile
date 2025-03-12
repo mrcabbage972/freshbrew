@@ -1,6 +1,6 @@
 .PHONY: format-check format pyright ruff
 
-lint-all: format pyright
+lint-all: format sort-imports pyright
 
 format-check:
 	poetry run ruff format --check
@@ -16,5 +16,8 @@ ruff:
 
 ruff-fix:
 	poetry run ruff check . --fix
+
+sort-imports:
+	ruff check --select I --fix
 
 check: format-check ruff pyright
