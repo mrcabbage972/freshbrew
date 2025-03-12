@@ -56,6 +56,8 @@ class Worker:
 
     @retry(stop=stop_after_attempt(3))
     def _clone_repo(self, repo_name: str, workspace_dir: Path, commit_sha: str):
+        if workspace_dir.exists():
+            shutil.rmtree(workspace_dir)
         repo_url = f"git@github.com:{repo_name}.git"
         repo = Repo.clone_from(repo_url, workspace_dir, depth=1)
         repo.git.checkout(commit_sha)
