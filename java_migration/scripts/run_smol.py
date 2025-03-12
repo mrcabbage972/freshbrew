@@ -1,7 +1,8 @@
+from dotenv import load_dotenv
 from smolagents import CodeAgent, DuckDuckGoSearchTool
 from smolagents.models import LiteLLMModel
-from dotenv import load_dotenv
-from java_migration.smol_tools import ReadFile, ListDir, MavenInstall, WriteFile
+
+from java_migration.smol_tools import ListDir, MavenInstall, ReadFile, WriteFile
 
 load_dotenv()
 

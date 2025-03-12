@@ -1,9 +1,10 @@
+import logging
+import os
+import re
 from datetime import datetime
 from pathlib import Path
+
 import git
-import os
-import logging
-import re
 from names_generator import generate_name
 
 logger = logging.getLogger(__name__)

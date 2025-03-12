@@ -1,7 +1,8 @@
-from pathlib import Path
-from java_migration.utils import maven_test
 import re
+from pathlib import Path
+
 from java_migration.eval.data_model import BuildResults, TestResults
+from java_migration.utils import maven_test
 
 
 class MavenBuildVerifier:

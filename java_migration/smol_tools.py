@@ -1,6 +1,8 @@
-from smolagents import Tool, DuckDuckGoSearchTool
 import os
 from pathlib import Path
+
+from smolagents import DuckDuckGoSearchTool, Tool
+
 from java_migration.utils import maven_install, validate_xml
 
 

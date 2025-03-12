@@ -1,17 +1,19 @@
-from java_migration.eval.data_model import JobCfg, JobResult, MigrationResult
-from java_migration.smol_tools import get_tools
-from git import Repo
+import contextlib
+import io
 import logging
 import shutil
 from pathlib import Path
-import io
-import contextlib
+
+from git import Repo
 from smolagents import CodeAgent
 from smolagents.models import LiteLLMModel
-from java_migration.eval.utils import create_git_patch
-from java_migration.eval.maven_build_verifier import MavenBuildVerifier
-from java_migration.dummy_agent import DummyAgent
 from tenacity import retry, stop_after_attempt
+
+from java_migration.dummy_agent import DummyAgent
+from java_migration.eval.data_model import JobCfg, JobResult, MigrationResult
+from java_migration.eval.maven_build_verifier import MavenBuildVerifier
+from java_migration.eval.utils import create_git_patch
+from java_migration.smol_tools import get_tools
 
 logger = logging.getLogger(__name__)
 

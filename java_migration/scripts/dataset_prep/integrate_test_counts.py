@@ -1,4 +1,5 @@
 import yaml
+
 from java_migration.eval.utils import recover_safe_repo_name
 
 build_result_path = "/Users/mayvic/Documents/git/java-migration-paper/data/jdk8_build_results.yaml"

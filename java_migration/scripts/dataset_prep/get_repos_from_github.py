@@ -1,10 +1,11 @@
-import requests
 import json
-from datetime import datetime, timedelta
-from tqdm import tqdm
 import os
 import time
+from datetime import datetime, timedelta
+
+import requests
 from dotenv import load_dotenv
+from tqdm import tqdm
 
 load_dotenv()
 

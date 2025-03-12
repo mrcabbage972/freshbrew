@@ -36,8 +36,9 @@ if __name__ == "__main__":
 
     repo_names = [repo["repo_name"] for repo in repos]
 
-    from dotenv import load_dotenv
     import os
+
+    from dotenv import load_dotenv
 
     load_dotenv()
     github_token = os.getenv("GITHUB_TOKEN")

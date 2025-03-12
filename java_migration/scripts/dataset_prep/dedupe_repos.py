@@ -1,6 +1,5 @@
 import yaml
 
-
 input_path = "/Users/mayvic/Documents/git/java-migration-paper/data/migration_datasets/full_dataset.yaml"
 output_path = "/Users/mayvic/Documents/git/java-migration-paper/data/migration_datasets/full_dataset_deduped.yaml"
 
