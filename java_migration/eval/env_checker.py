@@ -3,7 +3,7 @@ import subprocess
 
 
 class EnvironmentValidator:
-    def validate(self):
+    def validate(self, jdk_version: int = 17):
         """
         Validates the environment by ensuring that:
         1. Maven (mvn) is installed.
@@ -14,10 +14,10 @@ class EnvironmentValidator:
         """
         if not self.__check_maven():
             return False
-        if not self.__check_java():
+        if not self.__check_java(jdk_version):
             return False
 
-        print("Environment validation successful: Maven and Java 17 are installed.")
+        print(f"Environment validation successful: Maven and Java {jdk_version} are installed.")
         return True
 
     def __check_maven(self):
@@ -35,11 +35,11 @@ class EnvironmentValidator:
             print("Error: Maven (mvn) is not installed or not found in PATH.")
             return False
 
-    def __check_java(self):
+    def __check_java(self, jdk_version: int):
         """
-        Private method to check if Java 17 is installed.
+        Private method to check if Java is installed.
         Returns:
-            bool: True if Java 17 is installed, otherwise False.
+            bool: True if Java is installed, otherwise False.
         """
         try:
             java_result = subprocess.run(["java", "-version"], capture_output=True, text=True, check=True)
@@ -48,11 +48,11 @@ class EnvironmentValidator:
             match = re.search(r"\"(\d+)\.(\d+)\.(\d+)", java_output)
             if match:
                 major_version = int(match.group(1))
-                if major_version != 17:
-                    print(f"Error: Java version {major_version} found. Java 17 is required.")
+                if major_version != jdk_version:
+                    print(f"Error: Java version {major_version} found. Java {jdk_version} is required.")
                     return False
                 else:
-                    print("Java 17 is installed.")
+                    print(f"Java {jdk_version} is installed.")
                     return True
             else:
                 print("Error: Unable to parse Java version from the output:")
@@ -66,7 +66,7 @@ class EnvironmentValidator:
 # Example usage:
 if __name__ == "__main__":
     validator = EnvironmentValidator()
-    if validator.validate():
+    if validator.validate(17):
         print("All checks passed. Environment is correctly set up.")
     else:
         print("Environment validation failed. Please install the required tools.")
