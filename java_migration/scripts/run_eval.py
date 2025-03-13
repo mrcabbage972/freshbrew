@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
     target_jdk_version = 17
 
-    validator = EnvironmentValidator()
+    validator = EnvironmentValidator(target_jdk_version)
     if not validator.validate():
         raise RuntimeError("Failed validating environment")
 
