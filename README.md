@@ -21,8 +21,12 @@
 ## Development Environment Setup
 ### Install Prerequisites
 Poetry: `curl -sSL https://install.python-poetry.org | python3 -`.
+Update apt-get: `sudo apt-get update`
 
 Install JDK 17
+```
+sudo apt-get install temurin-17-jdk
+```
 
 Install Maven:
 ```
