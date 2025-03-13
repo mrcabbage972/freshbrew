@@ -13,8 +13,8 @@ if __name__ == "__main__":
 
     target_jdk_version = 17
 
-    validator = EnvironmentValidator(target_jdk_version)
-    if not validator.validate():
+    validator = EnvironmentValidator()
+    if not validator.validate(target_jdk_version):
         raise RuntimeError("Failed validating environment")
 
     litellm.vertex_project = os.getenv("DEFAULT_VERTEXAI_PROJECT", None)
