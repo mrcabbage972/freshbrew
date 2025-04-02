@@ -7,12 +7,12 @@ from pathlib import Path
 from git import Repo
 from smolagents import CodeAgent
 from smolagents.models import LiteLLMModel
-from tenacity import retry, stop_after_attempt
 
 from java_migration.dummy_agent import DummyAgent
 from java_migration.eval.data_model import JobCfg, JobResult, MigrationResult
 from java_migration.eval.maven_build_verifier import MavenBuildVerifier
 from java_migration.eval.utils import create_git_patch
+from java_migration.repo_workspace import RepoWorkspace
 from java_migration.smol_tools import get_tools
 
 logger = logging.getLogger(__name__)
@@ -20,9 +20,10 @@ logger = logging.getLogger(__name__)
 
 class Worker:
     def __call__(self, job: JobCfg) -> JobResult:
+        repo_workspace = None
         try:
             logger.info(f"Processing job {job}")
-            self._clone_repo(job.repo_name, job.workspace_dir, job.commit)
+            repo_workspace = RepoWorkspace.from_git(job.repo_name, job.workspace_dir, job.commit)
             agent = self._get_agent(job)
 
             logger.info("Running agent")
@@ -43,7 +44,8 @@ class Worker:
             logger.exception(e)
             return JobResult(run_success=False, error=str(e))
         finally:
-            self._clean_workspace(job.workspace_dir)
+            if repo_workspace:
+                repo_workspace.clean()
 
     def _get_agent(self, job: JobCfg):
         if job.agent_config.agent_type == "smol":
@@ -55,20 +57,6 @@ class Worker:
         else:
             raise ValueError(f"Unknown agent type: {job.agent_config.agent_type}")
         return agent
-
-    @retry(stop=stop_after_attempt(3))
-    def _clone_repo(self, repo_name: str, workspace_dir: Path, commit_sha: str):
-        if workspace_dir.exists():
-            shutil.rmtree(workspace_dir)
-        repo_url = f"git@github.com:{repo_name}.git"
-        repo = Repo.clone_from(repo_url, workspace_dir, depth=1)
-        repo.git.checkout(commit_sha)
-        logger.info(f"Cloned repository {repo_name} to {workspace_dir} and checked out commit {commit_sha}")
-
-    def _clean_workspace(self, workspace_dir: Path):
-        if workspace_dir.exists():
-            shutil.rmtree(workspace_dir)
-            logger.info(f"Cleaned workspace {workspace_dir}")
 
 
 if __name__ == "__main__":
