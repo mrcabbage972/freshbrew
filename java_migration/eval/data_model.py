@@ -1,11 +1,30 @@
 from pathlib import Path
 
+import yaml
 from pydantic import BaseModel
+
+
+class CoverageSummary(BaseModel):
+    missed: int
+    covered: int
+    total: int
+    percent: float
+
+
+class TestCoverage(BaseModel):
+    LINE: CoverageSummary
+    METHOD: CoverageSummary    
 
 
 class MigrationDatasetItem(BaseModel):
     repo_name: str
     commit: str
+
+    @staticmethod
+    def from_yaml(dataset_path: Path) -> list["MigrationDatasetItem"]:
+        with open(dataset_path, "r") as fin:
+            dataset_dict = yaml.safe_load(fin)
+        return [MigrationDatasetItem.model_validate(x) for x in dataset_dict]
 
 
 class TestResults(BaseModel):

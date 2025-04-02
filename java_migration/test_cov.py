@@ -1,22 +1,10 @@
 import subprocess
 from dataclasses import dataclass
 from typing import Any, Dict
-
+from pathlib import Path
 import xmltodict
 
-
-@dataclass
-class CoverageSummary:
-    missed: int
-    covered: int
-    total: int
-    percent: float
-
-
-@dataclass
-class TestCoverage:
-    LINE: CoverageSummary
-    METHOD: CoverageSummary
+from java_migration.eval.data_model import CoverageSummary, TestCoverage
 
 
 def _aggregate_summary(node: Any, counters: Dict[str, Dict[str, int]]) -> Dict[str, Dict[str, int]]:
@@ -79,6 +67,8 @@ def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) ->
 
     # Run the coverage report command to generate the XML file.
     try:
+        subprocess.run(commands["test"].split(), capture_output=True, cwd=repo_path, check=True)
+        subprocess.run(commands["coverage"].split(), capture_output=True, cwd=repo_path, check=True)
         cov_file_result = subprocess.run(
             commands["coverage_file"].split(), capture_output=True, cwd=repo_path, check=True
         )
