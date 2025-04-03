@@ -13,7 +13,7 @@ class CoverageSummary(BaseModel):
 
 class TestCoverage(BaseModel):
     LINE: CoverageSummary
-    METHOD: CoverageSummary    
+    METHOD: CoverageSummary
 
 
 class MigrationDatasetItem(BaseModel):

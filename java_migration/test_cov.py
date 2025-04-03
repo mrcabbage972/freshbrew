@@ -1,7 +1,11 @@
+import os
+import re
 import subprocess
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
-from typing import Any, Dict
 from pathlib import Path
+from typing import Any, Dict
+
 import xmltodict
 
 from java_migration.eval.data_model import CoverageSummary, TestCoverage
@@ -51,37 +55,106 @@ def _parse_coverage_summary(xml_dict: Dict[str, Any]) -> TestCoverage:
     return TestCoverage(LINE=make_summary(aggregated["LINE"]), METHOD=make_summary(aggregated["METHOD"]))
 
 
-def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) -> TestCoverage:
+def get_namespace(element):
     """
-    Run Maven commands to generate a JaCoCo coverage report and return a TestCoverage dataclass.
+    Extract the namespace URI from an XML element's tag.
+    For example, if element.tag is '{http://maven.apache.org/POM/4.0.0}project',
+    this returns 'http://maven.apache.org/POM/4.0.0'.
     """
+    m = re.match(r"\{(.*)\}", element.tag)
+    return m.group(1) if m else ""
+
+
+def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) -> tuple:
+    """
+    Run Maven commands to generate a JaCoCo coverage report and return a tuple:
+      (TestCoverage, test_stdout, test_stderr, coverage_stdout, coverage_stderr)
+    This version attaches the JaCoCo agent via the -DargLine JVM parameter, ensuring inner classes are instrumented.
+    It also modifies the pom.xml file in repo_path to disable jacoco.skip.
+    """
+    # --- Modify pom.xml to disable jacoco.skip ---
+    pom_path = os.path.join(repo_path, "pom.xml")
+
+    # Parse the pom.xml file
+    tree = ET.parse(pom_path)
+    root = tree.getroot()
+
+    # Determine the namespace from the root element
+    ns_uri = get_namespace(root)
+    ns = {"m": ns_uri} if ns_uri else {}
+
+    # Register the namespace as default (this avoids prefixes like ns0 on output)
+    if ns_uri:
+        ET.register_namespace("", ns_uri)
+
+    # Find or create the <properties> element.
+    properties = root.find("m:properties", ns)
+    if properties is None:
+        properties = ET.Element("properties")
+        # Insert the properties element as the first child.
+        root.insert(0, properties)
+
+    # Find or create the <jacoco.skip> property and set it to false.
+    jacoco_skip = properties.find("m:jacoco.skip", ns)
+    if jacoco_skip is None:
+        jacoco_skip = ET.SubElement(properties, "jacoco.skip")
+    jacoco_skip.text = "false"
+
+    # Write the modified pom.xml back to disk.
+    tree.write(pom_path, encoding="utf-8", xml_declaration=True)
+
+    # --- Prepare Maven command ---
     build_command = "./mvnw" if use_wrapper else "mvn"
-    jacoco_plugin = "org.jacoco:jacoco-maven-plugin:0.8.8"
+    # Path to the JaCoCo agent JAR in your local Maven repository.
+    jacoco_agent_path = (
+        f"{os.getenv('HOME')}/.m2/repository/org/jacoco/org.jacoco.agent/0.8.8/org.jacoco.agent-0.8.8-runtime.jar"
+    )
+
     extra_args = f"-Dmaven.compiler.source={target_java_version} -Dmaven.compiler.target={target_java_version}"
+    # Attach the JaCoCo agent using the -DargLine JVM property.
+    javaagent_arg = f"-DargLine=-javaagent:{jacoco_agent_path}=destfile=target/jacoco.exec,includes=*"
 
     commands = {
-        "test": f"{build_command} {jacoco_plugin}:prepare-agent clean test -ntp --batch-mode {extra_args}",
-        "coverage": f"{build_command} {jacoco_plugin}:report",
+        # Using direct agent attachment instead of the prepare-agent goal.
+        "test": f"{build_command} test {javaagent_arg} -ntp --batch-mode {extra_args}",
+        "coverage": f"{build_command} org.jacoco:jacoco-maven-plugin:report",
         "coverage_file": "cat target/site/jacoco/jacoco.xml",
     }
 
-    # Run the coverage report command to generate the XML file.
+    # --- Run Maven commands and capture outputs ---
     try:
-        subprocess.run(commands["test"].split(), capture_output=True, cwd=repo_path, check=True)
-        subprocess.run(commands["coverage"].split(), capture_output=True, cwd=repo_path, check=True)
-        cov_file_result = subprocess.run(
-            commands["coverage_file"].split(), capture_output=True, cwd=repo_path, check=True
+        # Run the test stage.
+        test_proc = subprocess.run(commands["test"].split(), capture_output=True, cwd=repo_path, check=False)
+        # Run the coverage report stage.
+        coverage_proc = subprocess.run(commands["coverage"].split(), capture_output=True, cwd=repo_path, check=False)
+        # Run the command to read the generated coverage XML file.
+        cov_file_proc = subprocess.run(
+            commands["coverage_file"].split(), capture_output=True, cwd=repo_path, check=False
         )
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Error running coverage command: {e}") from e
 
+    # Decode outputs.
+    test_stdout = test_proc.stdout.decode("utf-8", errors="replace")
+    test_stderr = test_proc.stderr.decode("utf-8", errors="replace")
+    coverage_stdout = coverage_proc.stdout.decode("utf-8", errors="replace")
+    coverage_stderr = coverage_proc.stderr.decode("utf-8", errors="replace")
+
     try:
-        report = cov_file_result.stdout.decode("utf-8")
+        report = cov_file_proc.stdout.decode("utf-8", errors="replace")
         report_dict = xmltodict.parse(report)
     except Exception as e:
         raise ValueError(f"Failed to parse JaCoCo XML report: {e}") from e
 
-    return _parse_coverage_summary(report_dict)
+    # Assume _parse_coverage_summary is defined elsewhere to create a TestCoverage object.
+    test_coverage = _parse_coverage_summary(report_dict)
+
+    return test_coverage, test_stdout, test_stderr, coverage_stdout, coverage_stderr
+
+    # Assume _parse_coverage_summary is defined elsewhere to create a TestCoverage object.
+    test_coverage = _parse_coverage_summary(report_dict)
+
+    return test_coverage, test_stdout, test_stderr, coverage_stdout, coverage_stderr
 
 
 if __name__ == "__main__":
