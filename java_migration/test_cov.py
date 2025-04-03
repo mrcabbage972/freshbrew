@@ -101,6 +101,42 @@ def aggregate_test_coverages(repo_path: str) -> TestCoverage:
     return TestCoverage(LINE=make_summary(agg_line), METHOD=make_summary(agg_method))
 
 
+def modify_pom_to_enable_jacoco(pom_path: str) -> None:
+    """
+    Modify the pom.xml file to disable JaCoCo skipping.
+    This sets both <jacoco.skip> and <skip.jacoco.plugin> to "false".
+    """
+    tree = ET.parse(pom_path)
+    root = tree.getroot()
+    ns_uri = get_namespace(root)
+    ns = {"m": ns_uri} if ns_uri else {}
+
+    # Register the namespace as default to avoid outputting prefixes like ns0.
+    if ns_uri:
+        ET.register_namespace("", ns_uri)
+
+    # Locate or create the <properties> element.
+    properties = root.find("m:properties", ns)
+    if properties is None:
+        properties = ET.Element("properties")
+        root.insert(0, properties)
+
+    # Set <jacoco.skip> to false.
+    jacoco_skip = properties.find("m:jacoco.skip", ns)
+    if jacoco_skip is None:
+        jacoco_skip = ET.SubElement(properties, "jacoco.skip")
+    jacoco_skip.text = "false"
+
+    # Set <skip.jacoco.plugin> to false.
+    skip_jacoco_plugin = properties.find("m:skip.jacoco.plugin", ns)
+    if skip_jacoco_plugin is None:
+        skip_jacoco_plugin = ET.SubElement(properties, "skip.jacoco.plugin")
+    skip_jacoco_plugin.text = "false"
+
+    # Write the modified pom.xml back to disk.
+    tree.write(pom_path, encoding="utf-8", xml_declaration=True)
+
+
 def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) -> tuple:
     """
     Run Maven commands to generate a JaCoCo coverage report and return a tuple:
@@ -111,34 +147,7 @@ def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) ->
     """
     # --- Modify pom.xml to disable jacoco.skip ---
     pom_path = os.path.join(repo_path, "pom.xml")
-
-    # Parse the pom.xml file
-    tree = ET.parse(pom_path)
-    root = tree.getroot()
-
-    # Determine the namespace from the root element
-    ns_uri = get_namespace(root)
-    ns = {"m": ns_uri} if ns_uri else {}
-
-    # Register the namespace as default (this avoids prefixes like ns0 on output)
-    if ns_uri:
-        ET.register_namespace("", ns_uri)
-
-    # Find or create the <properties> element.
-    properties = root.find("m:properties", ns)
-    if properties is None:
-        properties = ET.Element("properties")
-        # Insert the properties element as the first child.
-        root.insert(0, properties)
-
-    # Find or create the <jacoco.skip> property and set it to false.
-    jacoco_skip = properties.find("m:jacoco.skip", ns)
-    if jacoco_skip is None:
-        jacoco_skip = ET.SubElement(properties, "jacoco.skip")
-    jacoco_skip.text = "false"
-
-    # Write the modified pom.xml back to disk.
-    tree.write(pom_path, encoding="utf-8", xml_declaration=True)
+    modify_pom_to_enable_jacoco(pom_path)
 
     # --- Prepare Maven command ---
     build_command = "./mvnw" if use_wrapper else "mvn"
