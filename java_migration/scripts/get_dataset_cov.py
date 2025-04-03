@@ -2,6 +2,7 @@ import yaml
 from tqdm import tqdm
 
 from java_migration.eval.data_model import MigrationDatasetItem
+from java_migration.eval.maven_build_verifier import MavenBuildVerifier
 from java_migration.eval.utils import safe_repo_name
 from java_migration.repo_workspace import RepoWorkspace
 from java_migration.test_cov import get_test_cov
@@ -27,15 +28,32 @@ def main():
                 continue
 
             workspace = RepoWorkspace.from_git(
-                repo_name=repo.repo_name, workspace_dir=workspace_dir, commit_sha=repo.commit
+                repo_name=repo.repo_name,
+                workspace_dir=workspace_dir / safe_repo_name(repo.repo_name),
+                commit_sha=repo.commit,
             )
+
+            build_result = MavenBuildVerifier().verify(workspace.workspace_dir)
+            if not build_result.build_success:
+                print(f"Repo {repo.repo_name} build failed, skipping")
+                continue
+            if not build_result.test_success:
+                print(f"Repo {repo.repo_name} tests failed, skipping")
+                continue
+            if not build_result.test_results:
+                print(f"Repo {repo.repo_name} tests result missing, skipping")
+                continue
+            if build_result.test_results.tests_run == 0:
+                print(f"Repo {repo.repo_name} no tests run, skipping")
+                continue
             test_cov, test_stdout, test_stderr, coverage_stdout, coverage_stderr = get_test_cov(
                 workspace.workspace_dir, use_wrapper=False, target_java_version="8"
             )
 
             repo_dir.mkdir(parents=True, exist_ok=True)
-            with open(repo_dir / "cov.yaml", "w") as fout:
-                yaml.dump(test_cov.model_dump(), fout)
+            if test_cov:
+                with open(repo_dir / "cov.yaml", "w") as fout:
+                    yaml.dump(test_cov.model_dump(), fout)
             with open(repo_dir / "test_stdout.txt", "w") as fout:
                 fout.write(test_stdout)
             with open(repo_dir / "test_stderr.txt", "w") as fout:

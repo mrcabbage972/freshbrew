@@ -140,19 +140,13 @@ def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) ->
     coverage_stdout = coverage_proc.stdout.decode("utf-8", errors="replace")
     coverage_stderr = coverage_proc.stderr.decode("utf-8", errors="replace")
 
+    test_coverage = None
     try:
         report = cov_file_proc.stdout.decode("utf-8", errors="replace")
         report_dict = xmltodict.parse(report)
+        test_coverage = _parse_coverage_summary(report_dict)
     except Exception as e:
-        raise ValueError(f"Failed to parse JaCoCo XML report: {e}") from e
-
-    # Assume _parse_coverage_summary is defined elsewhere to create a TestCoverage object.
-    test_coverage = _parse_coverage_summary(report_dict)
-
-    return test_coverage, test_stdout, test_stderr, coverage_stdout, coverage_stderr
-
-    # Assume _parse_coverage_summary is defined elsewhere to create a TestCoverage object.
-    test_coverage = _parse_coverage_summary(report_dict)
+        print(f"Failed to parse JaCoCo XML report: {e}")
 
     return test_coverage, test_stdout, test_stderr, coverage_stdout, coverage_stderr
 
