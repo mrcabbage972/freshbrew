@@ -65,12 +65,49 @@ def get_namespace(element):
     return m.group(1) if m else ""
 
 
+def aggregate_test_coverages(repo_path: str) -> TestCoverage:
+    """
+    Recursively find all jacoco.xml files under repo_path, parse them into TestCoverage
+    objects (using _parse_coverage_summary), and aggregate the results.
+    """
+    # Initialize aggregated values for each type.
+    agg_line = {"missed": 0, "covered": 0}
+    agg_method = {"missed": 0, "covered": 0}
+
+    # Walk through the repository looking for jacoco.xml files.
+    for root_dir, dirs, files in os.walk(repo_path):
+        for file in files:
+            if file == "jacoco.xml":
+                file_path = os.path.join(root_dir, file)
+                try:
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        report_dict = xmltodict.parse(f.read())
+                    # Parse the XML into a TestCoverage object.
+                    tc = _parse_coverage_summary(report_dict)
+                    agg_line["missed"] += tc.LINE.missed
+                    agg_line["covered"] += tc.LINE.covered
+                    agg_method["missed"] += tc.METHOD.missed
+                    agg_method["covered"] += tc.METHOD.covered
+                except Exception as e:
+                    print(f"Error parsing {file_path}: {e}")
+
+    def make_summary(data):
+        missed = data["missed"]
+        covered = data["covered"]
+        total = missed + covered
+        percent = (covered / total * 100) if total > 0 else 0.0
+        return CoverageSummary(missed=missed, covered=covered, total=total, percent=percent)
+
+    return TestCoverage(LINE=make_summary(agg_line), METHOD=make_summary(agg_method))
+
+
 def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) -> tuple:
     """
     Run Maven commands to generate a JaCoCo coverage report and return a tuple:
       (TestCoverage, test_stdout, test_stderr, coverage_stdout, coverage_stderr)
     This version attaches the JaCoCo agent via the -DargLine JVM parameter, ensuring inner classes are instrumented.
     It also modifies the pom.xml file in repo_path to disable jacoco.skip.
+    After running the tests and generating reports, it aggregates the TestCoverage objects from each jacoco.xml.
     """
     # --- Modify pom.xml to disable jacoco.skip ---
     pom_path = os.path.join(repo_path, "pom.xml")
@@ -140,13 +177,12 @@ def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) ->
     coverage_stdout = coverage_proc.stdout.decode("utf-8", errors="replace")
     coverage_stderr = coverage_proc.stderr.decode("utf-8", errors="replace")
 
+    # --- Aggregate TestCoverage objects from all jacoco.xml files ---
     test_coverage = None
     try:
-        report = cov_file_proc.stdout.decode("utf-8", errors="replace")
-        report_dict = xmltodict.parse(report)
-        test_coverage = _parse_coverage_summary(report_dict)
+        test_coverage = aggregate_test_coverages(repo_path)
     except Exception as e:
-        print(f"Failed to parse JaCoCo XML report: {e}")
+        print(f"Failed to aggregate TestCoverage objects: {e}")
 
     return test_coverage, test_stdout, test_stderr, coverage_stdout, coverage_stderr
 
