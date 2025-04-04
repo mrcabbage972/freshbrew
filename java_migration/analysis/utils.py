@@ -1,15 +1,11 @@
 import os
 from collections.abc import MutableMapping
 from pathlib import Path
+from enum import Enum
 
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import seaborn as sns
 import yaml
 
-from java_migration.eval.maven_build_verifier import MavenBuildVerifier
 from java_migration.eval.smol_log_parser import parse_log
 from java_migration.eval.utils import recover_safe_repo_name
 from java_migration.utils import REPO_ROOT
@@ -86,7 +82,6 @@ def get_experiment_data(experiment_path):
     return repo_dict
 
 
-from enum import Enum
 
 
 class MavenStatus(Enum):
@@ -135,5 +130,6 @@ def get_maven_logs(repo_data):
             if x.execution_logs
         ]
         return [x for x in maven_statuses if x["status"] != MavenStatus.NO_MAVEN]
-    except:
+    except Exception as e:
+        print(e)
         return []

@@ -2,8 +2,6 @@ import os
 import re
 import subprocess
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Dict
 
 import xmltodict
@@ -163,8 +161,7 @@ def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) ->
     commands = {
         # Using direct agent attachment instead of the prepare-agent goal.
         "test": f"{build_command} test {javaagent_arg} -ntp --batch-mode {extra_args}",
-        "coverage": f"{build_command} org.jacoco:jacoco-maven-plugin:report",
-        "coverage_file": "cat target/site/jacoco/jacoco.xml",
+        "coverage": f"{build_command} org.jacoco:jacoco-maven-plugin:report"
     }
 
     # --- Run Maven commands and capture outputs ---
@@ -173,10 +170,6 @@ def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) ->
         test_proc = subprocess.run(commands["test"].split(), capture_output=True, cwd=repo_path, check=False)
         # Run the coverage report stage.
         coverage_proc = subprocess.run(commands["coverage"].split(), capture_output=True, cwd=repo_path, check=False)
-        # Run the command to read the generated coverage XML file.
-        cov_file_proc = subprocess.run(
-            commands["coverage_file"].split(), capture_output=True, cwd=repo_path, check=False
-        )
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Error running coverage command: {e}") from e
 

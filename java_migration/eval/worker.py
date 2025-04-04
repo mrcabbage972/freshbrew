@@ -1,10 +1,7 @@
 import contextlib
 import io
 import logging
-import shutil
-from pathlib import Path
 
-from git import Repo
 from smolagents import CodeAgent
 from smolagents.models import LiteLLMModel
 

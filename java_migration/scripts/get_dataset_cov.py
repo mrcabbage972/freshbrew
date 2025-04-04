@@ -134,12 +134,11 @@ def main():
     workspace_dir.mkdir(parents=True, exist_ok=True)
 
     dataset = MigrationDatasetItem.from_yaml(dataset_path)
-    dataset = dataset[:4]
-    worker = Worker()
-
+    
     job_cfgs = [JobCfg(dataset_item=item, output_root=output_path, workspace_root=workspace_dir) for item in dataset]
 
-    #results = [worker(job_cfg) for job_cfg in tqdm(job_cfgs)]
+    # worker = Worker()
+    # results = [worker(job_cfg) for job_cfg in tqdm(job_cfgs)]
     results = _run_jobs(job_cfgs, concurrency=4, timeout_seconds=300)
     print(results)
     pass
