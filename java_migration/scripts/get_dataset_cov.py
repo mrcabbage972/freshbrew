@@ -13,6 +13,7 @@ from java_migration.eval.utils import safe_repo_name
 from java_migration.repo_workspace import RepoWorkspace
 from java_migration.test_cov import get_test_cov
 from java_migration.utils import REPO_ROOT
+from java_migration.eval.utils import Dataset
 
 
 class JobCfg(BaseModel):
@@ -126,15 +127,14 @@ def _run_jobs(job_cfgs: list[JobCfg], concurrency: int, timeout_seconds: int) ->
 
 
 def main():
-    dataset_path = REPO_ROOT / "data" / "migration_datasets" / "mini_dataset.yaml"
     output_path = REPO_ROOT / "data" / "cov_output"
     workspace_dir = REPO_ROOT / "data" / "workspace"
 
     output_path.mkdir(parents=True, exist_ok=True)
     workspace_dir.mkdir(parents=True, exist_ok=True)
 
-    dataset = MigrationDatasetItem.from_yaml(dataset_path)
-    
+    dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.MEDIUM))
+
     job_cfgs = [JobCfg(dataset_item=item, output_root=output_path, workspace_root=workspace_dir) for item in dataset]
 
     # worker = Worker()

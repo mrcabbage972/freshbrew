@@ -3,11 +3,23 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-
+from enum import Enum
 import git
 from names_generator import generate_name
+from java_migration.utils import REPO_ROOT
 
 logger = logging.getLogger(__name__)
+
+
+class Dataset(Enum):
+    TINY = "tiny_dataset.yaml"
+    MINI = "mini_dataset.yaml"
+    MEDIUM = "medium_dataset.yaml"
+    FULL = "full_dataset.yaml"
+
+    @staticmethod
+    def get_path(Dataset: "Dataset") -> Path:
+        return REPO_ROOT / "data" / "migration_datasets" / Dataset.value
 
 
 def safe_repo_name(repo_name: str) -> str:

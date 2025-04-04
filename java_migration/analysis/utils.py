@@ -82,8 +82,6 @@ def get_experiment_data(experiment_path):
     return repo_dict
 
 
-
-
 class MavenStatus(Enum):
     NO_MAVEN = 0
     COMPILE_ERROR = 1

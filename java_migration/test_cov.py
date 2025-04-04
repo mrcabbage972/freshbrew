@@ -161,7 +161,7 @@ def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) ->
     commands = {
         # Using direct agent attachment instead of the prepare-agent goal.
         "test": f"{build_command} test {javaagent_arg} -ntp --batch-mode {extra_args}",
-        "coverage": f"{build_command} org.jacoco:jacoco-maven-plugin:report"
+        "coverage": f"{build_command} org.jacoco:jacoco-maven-plugin:report",
     }
 
     # --- Run Maven commands and capture outputs ---

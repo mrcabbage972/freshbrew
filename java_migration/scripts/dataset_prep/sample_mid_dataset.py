@@ -1,4 +1,3 @@
-
 import yaml
 import random
 
@@ -9,7 +8,7 @@ from java_migration.utils import REPO_ROOT
 def main():
     dataset_path = REPO_ROOT / "data" / "migration_datasets" / "full_dataset.yaml"
     output_path = REPO_ROOT / "data" / "migration_datasets" / "medium_dataset.yaml"
-    
+
     dataset = MigrationDatasetItem.from_yaml(dataset_path)
 
     random.shuffle(dataset)
