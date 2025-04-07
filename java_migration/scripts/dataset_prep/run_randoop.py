@@ -13,7 +13,7 @@ RANDOOP_OPTIONS = [
     "--no-error-revealing-tests=true",
     "--junit-output-dir=randoop-tests",
     "--time-limit=20",
-    "--output-limit=100"
+    "--output-limit=100",
 ]
 
 
@@ -27,18 +27,19 @@ def find_compiled_classes_dirs(repo_path):
     Only returns those that contain at least one .class file.
     """
     patterns = [
-        os.path.join(repo_path, '**', 'target', 'classes'),
-        os.path.join(repo_path, '**', 'build', 'classes'),
-        os.path.join(repo_path, '**', 'bin'),
+        os.path.join(repo_path, "**", "target", "classes"),
+        os.path.join(repo_path, "**", "build", "classes"),
+        os.path.join(repo_path, "**", "bin"),
     ]
     candidate_dirs = set()
     for pattern in patterns:
         for d in glob.glob(pattern, recursive=True):
             if os.path.isdir(d):
-                class_files = glob.glob(os.path.join(d, '**', '*.class'), recursive=True)
+                class_files = glob.glob(os.path.join(d, "**", "*.class"), recursive=True)
                 if class_files:
                     candidate_dirs.add(os.path.abspath(d))
     return sorted(candidate_dirs)
+
 
 def infer_class_name(rel_path):
     """
@@ -49,6 +50,7 @@ def infer_class_name(rel_path):
     if rel_path.endswith(".class"):
         rel_path = rel_path[:-6]
     return rel_path.replace(os.path.sep, ".")
+
 
 def generate_class_list(repo_path, compiled_dirs, output_filename="classlist.txt"):
     """
@@ -66,6 +68,7 @@ def generate_class_list(repo_path, compiled_dirs, output_filename="classlist.txt
                         f.write(class_name + "\n")
     print(f"Generated class list at {class_list_path}")
     return class_list_path
+
 
 def run_maven_dependency_cp(repo_path):
     """
@@ -86,9 +89,80 @@ def run_maven_dependency_cp(repo_path):
         print("Maven did not generate cp.txt. No dependency classpath found.")
         return ""
 
+
+def update_pom_for_regression_tests(repo_path):
+    """
+    Modify the pom.xml in the repository to add configuration so that
+    the regression tests (Randoop-generated tests) are executed.
+    Inserts build-helper-maven-plugin and maven-surefire-plugin configurations
+    into the <build> section if they are not already present.
+    """
+    pom_path = os.path.join(repo_path, "pom.xml")
+    if not os.path.exists(pom_path):
+        print("No pom.xml found; skipping pom update.")
+        return
+
+    with open(pom_path, "r") as f:
+        pom_content = f.read()
+
+    # If both plugins are already present, do nothing.
+    if "build-helper-maven-plugin" in pom_content and "maven-surefire-plugin" in pom_content:
+        print("POM file already configured for regression tests.")
+        return
+
+    snippet = """
+    <!-- Build Helper Plugin: Add randoop-tests as an additional test source -->
+    <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+            <execution>
+                <id>add-test-source</id>
+                <phase>generate-test-sources</phase>
+                <goals>
+                    <goal>add-test-source</goal>
+                </goals>
+                <configuration>
+                    <sources>
+                        <source>${project.basedir}/randoop-tests</source>
+                    </sources>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
+    <!-- Maven Surefire Plugin: Configure test inclusion patterns -->
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+        <configuration>
+            <includes>
+                <include>**/*Test.class</include>
+                <include>**/RegressionTest*.class</include>
+            </includes>
+        </configuration>
+    </plugin>
+    """
+
+    # Insert snippet before the closing </plugins> if found.
+    if "</plugins>" in pom_content:
+        new_pom_content = pom_content.replace("</plugins>", snippet + "\n</plugins>")
+    elif "</build>" in pom_content:
+        new_pom_content = pom_content.replace("</build>", "<plugins>" + snippet + "</plugins>\n</build>")
+    else:
+        # If there is no build section, append one.
+        new_pom_content = pom_content + "\n<build><plugins>" + snippet + "</plugins></build>\n"
+
+    with open(pom_path, "w") as f:
+        f.write(new_pom_content)
+    print("POM file updated for regression tests.")
+
+
 def run_randoop_on_repo(repo_path):
     """
     Run Randoop on the given repository:
+      - Updates the pom file so that the regression tests are executed.
       - Finds compiled class directories.
       - Runs Maven to generate the dependency classpath.
       - Generates a class list file.
@@ -103,6 +177,9 @@ def run_randoop_on_repo(repo_path):
         if not os.path.exists(os.path.join(repo_path, ".git")):
             print("Error: Not a valid Git repository. Skipping.")
             return
+
+        # Update the pom file so that regression tests are executed.
+        update_pom_for_regression_tests(repo_path)
 
         # Find candidate compiled classes directories.
         compiled_dirs = find_compiled_classes_dirs(repo_path)
@@ -142,11 +219,11 @@ def run_randoop_on_repo(repo_path):
             os.makedirs(output_dir)
 
         # Build and run the Randoop command.
-        randoop_cmd = [
-            "java",
-            "-classpath", classpath,
-            "randoop.main.Main"
-        ] + RANDOOP_OPTIONS + [f"--classlist={class_list_file}"]
+        randoop_cmd = (
+            ["java", "-classpath", classpath, "randoop.main.Main"]
+            + RANDOOP_OPTIONS
+            + [f"--classlist={class_list_file}"]
+        )
 
         print("Running Randoop command:")
         print(" ".join(randoop_cmd))
