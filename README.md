@@ -23,9 +23,11 @@
 Poetry: `curl -sSL https://install.python-poetry.org | python3 -`.
 Update apt-get: `sudo apt-get update`
 
-Install JDK 17
+Install JDK's
 ```
+sudo apt-get install temurin-8-jdk
 sudo apt-get install temurin-17-jdk
+sudo apt-get install temurin-21-jdk
 ```
 
 Install Maven:
@@ -33,6 +35,14 @@ Install Maven:
 sudo apt-get update
 sudo apt-get install maven
 ```
+
+Install Randoop
+```
+wget https://github.com/randoop/randoop/releases/download/v4.3.3/randoop-4.3.3.zip
+unzip randoop-4.3.3.zip 
+Set ${RANDOOP_PATH} and ${RANDOOP_JAR} in your shell.
+```
+
 ## Environment Setup
 Run `poetry install` to setup the local development environment.
 
