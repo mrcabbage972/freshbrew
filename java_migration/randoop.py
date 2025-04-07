@@ -3,7 +3,10 @@ import glob
 import os
 import subprocess
 import sys
+import logging
 import xml.etree.ElementTree as ET
+
+logger = logging.getLogger(__name__)
 
 RANDOOP_OPTIONS = [
     "gentests",
@@ -63,7 +66,7 @@ def generate_class_list(repo_path, compiled_dirs, output_filename="classlist.txt
                         rel_path = os.path.relpath(os.path.join(root, file), base_dir)
                         class_name = infer_class_name(rel_path)
                         f.write(class_name + "\n")
-    print(f"Generated class list at {class_list_path}")
+    logger.info(f"Generated class list at {class_list_path}")
     return class_list_path
 
 
@@ -74,16 +77,16 @@ def run_maven_dependency_cp(repo_path):
     """
     cp_file = os.path.join(repo_path, "cp.txt")
     mvn_cmd = ["mvn", "dependency:build-classpath", f"-Dmdep.outputFile={cp_file}", "-DskipTests"]
-    print("Running Maven command to generate dependency classpath:")
-    print(" ".join(mvn_cmd))
+    logger.info("Running Maven command to generate dependency classpath:")
+    logger.info(" ".join(mvn_cmd))
     subprocess.run(mvn_cmd, cwd=repo_path, check=True)
     if os.path.exists(cp_file):
         with open(cp_file, "r") as f:
             cp = f.read().strip()
-            print(f"Dependency classpath from Maven: {cp}")
+            logger.info(f"Dependency classpath from Maven: {cp}")
             return cp
     else:
-        print("Maven did not generate cp.txt. No dependency classpath found.")
+        logger.info("Maven did not generate cp.txt. No dependency classpath found.")
         return ""
 
 
@@ -95,7 +98,7 @@ def update_pom_for_regression_tests(repo_path):
     """
     pom_path = os.path.join(repo_path, "pom.xml")
     if not os.path.exists(pom_path):
-        print("No pom.xml found; skipping pom update.")
+        logger.info("No pom.xml found; skipping pom update.")
         return
 
     # Register the Maven POM namespace.
@@ -152,7 +155,7 @@ def update_pom_for_regression_tests(repo_path):
         plugins.append(surefire_plugin)
 
     tree.write(pom_path, encoding="utf-8", xml_declaration=True)
-    print("POM file updated for regression tests.")
+    logger.info("POM file updated for regression tests.")
 
 
 def run_randoop_on_repo(repo_path, randoop_jar_path):
@@ -168,10 +171,10 @@ def run_randoop_on_repo(repo_path, randoop_jar_path):
     original_cwd = os.getcwd()
     try:
         os.chdir(repo_path)
-        print(f"\nProcessing repository: {repo_path}")
+        logger.info(f"\nProcessing repository: {repo_path}")
 
         if not os.path.exists(os.path.join(repo_path, ".git")):
-            print("Error: Not a valid Git repository. Skipping.")
+            logger.info("Error: Not a valid Git repository. Skipping.")
             return
 
         # Update the pom file so that regression tests are executed.
@@ -180,17 +183,17 @@ def run_randoop_on_repo(repo_path, randoop_jar_path):
         # Find candidate compiled classes directories.
         compiled_dirs = find_compiled_classes_dirs(repo_path)
         if not compiled_dirs:
-            print("No compiled classes directories found. Please build your project first.")
+            logger.info("No compiled classes directories found. Please build your project first.")
             return
         else:
-            print("Found compiled classes directories:")
+            logger.info("Found compiled classes directories:")
             for d in compiled_dirs:
-                print("  ", d)
+                logger.info("  ", d)
 
         # Generate the class list file.
         class_list_file = generate_class_list(repo_path, compiled_dirs)
         if not class_list_file:
-            print("Failed to generate class list. Skipping Randoop execution.")
+            logger.info("Failed to generate class list. Skipping Randoop execution.")
             return
 
         # Run Maven to generate dependency classpath, if a pom.xml exists.
@@ -206,8 +209,8 @@ def run_randoop_on_repo(repo_path, randoop_jar_path):
             classpath = separator.join(classpath_elements) + separator + dependency_cp
         else:
             classpath = separator.join(classpath_elements)
-        print("Full classpath for Randoop:")
-        print(classpath)
+        logger.info("Full classpath for Randoop:")
+        logger.info(classpath)
 
         # Ensure output directory for Randoop tests exists.
         output_dir = "randoop-tests"
@@ -221,8 +224,8 @@ def run_randoop_on_repo(repo_path, randoop_jar_path):
             + [f"--classlist={class_list_file}"]
         )
 
-        print("Running Randoop command:")
-        print(" ".join(randoop_cmd))
+        logger.info("Running Randoop command:")
+        logger.info(" ".join(randoop_cmd))
         subprocess.run(randoop_cmd, check=True)
 
         # Stage changes and generate a Git diff.
@@ -231,17 +234,17 @@ def run_randoop_on_repo(repo_path, randoop_jar_path):
         diff_file = os.path.join(repo_path, "randoop_diff.patch")
         with open(diff_file, "wb") as f:
             f.write(diff)
-        print(f"Git diff saved to: {diff_file}")
+        logger.info(f"Git diff saved to: {diff_file}")
 
     except subprocess.CalledProcessError as e:
-        print(f"Error processing repo {repo_path}: {e}")
+        logger.info(f"Error processing repo {repo_path}: {e}")
     finally:
         os.chdir(original_cwd)
 
 
 def main():
     # if len(sys.argv) < 2:
-    #     print("Usage: python script.py <repo_path1> [<repo_path2> ...]")
+    #     logger.info("Usage: python script.py <repo_path1> [<repo_path2> ...]")
     #     sys.exit(1)
 
     repos = ["/home/user/java-migration-paper/data/workspace/springboot-jwt"]  # sys.argv[1:]
@@ -249,7 +252,7 @@ def main():
         if os.path.isdir(repo):
             run_randoop_on_repo(repo, "/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar")
         else:
-            print(f"Path does not exist or is not a directory: {repo}")
+            logger.info(f"Path does not exist or is not a directory: {repo}")
 
 
 if __name__ == "__main__":
