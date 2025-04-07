@@ -3,11 +3,8 @@ import glob
 import os
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 
-# Configure your Randoop settings here:
-# Path to the randoop jar. Adjust this to your local installation.
-RANDOOP_JAR = "/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar"
-# Additional Randoop options.
 RANDOOP_OPTIONS = [
     "gentests",
     "--no-error-revealing-tests=true",
@@ -92,74 +89,73 @@ def run_maven_dependency_cp(repo_path):
 
 def update_pom_for_regression_tests(repo_path):
     """
-    Modify the pom.xml in the repository to add configuration so that
-    the regression tests (Randoop-generated tests) are executed.
-    Inserts build-helper-maven-plugin and maven-surefire-plugin configurations
-    into the <build> section if they are not already present.
+    Parse the pom.xml file and add the needed plugin tags for executing regression tests.
+    Specifically, add the build-helper-maven-plugin (to add randoop-tests as a test source)
+    and the maven-surefire-plugin (to include RegressionTest* classes), if they are missing.
     """
     pom_path = os.path.join(repo_path, "pom.xml")
     if not os.path.exists(pom_path):
         print("No pom.xml found; skipping pom update.")
         return
 
-    with open(pom_path, "r") as f:
-        pom_content = f.read()
+    # Register the Maven POM namespace.
+    ET.register_namespace("", "http://maven.apache.org/POM/4.0.0")
+    tree = ET.parse(pom_path)
+    root = tree.getroot()
+    ns = {"m": "http://maven.apache.org/POM/4.0.0"}
 
-    # If both plugins are already present, do nothing.
-    if "build-helper-maven-plugin" in pom_content and "maven-surefire-plugin" in pom_content:
-        print("POM file already configured for regression tests.")
-        return
+    # Find or create the <build> element.
+    build = root.find("m:build", ns)
+    if build is None:
+        build = ET.SubElement(root, "build")
 
-    snippet = """
-    <!-- Build Helper Plugin: Add randoop-tests as an additional test source -->
-    <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.2.0</version>
-        <executions>
-            <execution>
-                <id>add-test-source</id>
-                <phase>generate-test-sources</phase>
-                <goals>
-                    <goal>add-test-source</goal>
-                </goals>
-                <configuration>
-                    <sources>
-                        <source>${project.basedir}/randoop-tests</source>
-                    </sources>
-                </configuration>
-            </execution>
-        </executions>
-    </plugin>
-    <!-- Maven Surefire Plugin: Configure test inclusion patterns -->
-    <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.2</version>
-        <configuration>
-            <includes>
-                <include>**/*Test.class</include>
-                <include>**/RegressionTest*.class</include>
-            </includes>
-        </configuration>
-    </plugin>
-    """
+    # Find or create the <plugins> element.
+    plugins = build.find("m:plugins", ns)
+    if plugins is None:
+        plugins = ET.SubElement(build, "plugins")
 
-    # Insert snippet before the closing </plugins> if found.
-    if "</plugins>" in pom_content:
-        new_pom_content = pom_content.replace("</plugins>", snippet + "\n</plugins>")
-    elif "</build>" in pom_content:
-        new_pom_content = pom_content.replace("</build>", "<plugins>" + snippet + "</plugins>\n</build>")
-    else:
-        # If there is no build section, append one.
-        new_pom_content = pom_content + "\n<build><plugins>" + snippet + "</plugins></build>\n"
+    def plugin_exists(group_id, artifact_id):
+        for plugin in plugins.findall("m:plugin", ns):
+            g = plugin.find("m:groupId", ns)
+            a = plugin.find("m:artifactId", ns)
+            if g is not None and a is not None and g.text == group_id and a.text == artifact_id:
+                return plugin
+        return None
 
-    with open(pom_path, "w") as f:
-        f.write(new_pom_content)
+    # Add build-helper-maven-plugin if missing.
+    if plugin_exists("org.codehaus.mojo", "build-helper-maven-plugin") is None:
+        helper_plugin = ET.Element("plugin")
+        ET.SubElement(helper_plugin, "groupId").text = "org.codehaus.mojo"
+        ET.SubElement(helper_plugin, "artifactId").text = "build-helper-maven-plugin"
+        ET.SubElement(helper_plugin, "version").text = "3.2.0"
+        executions = ET.SubElement(helper_plugin, "executions")
+        execution = ET.SubElement(executions, "execution")
+        ET.SubElement(execution, "id").text = "add-test-source"
+        ET.SubElement(execution, "phase").text = "generate-test-sources"
+        goals = ET.SubElement(execution, "goals")
+        ET.SubElement(goals, "goal").text = "add-test-source"
+        configuration = ET.SubElement(execution, "configuration")
+        sources = ET.SubElement(configuration, "sources")
+        ET.SubElement(sources, "source").text = "${project.basedir}/randoop-tests"
+        plugins.append(helper_plugin)
+
+    # Add maven-surefire-plugin if missing.
+    if plugin_exists("org.apache.maven.plugins", "maven-surefire-plugin") is None:
+        surefire_plugin = ET.Element("plugin")
+        ET.SubElement(surefire_plugin, "groupId").text = "org.apache.maven.plugins"
+        ET.SubElement(surefire_plugin, "artifactId").text = "maven-surefire-plugin"
+        ET.SubElement(surefire_plugin, "version").text = "2.22.2"
+        configuration = ET.SubElement(surefire_plugin, "configuration")
+        includes = ET.SubElement(configuration, "includes")
+        ET.SubElement(includes, "include").text = "**/*Test.class"
+        ET.SubElement(includes, "include").text = "**/RegressionTest*.class"
+        plugins.append(surefire_plugin)
+
+    tree.write(pom_path, encoding="utf-8", xml_declaration=True)
     print("POM file updated for regression tests.")
 
 
-def run_randoop_on_repo(repo_path):
+def run_randoop_on_repo(repo_path, randoop_jar_path):
     """
     Run Randoop on the given repository:
       - Updates the pom file so that the regression tests are executed.
@@ -204,7 +200,7 @@ def run_randoop_on_repo(repo_path):
 
         # Build the full classpath: compiled classes, Maven dependency classpath, and Randoop jar.
         separator = ":" if os.name != "nt" else ";"
-        classpath_elements = compiled_dirs + [RANDOOP_JAR]
+        classpath_elements = compiled_dirs + [randoop_jar_path]
         if dependency_cp:
             # Maven's cp is already a separator-delimited string; simply append.
             classpath = separator.join(classpath_elements) + separator + dependency_cp
@@ -251,7 +247,7 @@ def main():
     repos = ["/home/user/java-migration-paper/data/workspace/springboot-jwt"]  # sys.argv[1:]
     for repo in repos:
         if os.path.isdir(repo):
-            run_randoop_on_repo(repo)
+            run_randoop_on_repo(repo, "/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar")
         else:
             print(f"Path does not exist or is not a directory: {repo}")
 
