@@ -42,3 +42,8 @@ line-length = 120
 
 [virtualenvs]
 in-project = true
+
+[tool.pyright]
+    exclude = [
+      "data",
+    ]
