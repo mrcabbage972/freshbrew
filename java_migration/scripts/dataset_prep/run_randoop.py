@@ -14,37 +14,37 @@ RANDOOP_OPTIONS = [
 ]
 
 
-def find_compiled_classes_dir(repo_path):
+def find_compiled_classes_root(repo_path):
     """
-    Recursively search the repo for directories containing .class files.
-    Returns the candidate directory with the shortest relative path from repo root.
+    Recursively searches the repository for directories containing .class files,
+    then computes the common root directory. This directory should be added to the
+    classpath so that Randoop can load all the classes with their fully qualified names.
     """
-    candidates = []
+    candidate_dirs = []
     for root, dirs, files in os.walk(repo_path):
         if any(file.endswith(".class") for file in files):
-            rel_root = os.path.relpath(root, repo_path)
-            candidates.append((rel_root, root))
-    if not candidates:
+            candidate_dirs.append(root)
+    if not candidate_dirs:
         return None
-    # Pick the candidate with the shortest relative path (likely the base directory).
-    candidates.sort(key=lambda tup: len(tup[0].split(os.sep)))
-    return candidates[0][1]
+    # Compute the common path among all directories with class files.
+    common_dir = os.path.commonpath(candidate_dirs)
+    return common_dir
 
 
 def generate_class_list(repo_path, base_dir, output_filename="classlist.txt"):
     """
-    Walk through the base directory (of compiled classes) and generate a file containing
+    Walk through the base directory (the root of compiled classes) and generate a file containing
     fully qualified class names based on the directory structure.
     """
     class_list_path = os.path.join(repo_path, output_filename)
-
     with open(class_list_path, "w") as f:
         for root, dirs, files in os.walk(base_dir):
             for file in files:
                 if file.endswith(".class"):
-                    # Compute the relative path from the base directory.
+                    # Get the path relative to the base directory.
                     rel_path = os.path.relpath(os.path.join(root, file), base_dir)
-                    # Convert the file path to a fully qualified class name (replace separators with dots and remove .class)
+                    # Convert the path to a fully qualified class name:
+                    # replace path separators with dots and remove the .class extension.
                     class_name = rel_path.replace(os.path.sep, ".")[:-6]
                     f.write(class_name + "\n")
     print(f"Generated class list at {class_list_path}")
@@ -58,23 +58,23 @@ def run_randoop_on_repo(repo_path):
         os.chdir(repo_path)
         print(f"\nProcessing repository: {repo_path}")
 
-        # Check if the directory is a Git repository.
+        # Verify the repo is a Git repository.
         if not os.path.exists(os.path.join(repo_path, ".git")):
             print("Error: Not a valid Git repository. Skipping.")
             return
 
-        # Automatically locate the compiled classes directory.
-        compiled_dir = find_compiled_classes_dir(repo_path)
-        if not compiled_dir:
-            print("No compiled .class files found. Ensure your project is built before running Randoop.")
+        # Find the common root for compiled classes.
+        compiled_root = find_compiled_classes_root(repo_path)
+        if not compiled_root:
+            print("No compiled .class files found. Please build your project first.")
             return
         else:
-            print(f"Found compiled classes in: {compiled_dir}")
+            print(f"Using compiled classes root: {compiled_root}")
 
-        # Generate the class list file.
-        class_list_file = generate_class_list(repo_path, compiled_dir)
+        # Generate the class list file relative to the compiled classes root.
+        class_list_file = generate_class_list(repo_path, compiled_root)
         if not class_list_file:
-            print("Class list generation failed. Skipping Randoop execution.")
+            print("Failed to generate class list. Skipping Randoop execution.")
             return
 
         # Ensure output directory for Randoop tests exists.
@@ -82,16 +82,22 @@ def run_randoop_on_repo(repo_path):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        # Append the --classlist option to Randoop options.
+        # Build the classpath for Randoop.
+        # On Unix-like systems, use ':' as the separator. On Windows, use ';'.
+        separator = ":" if os.name != "nt" else ";"
+        classpath = f"{compiled_root}{separator}{RANDOOP_JAR}"
+
+        # Append the --classlist option with the generated file.
         randoop_cmd = (
-            ["java", "-classpath", RANDOOP_JAR, "randoop.main.Main"]
+            ["java", "-classpath", classpath, "randoop.main.Main"]
             + RANDOOP_OPTIONS
             + [f"--classlist={class_list_file}"]
         )
+
         print("Running Randoop command:", " ".join(randoop_cmd))
         subprocess.run(randoop_cmd, check=True)
 
-        # Stage all changes to generate a diff.
+        # Stage changes and generate a Git diff file.
         subprocess.run(["git", "add", "."], check=True)
         diff = subprocess.check_output(["git", "diff", "--cached"])
         diff_file = os.path.join(repo_path, "randoop_diff.patch")
@@ -99,7 +105,7 @@ def run_randoop_on_repo(repo_path):
             f.write(diff)
         print(f"Git diff saved to: {diff_file}")
 
-        # Optionally, reset staged changes:
+        # Optionally, you could reset the staged changes:
         # subprocess.run(["git", "reset"], check=True)
 
     except subprocess.CalledProcessError as e:
