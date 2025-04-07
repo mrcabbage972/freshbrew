@@ -1,6 +1,5 @@
 import yaml
 
-
 dataset_path = "/Users/mayvic/Documents/git/java-migration-paper/data/migration_datasets/mini_dataset.yaml"
 filtered_build_result_path = "/Users/mayvic/Documents/git/java-migration-paper/data/jdk8_build_results_filtered.yaml"
 # result_path =  "/Users/mayvic/Documents/git/java-migration-paper/data/migration_datasets/full_dataset.yaml"
