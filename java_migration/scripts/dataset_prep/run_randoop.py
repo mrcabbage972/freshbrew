@@ -11,7 +11,9 @@ RANDOOP_JAR = "/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.j
 RANDOOP_OPTIONS = [
     "gentests",
     "--no-error-revealing-tests=true",
-    "--junit-output-dir=randoop-tests",  # Output directory for generated tests.
+    "--junit-output-dir=randoop-tests",
+    "--time-limit=20",
+    "--output-limit=100"
 ]
 
 
