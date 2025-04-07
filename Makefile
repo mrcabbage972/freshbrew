@@ -3,7 +3,7 @@
 lint-all: format sort-imports pyright format-notebooks
 
 format-notebooks:
-	nbqa isort . && nbqa ruff . --fix
+	poetry run nbqa isort . && poetry run nbqa ruff . --fix
 
 format-check:
 	poetry run ruff format --check
@@ -21,6 +21,6 @@ ruff-fix:
 	poetry run ruff check . --fix
 
 sort-imports:
-	ruff check --select I --fix
+	poetry run ruff check --select I --fix
 
 check: format-check ruff pyright

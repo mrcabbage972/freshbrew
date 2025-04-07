@@ -1,7 +1,7 @@
 import os
 from collections.abc import MutableMapping
-from pathlib import Path
 from enum import Enum
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import yaml

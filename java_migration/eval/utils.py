@@ -2,10 +2,12 @@ import logging
 import os
 import re
 from datetime import datetime
-from pathlib import Path
 from enum import Enum
+from pathlib import Path
+
 import git
 from names_generator import generate_name
+
 from java_migration.utils import REPO_ROOT
 
 logger = logging.getLogger(__name__)

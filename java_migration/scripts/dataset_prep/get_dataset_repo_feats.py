@@ -2,7 +2,6 @@ from pathlib import Path
 
 import yaml
 
-
 repo_feats_root = Path("/Users/mayvic/Documents/git/java-migration-paper/data/repo_feats/repo_features_10k")
 dataset_path = Path("/Users/mayvic/Documents/git/java-migration-paper/data/migration_datasets/full_dataset.yaml")
 output_path = Path("/Users/mayvic/Documents/git/java-migration-paper/data/repo_feats.yaml")

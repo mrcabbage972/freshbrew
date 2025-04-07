@@ -1,5 +1,6 @@
-import yaml
 import random
+
+import yaml
 
 from java_migration.eval.data_model import MigrationDatasetItem
 from java_migration.utils import REPO_ROOT

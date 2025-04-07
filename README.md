@@ -59,3 +59,12 @@ The script prints the path where the results are written.
 The results dir contains:
 - `metrics.yaml`: the aggregate metrics.
 - `job_results`: a folder for each repo in the dataset with run details.
+
+
+## Setting Java version
+List all java versions:
+
+`update-java-alternatives --list`
+Set java version as default (needs root permissions):
+
+`sudo update-java-alternatives --set /path/to/java/version`
