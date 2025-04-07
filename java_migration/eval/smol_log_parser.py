@@ -81,7 +81,6 @@ def parse_log(log_text: str) -> Log:
         step_text = log_text[start_index:end_index]
 
         # Extract the header step number (e.g. "Step 17")
-        header_line = delim.group(1)
         header_step = int(delim.group(2)) if delim.group(2) else i
 
         # Containers for capturing step details

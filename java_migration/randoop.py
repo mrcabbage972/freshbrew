@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import glob
+import logging
 import os
 import subprocess
-import sys
-import logging
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ RANDOOP_OPTIONS = [
 ]
 
 
-def find_compiled_classes_dirs(repo_path):
+def find_compiled_classes_dirs(repo_path: Path):
     """
     Use glob to find candidate directories for compiled classes.
     Looks for directories matching common patterns such as:
@@ -158,7 +158,7 @@ def update_pom_for_regression_tests(repo_path):
     logger.info("POM file updated for regression tests.")
 
 
-def run_randoop_on_repo(repo_path, randoop_jar_path):
+def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
     """
     Run Randoop on the given repository:
       - Updates the pom file so that the regression tests are executed.
@@ -174,8 +174,7 @@ def run_randoop_on_repo(repo_path, randoop_jar_path):
         logger.info(f"\nProcessing repository: {repo_path}")
 
         if not os.path.exists(os.path.join(repo_path, ".git")):
-            logger.info("Error: Not a valid Git repository. Skipping.")
-            return
+            raise RuntimeError("Error: Not a valid Git repository. Skipping.")
 
         # Update the pom file so that regression tests are executed.
         update_pom_for_regression_tests(repo_path)
@@ -183,18 +182,12 @@ def run_randoop_on_repo(repo_path, randoop_jar_path):
         # Find candidate compiled classes directories.
         compiled_dirs = find_compiled_classes_dirs(repo_path)
         if not compiled_dirs:
-            logger.info("No compiled classes directories found. Please build your project first.")
-            return
-        else:
-            logger.info("Found compiled classes directories:")
-            for d in compiled_dirs:
-                logger.info("  ", d)
+            raise RuntimeError("No compiled classes directories found. Please build your project first.")
 
         # Generate the class list file.
         class_list_file = generate_class_list(repo_path, compiled_dirs)
         if not class_list_file:
-            logger.info("Failed to generate class list. Skipping Randoop execution.")
-            return
+            raise RuntimeError("Failed to generate class list. Skipping Randoop execution.")
 
         # Run Maven to generate dependency classpath, if a pom.xml exists.
         dependency_cp = ""
@@ -228,6 +221,11 @@ def run_randoop_on_repo(repo_path, randoop_jar_path):
         logger.info(" ".join(randoop_cmd))
         subprocess.run(randoop_cmd, check=True)
 
+        if os.path.exists(repo_path / "classlist.txt"):
+            os.remove(repo_path / "classlist.txt")
+        if os.path.exists(repo_path / "cp.txt"):
+            os.remove(repo_path / "cp.txt")
+
         # Stage changes and generate a Git diff.
         subprocess.run(["git", "add", "."], check=True)
         diff = subprocess.check_output(["git", "diff", "--cached"])
@@ -236,8 +234,10 @@ def run_randoop_on_repo(repo_path, randoop_jar_path):
             f.write(diff)
         logger.info(f"Git diff saved to: {diff_file}")
 
+        return Path(diff_file)
+
     except subprocess.CalledProcessError as e:
-        logger.info(f"Error processing repo {repo_path}: {e}")
+        raise RuntimeError(f"Error processing repo {repo_path}: {e}")
     finally:
         os.chdir(original_cwd)
 
@@ -247,10 +247,10 @@ def main():
     #     logger.info("Usage: python script.py <repo_path1> [<repo_path2> ...]")
     #     sys.exit(1)
 
-    repos = ["/home/user/java-migration-paper/data/workspace/springboot-jwt"]  # sys.argv[1:]
+    repos = [Path("/home/user/java-migration-paper/data/workspace/springboot-jwt")]  # sys.argv[1:]
     for repo in repos:
         if os.path.isdir(repo):
-            run_randoop_on_repo(repo, "/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar")
+            run_randoop_on_repo(repo, Path("/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar"))
         else:
             logger.info(f"Path does not exist or is not a directory: {repo}")
 
