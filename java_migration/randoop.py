@@ -6,14 +6,16 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from java_migration.maven import Maven
+
 logger = logging.getLogger(__name__)
 
 RANDOOP_OPTIONS = [
     "gentests",
     "--no-error-revealing-tests=true",
     "--junit-output-dir=randoop-tests",
-    "--time-limit=20",
-    "--output-limit=100",
+    "--time-limit=60",
+    "--output-limit=200",
 ]
 
 
@@ -66,28 +68,31 @@ def generate_class_list(repo_path, compiled_dirs, output_filename="classlist.txt
                         rel_path = os.path.relpath(os.path.join(root, file), base_dir)
                         class_name = infer_class_name(rel_path)
                         f.write(class_name + "\n")
-    logger.info(f"Generated class list at {class_list_path}")
+    print(f"Generated class list at {class_list_path}")
     return class_list_path
 
 
-def run_maven_dependency_cp(repo_path):
+def run_maven_dependency_cp(repo_path, target_java_version="8"):
     """
     Run the Maven command to build the dependency classpath.
     The command writes the classpath to cp.txt in the repo's root.
     """
     cp_file = os.path.join(repo_path, "cp.txt")
-    mvn_cmd = ["mvn", "dependency:build-classpath", f"-Dmdep.outputFile={cp_file}", "-DskipTests"]
-    logger.info("Running Maven command to generate dependency classpath:")
-    logger.info(" ".join(mvn_cmd))
-    subprocess.run(mvn_cmd, cwd=repo_path, check=True)
+
+    print("Running Maven command to generate dependency classpath")
+    result = Maven(target_java_version=target_java_version).deps(repo_path, Path(cp_file))
+
+    # mvn_cmd = ["mvn", "dependency:build-classpath", f"-Dmdep.outputFile={cp_file}", "-DskipTests"]
+
+    # print(" ".join(mvn_cmd))
+    # subprocess.run(mvn_cmd, cwd=repo_path, check=True)
     if os.path.exists(cp_file):
         with open(cp_file, "r") as f:
             cp = f.read().strip()
-            logger.info(f"Dependency classpath from Maven: {cp}")
+            print(f"Dependency classpath from Maven: {cp}")
             return cp
     else:
-        logger.info("Maven did not generate cp.txt. No dependency classpath found.")
-        return ""
+        raise RuntimeError("Maven did not generate cp.txt. No dependency classpath found.")
 
 
 def update_pom_for_regression_tests(repo_path):
@@ -98,7 +103,7 @@ def update_pom_for_regression_tests(repo_path):
     """
     pom_path = os.path.join(repo_path, "pom.xml")
     if not os.path.exists(pom_path):
-        logger.info("No pom.xml found; skipping pom update.")
+        print("No pom.xml found; skipping pom update.")
         return
 
     # Register the Maven POM namespace.
@@ -155,7 +160,7 @@ def update_pom_for_regression_tests(repo_path):
         plugins.append(surefire_plugin)
 
     tree.write(pom_path, encoding="utf-8", xml_declaration=True)
-    logger.info("POM file updated for regression tests.")
+    print("POM file updated for regression tests.")
 
 
 def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
@@ -171,7 +176,7 @@ def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
     original_cwd = os.getcwd()
     try:
         os.chdir(repo_path)
-        logger.info(f"\nProcessing repository: {repo_path}")
+        print(f"\nProcessing repository: {repo_path}")
 
         if not os.path.exists(os.path.join(repo_path, ".git")):
             raise RuntimeError("Error: Not a valid Git repository. Skipping.")
@@ -202,8 +207,8 @@ def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
             classpath = separator.join(classpath_elements) + separator + dependency_cp
         else:
             classpath = separator.join(classpath_elements)
-        logger.info("Full classpath for Randoop:")
-        logger.info(classpath)
+        print("Full classpath for Randoop:")
+        print(classpath)
 
         # Ensure output directory for Randoop tests exists.
         output_dir = "randoop-tests"
@@ -217,9 +222,11 @@ def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
             + [f"--classlist={class_list_file}"]
         )
 
-        logger.info("Running Randoop command:")
-        logger.info(" ".join(randoop_cmd))
-        subprocess.run(randoop_cmd, check=True)
+        print("Running Randoop command:")
+        print(" ".join(randoop_cmd))
+        result = subprocess.run(randoop_cmd, capture_output=True, cwd=repo_path)
+        if not result.returncode == 0:
+            raise RuntimeError("Randoop failed.")
 
         if os.path.exists(repo_path / "classlist.txt"):
             os.remove(repo_path / "classlist.txt")
@@ -232,7 +239,7 @@ def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
         diff_file = os.path.join(repo_path, "randoop_diff.patch")
         with open(diff_file, "wb") as f:
             f.write(diff)
-        logger.info(f"Git diff saved to: {diff_file}")
+        print(f"Git diff saved to: {diff_file}")
 
         return Path(diff_file)
 
@@ -244,15 +251,15 @@ def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
 
 def main():
     # if len(sys.argv) < 2:
-    #     logger.info("Usage: python script.py <repo_path1> [<repo_path2> ...]")
+    #     print("Usage: python script.py <repo_path1> [<repo_path2> ...]")
     #     sys.exit(1)
 
-    repos = [Path("/home/user/java-migration-paper/data/workspace/springboot-jwt")]  # sys.argv[1:]
+    repos = [Path("/home/user/java-migration-paper/data/workspace/nydiarra_springboot-jwt")]  # sys.argv[1:]
     for repo in repos:
         if os.path.isdir(repo):
             run_randoop_on_repo(repo, Path("/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar"))
         else:
-            logger.info(f"Path does not exist or is not a directory: {repo}")
+            print(f"Path does not exist or is not a directory: {repo}")
 
 
 if __name__ == "__main__":

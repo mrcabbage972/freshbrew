@@ -50,8 +50,6 @@
   repo_name: seaswalker/spring-analysis
 - commit: 8d84959f3172a1d048cf9db27aec646971c569b1
   repo_name: v5tech/oltu-oauth2-example
-- commit: f1afdc0de4434bd5c808f1f79959c84c7c6a2ae4
-  repo_name: roseboy/classfinal
 - commit: a94a4d9af6c25d40e1108729974c35c27c54441c
   repo_name: Stratio/cassandra-lucene-index
 - commit: 4801196cf569f09ed93bb4b6d344351f2225b38e

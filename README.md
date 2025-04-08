@@ -78,3 +78,10 @@ List all java versions:
 Set java version as default (needs root permissions):
 
 `sudo update-java-alternatives --set /path/to/java/version`
+
+# Execution
+
+Test coverage checking: `get_dataset_cov.py`.
+
+Test coverage expansion with Randoop: `test_cov_expander.py'.
+

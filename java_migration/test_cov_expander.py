@@ -1,3 +1,5 @@
+import contextlib
+import io
 import os
 import shutil
 import traceback
@@ -36,17 +38,24 @@ class TestCovExpander:
     ):
         workspace = None
         try:
+            output_dir = output_root / safe_repo_name(dataset_item.repo_name)
+            if output_dir.exists():
+                shutil.rmtree(output_dir)
+            output_dir.mkdir(parents=True, exist_ok=True)
+
             repo_workspace = RepoWorkspace.from_git(
                 repo_name=dataset_item.repo_name,
                 commit_sha=dataset_item.commit,
                 workspace_dir=workspace_root / safe_repo_name(dataset_item.repo_name),
             )
-            build_result = self.build_verifier.verify(repo_workspace.workspace_dir)
+            build_result = self.build_verifier.verify(
+                repo_workspace.workspace_dir, target_java_version=self.target_jdk_version
+            )
             if not build_result.build_success:
                 raise RuntimeError(f"Build failed for repo {dataset_item.repo_name}")
 
-            output_dir = output_root / safe_repo_name(dataset_item.repo_name)
-            output_dir.mkdir(parents=True, exist_ok=True)
+            with open(output_dir / "build.yaml", "w") as fout:
+                fout.write(build_result.build_log)
 
             self._get_cov(repo_workspace.workspace_dir, output_dir / "cov_before.yaml")
             patch_path = run_randoop_on_repo(repo_workspace.workspace_dir, self.randoop_jar_path)
@@ -78,14 +87,18 @@ class TestCovExpandWorker(Worker):
 
     def __call__(self, job: JobCfg) -> JobResult:
         try:
-            self.test_cov_expander.run(job.dataset_item, job.output_root, job.workspace_root, job.cleanup_workspace)
+            buffer = io.StringIO()
+            with contextlib.redirect_stdout(buffer):
+                self.test_cov_expander.run(job.dataset_item, job.output_root, job.workspace_root, job.cleanup_workspace)
+            with open(job.output_root / safe_repo_name(job.dataset_item.repo_name) / "stdout.txt", "w") as f:
+                f.write(buffer.getvalue())
             return JobResult(status=JobStatus.SUCCESS)
         except Exception:
             return JobResult(status=JobStatus.FAIL, error=traceback.format_exc())
 
 
 def main():
-    output_dir = REPO_ROOT / "data" / "cov_expand"
+    output_dir = REPO_ROOT / "data" / "cov_expand_mini"
 
     dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.MINI))
 
@@ -97,13 +110,13 @@ def main():
     ]
 
     job_runner = JobRunner(
-        TestCovExpandWorker(Path(os.environ["RANDOOP_JAR_PATH"]), target_jdk_version="8"), concurrency=4
+        TestCovExpandWorker(Path(os.environ["RANDOOP_JAR_PATH"]), target_jdk_version="8"), concurrency=8
     )
     job_results = job_runner.run(job_cfgs)
 
     print(job_runner.get_result_stats(job_results))
 
+
 if __name__ == "__main__":
     load_dotenv()
     main()
-    
