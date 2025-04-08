@@ -196,7 +196,7 @@ def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
 
         # Build the full classpath: compiled classes, Maven dependency classpath, and Randoop jar.
         separator = ":" if os.name != "nt" else ";"
-        classpath_elements = compiled_dirs + [randoop_jar_path]
+        classpath_elements = compiled_dirs + [str(randoop_jar_path)]
         if dependency_cp:
             # Maven's cp is already a separator-delimited string; simply append.
             classpath = separator.join(classpath_elements) + separator + dependency_cp

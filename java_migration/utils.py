@@ -4,7 +4,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent
 
 
-def maven_test(repo_path: Path, skip_tests: bool = False, target_java_version: int = 17) -> str:
+def maven_test(repo_path: Path, skip_tests: bool = False, target_java_version: str = "17") -> str:
     cmd = [
         "mvn",
         "-B",  # Batch mode

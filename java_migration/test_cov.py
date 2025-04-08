@@ -190,6 +190,7 @@ def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) ->
 
 
 if __name__ == "__main__":
-    print(
-        get_test_cov(repo_path="/Users/mayvic/Documents/git/springboot-jwt", use_wrapper=False, target_java_version="8")
-    )
+    path_new = "/home/user/java-migration-paper/data/workspace/springboot-jwt"
+    path_old = "/home/user/java-migration-paper/data/tmp/springboot-jwt"
+    cov, _, _, _, _ = get_test_cov(repo_path=path_new, use_wrapper=False, target_java_version="8")
+    print(cov)
