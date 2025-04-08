@@ -2,6 +2,7 @@
 import glob
 import logging
 import os
+import re
 import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -9,6 +10,9 @@ from pathlib import Path
 from java_migration.maven import Maven
 
 logger = logging.getLogger(__name__)
+
+
+NUM_RETRIES = 20
 
 RANDOOP_OPTIONS = [
     "gentests",
@@ -183,6 +187,57 @@ def update_pom_for_regression_tests(repo_path):
     print("POM file updated for regression tests.")
 
 
+def execute_randoop(classpath: str, class_list_file: str) -> tuple[str, str]:
+    """
+    Execute Randoop with the given classpath and class list.
+    Returns stdout and stderr if an error occurs.
+    """
+    cmd = ["java", "-classpath", classpath, "randoop.main.Main"] + RANDOOP_OPTIONS + [f"--classlist={class_list_file}"]
+    # Capture stdout and stderr for error parsing.
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if result.returncode != 0:
+        raise subprocess.CalledProcessError(result.returncode, cmd, output=result.stdout, stderr=result.stderr)
+    return result.stdout, result.stderr
+
+
+def extract_failing_class(error_output: str) -> str | None:
+    """
+    Extract the failing class name from Randoop's error output.
+    Expects a line like: "Could not load class com.sojson.core.statics.Constant: ..."
+    """
+    m = re.search(r"Could not load class\s+([\w\.\$]+)", error_output)
+    if m:
+        failing_class = m.group(1)
+        print(f"Extracted failing class: {failing_class}")
+        return failing_class
+    return None
+
+
+def remove_class_from_list(class_list_file: str, failing_class: str):
+    """
+    Remove all occurrences of failing_class from the class list file.
+    """
+    with open(class_list_file, "r") as f:
+        lines = f.readlines()
+    new_lines = [line for line in lines if line.strip() != failing_class]
+    with open(class_list_file, "w") as f:
+        f.writelines(new_lines)
+    print(f"Removed {failing_class} from class list.")
+
+
+def create_git_diff(repo_path):
+    """
+    Stage changes and create a Git diff patch file.
+    """
+    subprocess.run(["git", "add", "."], cwd=repo_path, check=True)
+    diff = subprocess.check_output(["git", "diff", "--cached"], cwd=repo_path)
+    diff_file = os.path.join(repo_path, "randoop_diff.patch")
+    with open(diff_file, "wb") as f:
+        f.write(diff)
+    print(f"Git diff saved to: {diff_file}")
+    return diff_file
+
+
 def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
     """
     Run Randoop on the given repository:
@@ -230,26 +285,29 @@ def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
             classpath = separator.join(classpath_elements) + separator + separator.join(dependency_cp)
         else:
             classpath = separator.join(classpath_elements)
-        print("Full classpath for Randoop:")
-        print(classpath)
 
         # Ensure output directory for Randoop tests exists.
         output_dir = "randoop-tests"
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        # Build and run the Randoop command.
-        randoop_cmd = (
-            ["java", "-classpath", classpath, "randoop.main.Main"]
-            + RANDOOP_OPTIONS
-            + [f"--classlist={class_list_file}"]
-        )
-
-        print("Running Randoop command:")
-        print(" ".join(randoop_cmd))
-        result = subprocess.run(randoop_cmd, capture_output=True, cwd=repo_path)
-        if not result.returncode == 0:
-            raise RuntimeError("Randoop failed.")
+        success = False
+        for attempt in range(1, NUM_RETRIES + 1):
+            print(f"Randoop run attempt {attempt} of {NUM_RETRIES}...")
+            try:
+                stdout, stderr = execute_randoop(classpath, class_list_file)
+                print("Randoop completed successfully.")
+                success = True
+                break
+            except subprocess.CalledProcessError as e:
+                print("Randoop failed")
+                failing_class = extract_failing_class(e.stdout)
+                if not failing_class:
+                    print("Could not extract failing class; aborting retries.")
+                    break
+                remove_class_from_list(class_list_file, failing_class)
+        if not success:
+            raise RuntimeError("Randoop did not complete successfully after retries.")
 
         if os.path.exists(repo_path / "classlist.txt"):
             os.remove(repo_path / "classlist.txt")
@@ -257,13 +315,7 @@ def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
             os.remove(repo_path / "cp.txt")
 
         # Stage changes and generate a Git diff.
-        subprocess.run(["git", "add", "."], check=True)
-        diff = subprocess.check_output(["git", "diff", "--cached"])
-        diff_file = os.path.join(repo_path, "randoop_diff.patch")
-        with open(diff_file, "wb") as f:
-            f.write(diff)
-        print(f"Git diff saved to: {diff_file}")
-
+        diff_file = create_git_diff(str(repo_path))
         return Path(diff_file)
 
     except subprocess.CalledProcessError as e:
@@ -279,7 +331,10 @@ def main():
 
     # grpc-swagger_grpc-swagger
     # yeecode_EasyRPC
-    repos = [Path("/home/user/java-migration-paper/data/workspace/grpc-swagger_grpc-swagger")]  # sys.argv[1:]
+    # baichengzhou_SpringMVC-Mybatis-shiro
+    # scxwhite_hera
+    # ESAPI_esapi-java
+    repos = [Path("/home/user/java-migration-paper/data/workspace/ESAPI_esapi-java")]  # sys.argv[1:]
     for repo in repos:
         if os.path.isdir(repo):
             run_randoop_on_repo(repo, Path("/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar"))
