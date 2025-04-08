@@ -3,35 +3,37 @@ import shutil
 import traceback
 from pathlib import Path
 
+import yaml
 from dotenv import load_dotenv
 
 from java_migration.eval.data_model import MigrationDatasetItem
 from java_migration.eval.env_checker import EnvironmentValidator
 from java_migration.eval.maven_build_verifier import MavenBuildVerifier
 from java_migration.eval.utils import Dataset, safe_repo_name
+from java_migration.job_runner import JobCfg, JobResult, JobRunner, JobStatus, Worker
 from java_migration.randoop import run_randoop_on_repo
 from java_migration.repo_workspace import RepoWorkspace
+from java_migration.test_cov import get_test_cov
 from java_migration.utils import REPO_ROOT
-from java_migration.job_runner import JobRunner, Worker, JobCfg, JobResult, JobStatus
-
-
-
 
 
 class TestCovExpander:
-    def __init__(self, randoop_jar_path: Path, target_jdk_version=8):
+    def __init__(self, randoop_jar_path: Path, target_jdk_version: str = "8"):
         self.randoop_jar_path = randoop_jar_path
+        self.target_jdk_version = target_jdk_version
 
         validator = EnvironmentValidator()
-        if not validator.validate(target_jdk_version):
+        if not validator.validate(int(target_jdk_version)):
             raise RuntimeError("Failed validating environment")
 
         if not self.randoop_jar_path.exists():
             raise RuntimeError(f"Randoop jar not found at {self.randoop_jar_path}")
-        
+
         self.build_verifier = MavenBuildVerifier()
 
-    def run(self, dataset_item: MigrationDatasetItem, output_root: Path, workspace_root: Path, clean_workspace: bool = True):
+    def run(
+        self, dataset_item: MigrationDatasetItem, output_root: Path, workspace_root: Path, clean_workspace: bool = True
+    ):
         workspace = None
         try:
             repo_workspace = RepoWorkspace.from_git(
@@ -43,10 +45,14 @@ class TestCovExpander:
             if not build_result.build_success:
                 raise RuntimeError(f"Build failed for repo {dataset_item.repo_name}")
 
-            patch_path = run_randoop_on_repo(repo_workspace.workspace_dir, self.randoop_jar_path)
-
+            output_dir = output_root / safe_repo_name(dataset_item.repo_name)
             output_dir.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(patch_path, output_root / f"{safe_repo_name(dataset_item.repo_name)}.patch")
+
+            self._get_cov(repo_workspace.workspace_dir, output_dir / "cov_before.yaml")
+            patch_path = run_randoop_on_repo(repo_workspace.workspace_dir, self.randoop_jar_path)
+            self._get_cov(repo_workspace.workspace_dir, output_dir / "cov_after.yaml")
+
+            shutil.copyfile(patch_path, output_dir / "randoop.patch")
 
         except Exception:
             print(f"Failed processing repo {dataset_item.repo_name} with error {traceback.format_exc()}")
@@ -54,11 +60,21 @@ class TestCovExpander:
             if workspace is not None and clean_workspace:
                 workspace.clean()
 
+    def _get_cov(self, workspace_dir: Path, output_path: Path):
+        test_cov, _, _, _, _ = get_test_cov(
+            str(workspace_dir), use_wrapper=False, target_java_version=self.target_jdk_version
+        )
+
+        if test_cov:
+            with open(output_path, "w") as fout:
+                yaml.dump(test_cov.model_dump(), fout)
+        else:
+            raise RuntimeError("No test coverage found for repo")
+
 
 class TestCovExpandWorker(Worker):
-    def __init__(self, randoop_jar_path: Path, target_jdk_version=8):
+    def __init__(self, randoop_jar_path: Path, target_jdk_version: str):
         self.test_cov_expander = TestCovExpander(randoop_jar_path, target_jdk_version)
-        
 
     def __call__(self, job: JobCfg) -> JobResult:
         try:
@@ -68,18 +84,26 @@ class TestCovExpandWorker(Worker):
             return JobResult(status=JobStatus.FAIL, error=traceback.format_exc())
 
 
-if __name__ == "__main__":
-    load_dotenv()
-
+def main():
     output_dir = REPO_ROOT / "data" / "cov_expand"
 
-    dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.TINY))
+    dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.MINI))
 
-    #TestCovExpander(Path(os.environ["RANDOOP_JAR_PATH"])).run(dataset[0], output_dir)
+    # TestCovExpander(Path(os.environ["RANDOOP_JAR_PATH"])).run(dataset[0], output_dir)
 
-    job_cfgs = [JobCfg(dataset_item=item, output_root=output_dir, workspace_root=REPO_ROOT / "data" / "workspace") for item in dataset]
+    job_cfgs = [
+        JobCfg(dataset_item=item, output_root=output_dir, workspace_root=REPO_ROOT / "data" / "workspace")
+        for item in dataset
+    ]
 
-    job_runner = JobRunner(TestCovExpandWorker(Path(os.environ["RANDOOP_JAR_PATH"])), concurrency=4)
+    job_runner = JobRunner(
+        TestCovExpandWorker(Path(os.environ["RANDOOP_JAR_PATH"]), target_jdk_version="8"), concurrency=4
+    )
     job_results = job_runner.run(job_cfgs)
 
     print(job_runner.get_result_stats(job_results))
+
+if __name__ == "__main__":
+    load_dotenv()
+    main()
+    
