@@ -72,27 +72,47 @@ def generate_class_list(repo_path, compiled_dirs, output_filename="classlist.txt
     return class_list_path
 
 
-def run_maven_dependency_cp(repo_path, target_java_version="8"):
+def get_all_dependency_jars(repo_path: str) -> list[str]:
+    jars = []
+    pattern = os.path.join(repo_path, "**", "target", "dependencies")
+    for dep_dir in glob.glob(pattern, recursive=True):
+        if os.path.isdir(dep_dir):
+            for root, dirs, files in os.walk(dep_dir):
+                for file in files:
+                    if file.endswith(".jar"):
+                        jars.append(os.path.abspath(os.path.join(root, file)))
+    return jars
+
+
+def run_maven_dependency_cp(repo_path, target_java_version="8") -> list[str]:
     """
     Run the Maven command to build the dependency classpath.
     The command writes the classpath to cp.txt in the repo's root.
     """
-    cp_file = os.path.join(repo_path, "cp.txt")
+    # cp_file = os.path.join(repo_path, "cp.txt")
 
     print("Running Maven command to generate dependency classpath")
-    result = Maven(target_java_version=target_java_version).deps(repo_path, Path(cp_file))
+    # result = Maven(target_java_version=target_java_version).deps(repo_path, Path(cp_file))
+    # if result.status != 0:
+    #     raise RuntimeError(f"Maven command failed with status {result.status}: {result.stderr}")
 
     # mvn_cmd = ["mvn", "dependency:build-classpath", f"-Dmdep.outputFile={cp_file}", "-DskipTests"]
 
     # print(" ".join(mvn_cmd))
     # subprocess.run(mvn_cmd, cwd=repo_path, check=True)
-    if os.path.exists(cp_file):
-        with open(cp_file, "r") as f:
-            cp = f.read().strip()
-            print(f"Dependency classpath from Maven: {cp}")
-            return cp
-    else:
-        raise RuntimeError("Maven did not generate cp.txt. No dependency classpath found.")
+    # if os.path.exists(cp_file):
+    #     with open(cp_file, "r") as f:
+    #         cp = f.read().strip()
+    #         print(f"Dependency classpath from Maven: {cp}")
+    #         return cp
+    # else:
+    #     raise RuntimeError("Maven did not generate cp.txt. No dependency classpath found.")
+
+    result = Maven(target_java_version=target_java_version).copy_deps(repo_path)
+    if result.status != 0:
+        raise RuntimeError(f"Maven command failed with status {result.status}: {result.stderr}")
+
+    return get_all_dependency_jars(repo_path)
 
 
 def update_pom_for_regression_tests(repo_path):
@@ -178,6 +198,9 @@ def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
         os.chdir(repo_path)
         print(f"\nProcessing repository: {repo_path}")
 
+        if not Maven(target_java_version="8").install(repo_path, skip_tests=True).status == 0:
+            raise RuntimeError("Maven install failed. Skipping.")
+
         if not os.path.exists(os.path.join(repo_path, ".git")):
             raise RuntimeError("Error: Not a valid Git repository. Skipping.")
 
@@ -204,7 +227,7 @@ def run_randoop_on_repo(repo_path: Path, randoop_jar_path: Path) -> Path:
         classpath_elements = compiled_dirs + [str(randoop_jar_path)]
         if dependency_cp:
             # Maven's cp is already a separator-delimited string; simply append.
-            classpath = separator.join(classpath_elements) + separator + dependency_cp
+            classpath = separator.join(classpath_elements) + separator + separator.join(dependency_cp)
         else:
             classpath = separator.join(classpath_elements)
         print("Full classpath for Randoop:")
@@ -254,7 +277,9 @@ def main():
     #     print("Usage: python script.py <repo_path1> [<repo_path2> ...]")
     #     sys.exit(1)
 
-    repos = [Path("/home/user/java-migration-paper/data/workspace/nydiarra_springboot-jwt")]  # sys.argv[1:]
+    # grpc-swagger_grpc-swagger
+    # yeecode_EasyRPC
+    repos = [Path("/home/user/java-migration-paper/data/workspace/grpc-swagger_grpc-swagger")]  # sys.argv[1:]
     for repo in repos:
         if os.path.isdir(repo):
             run_randoop_on_repo(repo, Path("/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar"))
