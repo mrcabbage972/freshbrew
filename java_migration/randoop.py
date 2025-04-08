@@ -127,8 +127,7 @@ def update_pom_for_regression_tests(repo_path):
     """
     pom_path = os.path.join(repo_path, "pom.xml")
     if not os.path.exists(pom_path):
-        print("No pom.xml found; skipping pom update.")
-        return
+        raise RuntimeError("No pom.xml found; skipping pom update.")        
 
     # Register the Maven POM namespace.
     ET.register_namespace("", "http://maven.apache.org/POM/4.0.0")
@@ -225,7 +224,7 @@ def remove_class_from_list(class_list_file: str, failing_class: str):
     print(f"Removed {failing_class} from class list.")
 
 
-def create_git_diff(repo_path):
+def create_git_diff(repo_path) -> str:
     """
     Stage changes and create a Git diff patch file.
     """
