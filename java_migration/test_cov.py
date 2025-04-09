@@ -2,8 +2,6 @@ import os
 import re
 import subprocess
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Dict
 
 import xmltodict
@@ -164,7 +162,6 @@ def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) ->
         # Using direct agent attachment instead of the prepare-agent goal.
         "test": f"{build_command} test {javaagent_arg} -ntp --batch-mode {extra_args}",
         "coverage": f"{build_command} org.jacoco:jacoco-maven-plugin:report",
-        "coverage_file": "cat target/site/jacoco/jacoco.xml",
     }
 
     # --- Run Maven commands and capture outputs ---
@@ -173,10 +170,6 @@ def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) ->
         test_proc = subprocess.run(commands["test"].split(), capture_output=True, cwd=repo_path, check=False)
         # Run the coverage report stage.
         coverage_proc = subprocess.run(commands["coverage"].split(), capture_output=True, cwd=repo_path, check=False)
-        # Run the command to read the generated coverage XML file.
-        cov_file_proc = subprocess.run(
-            commands["coverage_file"].split(), capture_output=True, cwd=repo_path, check=False
-        )
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Error running coverage command: {e}") from e
 
@@ -197,6 +190,7 @@ def get_test_cov(repo_path: str, use_wrapper: bool, target_java_version: str) ->
 
 
 if __name__ == "__main__":
-    print(
-        get_test_cov(repo_path="/Users/mayvic/Documents/git/springboot-jwt", use_wrapper=False, target_java_version="8")
-    )
+    path_new = "/home/user/java-migration-paper/data/workspace/springboot-jwt"
+    path_old = "/home/user/java-migration-paper/data/tmp/springboot-jwt"
+    cov, _, _, _, _ = get_test_cov(repo_path=path_new, use_wrapper=False, target_java_version="8")
+    print(cov)

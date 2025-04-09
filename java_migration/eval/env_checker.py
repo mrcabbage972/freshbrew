@@ -48,6 +48,11 @@ class EnvironmentValidator:
             match = re.search(r"\"(\d+)\.(\d+)\.(\d+)", java_output)
             if match:
                 major_version = int(match.group(1))
+                if major_version == 1:
+                    minor_version = int(match.group(2))
+                    if minor_version == 8 and jdk_version == 8:
+                        return True
+
                 if major_version != jdk_version:
                     print(f"Error: Java version {major_version} found. Java {jdk_version} is required.")
                     return False

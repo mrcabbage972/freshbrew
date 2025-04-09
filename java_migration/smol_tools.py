@@ -3,7 +3,7 @@ from pathlib import Path
 
 from smolagents import DuckDuckGoSearchTool, Tool
 
-from java_migration.utils import maven_install, validate_xml
+from java_migration.utils import maven_test, validate_xml
 
 
 def resolve_path(root: str, path: str) -> Path:
@@ -53,9 +53,9 @@ class ListDir(Tool):
         return os.listdir(resolved_path)
 
 
-class MavenInstall(Tool):
-    name = "maven_install"
-    description = "Executes `mvn install` in the current directory and return the stdout."
+class MavenTest(Tool):
+    name = "maven_test"
+    description = "Executes `mvn test` in the current directory and return the stdout."
     inputs = {}
     output_type = "string"
 
@@ -64,7 +64,7 @@ class MavenInstall(Tool):
         self.root_path = root_path
 
     def forward(self):  # type: ignore
-        return maven_install(self.root_path)
+        return maven_test(self.root_path)
 
 
 class WriteFile(Tool):
@@ -317,8 +317,8 @@ def get_tools(tool_names: list[str], root_path: Path):
             tools.append(ReadFile(root_path))
         elif tool_name == "list_dir":
             tools.append(ListDir(root_path))
-        elif tool_name == "maven_install":
-            tools.append(MavenInstall(root_path))
+        elif tool_name == "maven_test":
+            tools.append(MavenTest(root_path))
         elif tool_name == "write_file":
             tools.append(WriteFile(root_path))
         elif tool_name == "duckduckgo":

@@ -11,8 +11,8 @@ class MavenBuildVerifier:
     FATAL_TAG = "[FATAL]"
     ERROR_TAG = "[ERROR]"
 
-    def verify(self, repo_path: Path) -> BuildResults:
-        compile_only_log = maven_test(repo_path, skip_tests=True)
+    def verify(self, repo_path: Path, build_only=False, target_java_version="17") -> BuildResults:
+        compile_only_log = maven_test(repo_path, skip_tests=True, target_java_version=target_java_version)
         if (
             self._detect_compilation_failure(compile_only_log)
             or self.ERROR_TAG in compile_only_log
@@ -22,6 +22,14 @@ class MavenBuildVerifier:
             return BuildResults(
                 build_log=compile_only_log,
                 build_success=False,
+                test_success=None,
+                test_results=None,
+            )
+
+        if build_only:
+            return BuildResults(
+                build_log=compile_only_log,
+                build_success=True,
                 test_success=None,
                 test_results=None,
             )
