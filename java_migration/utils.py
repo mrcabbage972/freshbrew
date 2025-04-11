@@ -1,3 +1,4 @@
+import os
 import subprocess
 from pathlib import Path
 
@@ -31,3 +32,16 @@ def validate_xml(xml_content: str):
         raise ValueError(f"XML is not well-formed: {str(pe)}")
     except Exception as e:
         raise ValueError(f"An unexpected error occurred: {str(e)}")
+
+
+def create_git_diff(repo_path) -> str:
+    """
+    Stage changes and create a Git diff patch file.
+    """
+    subprocess.run(["git", "add", "."], cwd=str(repo_path), check=True)
+    diff = subprocess.check_output(["git", "diff", "--cached"], cwd=str(repo_path))
+    diff_file = os.path.join(repo_path, "randoop_diff.patch")
+    with open(diff_file, "wb") as f:
+        f.write(diff)
+    print(f"Git diff saved to: {diff_file}")
+    return diff_file

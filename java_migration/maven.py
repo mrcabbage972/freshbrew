@@ -33,7 +33,7 @@ class Maven:
         else:
             return "mvn"
 
-    def test(self, repo_path: Path, skip_tests: bool = False) -> CliResult:
+    def test(self, repo_path: Path, skip_tests: bool = False, clean: bool = False) -> CliResult:
         cmd = [
             self._get_base_cmd(repo_path),
             "test",
@@ -44,6 +44,8 @@ class Maven:
         ]
         if skip_tests:
             cmd.append("-DskipTests")
+        if clean:
+            cmd.insert(1, "clean")
         result = subprocess.run(cmd, capture_output=True, cwd=str(repo_path))
         return CliResult(
             status=result.returncode, stdout=result.stdout.decode("utf-8"), stderr=result.stderr.decode("utf-8")

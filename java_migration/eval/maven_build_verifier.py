@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 
 from java_migration.eval.data_model import BuildResults, TestResults
-from java_migration.utils import maven_test
+from java_migration.maven import Maven
 
 
 class MavenBuildVerifier:
@@ -11,8 +11,10 @@ class MavenBuildVerifier:
     FATAL_TAG = "[FATAL]"
     ERROR_TAG = "[ERROR]"
 
-    def verify(self, repo_path: Path, build_only=False, target_java_version="17") -> BuildResults:
-        compile_only_log = maven_test(repo_path, skip_tests=True, target_java_version=target_java_version)
+    def verify(self, repo_path: Path, build_only=False, target_java_version="17", clean: bool = False) -> BuildResults:
+        mvn = Maven(target_java_version)
+        mvn_result = mvn.test(repo_path, skip_tests=True, clean=clean)
+        compile_only_log = mvn_result.stdout
         if (
             self._detect_compilation_failure(compile_only_log)
             or self.ERROR_TAG in compile_only_log
@@ -34,7 +36,8 @@ class MavenBuildVerifier:
                 test_results=None,
             )
 
-        build_log = maven_test(repo_path)
+        mvn_test_result = mvn.test(repo_path, clean=False)
+        build_log = mvn_test_result.stdout
 
         assert self._detect_compilation_failure(build_log) is False
         build_success = True
