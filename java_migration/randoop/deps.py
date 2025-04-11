@@ -2,7 +2,7 @@ import glob
 import os
 from pathlib import Path
 
-from java_migration.maven import Maven
+from java_migration.maven.maven_runner import Maven
 
 
 def infer_class_name(rel_path: str) -> str:

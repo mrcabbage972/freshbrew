@@ -3,8 +3,9 @@ import re
 import subprocess
 from pathlib import Path
 
-from java_migration.maven import Maven
+from java_migration.maven.maven_runner import Maven
 from java_migration.randoop.deps import RandoopDependencyManager, remove_class_from_list
+from java_migration.randoop.pom_updater import PomUpdater
 from java_migration.utils import create_git_diff
 
 RANDOOP_TESTS_DIR = "randoop-tests"
@@ -25,7 +26,12 @@ def extract_failing_class(error_output: str) -> str | None:
 
 class RandoopRunner:
     def __init__(
-        self, randoop_jar_path: Path, target_java_version: str = "8", time_limit: int = 60, output_limit: int = 200, num_retries: int = 20
+        self,
+        randoop_jar_path: Path,
+        target_java_version: str = "8",
+        time_limit: int = 60,
+        output_limit: int = 200,
+        num_retries: int = 20,
     ):
         self.randoop_jar_path = randoop_jar_path
         self.target_java_version = target_java_version
@@ -99,6 +105,8 @@ class RandoopRunner:
                 raise RuntimeError("Randoop did not complete successfully after retries.")
 
             deps_man.cleanup()
+
+            PomUpdater(repo_path).update()
 
             # Create the dedicated test module and update the parent's modules.
             # create_dedicated_test_module(repo_path)

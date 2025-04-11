@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 
 from java_migration.eval.data_model import BuildResults, TestResults
-from java_migration.maven import Maven
+from java_migration.maven.maven_runner import Maven
 
 
 class MavenBuildVerifier:

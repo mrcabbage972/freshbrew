@@ -1,5 +1,5 @@
 import os
-from typing import Optional, List, Dict
+from typing import Dict, List, Optional
 
 from java_migration.maven.maven_pom_editor import MavenPomEditor
 

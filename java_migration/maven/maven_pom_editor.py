@@ -1,5 +1,6 @@
 import os
-from typing import Optional, List, Dict, Any, Callable
+from typing import Any, Callable, Dict, List, Optional
+
 from lxml import etree
 
 
@@ -11,12 +12,47 @@ class MavenPomEditor:
         :param pom_file: Path to the pom.xml file.
         """
         self.pom_file: str = os.path.abspath(pom_file)
-        self.tree: etree._ElementTree = etree.parse(self.pom_file)
-        self.root: etree._Element = self.tree.getroot()
+        self.tree = etree.parse(self.pom_file)
+        self.root = self.tree.getroot()
         # Copy the namespace map and remap the default namespace (if present) to "m"
         self.namespaces: Dict[Optional[str], str] = self.root.nsmap.copy()
         if None in self.namespaces:
             self.namespaces["m"] = self.namespaces.pop(None)
+
+    def ensure_element(self, parent_xpath: str, tag: str) -> etree._Element:
+        """
+        Ensure that an element with the specified tag exists under the first element matching parent_xpath.
+        If it exists, return it; otherwise, create it and then return it.
+
+        :param parent_xpath: XPath of the parent element.
+        :param tag: Tag name (with prefix) for the desired child element.
+        :return: The existing or newly created element.
+        """
+        # Build a full XPath query for the child under the parent.
+        full_xpath = f"{parent_xpath}/{tag}"
+        elements = self.root.xpath(full_xpath, namespaces=self.namespaces)
+        if elements:
+            return elements[0]
+        # If not found, add it using the add_element method.
+        return self.add_element(parent_xpath, tag)
+
+    def create_sub_element(
+        self, parent: etree._Element, tag: str, text: Optional[str] = None, attrib: Optional[Dict[str, str]] = None
+    ) -> etree._Element:
+        """
+        Create a sub-element of the given parent element using a qualified tag name.
+        This is similar to etree.SubElement but ensures the tag is properly qualified.
+
+        :param parent: The parent element.
+        :param tag: Tag name with prefix (e.g. "m:execution").
+        :param text: Optional text content.
+        :param attrib: Optional attributes.
+        :return: The created sub-element.
+        """
+        sub_elem = etree.SubElement(parent, self._qname(tag), attrib=attrib if attrib else {})
+        if text:
+            sub_elem.text = text
+        return sub_elem
 
     def _qname(self, tag: str) -> str:
         """

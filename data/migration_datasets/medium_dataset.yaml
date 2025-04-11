@@ -32,7 +32,7 @@
   repo_name: ninjaframework/ninja
 - commit: aeed56ee4bc1ddb1682d2d8df0847dca112176d7
   repo_name: alibaba/metrics
-- commit: 7982f413a90935a91549aa3ee7cc64fa25d7c113
+- commit: f42ab99ccc031bca7db6cf69aec70771d65799e1
   repo_name: apache/cassandra-java-driver
 - commit: cc23ca4a9a6f342f597762415a0eb454b31ae295
   repo_name: baichengzhou/SpringMVC-Mybatis-shiro
@@ -64,9 +64,9 @@
   repo_name: larsga/Duke
 - commit: 7eb89756295453dd3e6c2e3b0c680a92487dfbb6
   repo_name: yeecode/EasyRPC
-- commit: 3457ae37829218717ac60e89ddc3c58303bfe67a
+- commit: e4c867a32a52cab1f01bb598bafb2820113fc446
   repo_name: WeBankFinTech/Exchangis
-- commit: f1dd0a9cd63dbf09cf02a1896defe8b47d763d3a
+- commit: ba5a8b41e460839aabb5449aeb7e7e06f1eaf912
   repo_name: Blazebit/blaze-persistence
 - commit: 020a0b3b6fdad00b9a431ce0462091eebf733fee
   repo_name: lingfengsan/MillionHero
