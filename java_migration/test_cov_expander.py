@@ -1,5 +1,6 @@
 import contextlib
 import io
+import multiprocessing
 import os
 import shutil
 import traceback
@@ -13,7 +14,8 @@ from java_migration.eval.env_checker import EnvironmentValidator
 from java_migration.eval.maven_build_verifier import MavenBuildVerifier
 from java_migration.eval.utils import Dataset, safe_repo_name
 from java_migration.job_runner import JobCfg, JobResult, JobRunner, JobStatus, Worker
-#from java_migration.randoop import run_randoop_on_repo
+
+# from java_migration.randoop import run_randoop_on_repo
 from java_migration.randoop.randoop import RandoopRunner
 from java_migration.repo_workspace import RepoWorkspace
 from java_migration.test_cov import get_test_cov
@@ -34,8 +36,9 @@ class TestCovExpander:
 
         self.build_verifier = MavenBuildVerifier()
 
-        self.randoop_runner = RandoopRunner(target_java_version=target_jdk_version, randoop_jar_path=self.randoop_jar_path)
-        
+        self.randoop_runner = RandoopRunner(
+            target_java_version=target_jdk_version, randoop_jar_path=self.randoop_jar_path
+        )
 
     def run(
         self, dataset_item: MigrationDatasetItem, output_root: Path, workspace_root: Path, clean_workspace: bool = True
@@ -62,7 +65,7 @@ class TestCovExpander:
                 fout.write(build_result.build_log)
 
             self._get_cov(repo_workspace.workspace_dir, output_dir / "cov_before.yaml")
-            patch_path = self.randoop_runner(repo_workspace.workspace_dir)
+            patch_path = self.randoop_runner.run(repo_workspace.workspace_dir)
             self._get_cov(repo_workspace.workspace_dir, output_dir / "cov_after.yaml")
 
             shutil.copyfile(patch_path, output_dir / "randoop.patch")
@@ -102,7 +105,7 @@ class TestCovExpandWorker(Worker):
 
 
 def main():
-    output_dir = REPO_ROOT / "output" / "cov_expand_new_mini_v1"
+    output_dir = REPO_ROOT / "output" / "cov_expand_new_mini_v2"
 
     dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.MINI))
 
@@ -114,7 +117,8 @@ def main():
     ]
 
     job_runner = JobRunner(
-        TestCovExpandWorker(Path(os.environ["RANDOOP_JAR_PATH"]), target_jdk_version="8"), concurrency=8
+        TestCovExpandWorker(Path(os.environ["RANDOOP_JAR_PATH"]), target_jdk_version="8"),
+        concurrency=multiprocessing.cpu_count(),
     )
     job_results = job_runner.run(job_cfgs)
 

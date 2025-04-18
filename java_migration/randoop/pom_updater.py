@@ -32,7 +32,7 @@ class PomUpdater:
         """
         if not self.editor.plugin_exists("org.codehaus.mojo", "build-helper-maven-plugin"):
             plugin = self.editor.add_plugin("org.codehaus.mojo", "build-helper-maven-plugin", version="3.2.0")
-            executions_elem = self.editor.ensure_element(plugin.tag, "m:executions")
+            executions_elem = self.editor.ensure_element(plugin, "m:executions")
             execution_elem = self.editor.create_sub_element(executions_elem, "m:execution")
             self.editor.create_sub_element(execution_elem, "m:id", text="add-test-source")
             self.editor.create_sub_element(execution_elem, "m:phase", text="generate-test-sources")
@@ -49,8 +49,8 @@ class PomUpdater:
         """
         if not self.editor.plugin_exists("org.apache.maven.plugins", "maven-surefire-plugin"):
             plugin = self.editor.add_plugin("org.apache.maven.plugins", "maven-surefire-plugin", version="2.22.2")
-            config_elem = self.editor.ensure_element(plugin.tag, "m:configuration")
-            includes_elem = self.editor.ensure_element(config_elem.tag, "m:includes")
+            config_elem = self.editor.ensure_element(plugin, "m:configuration")
+            includes_elem = self.editor.ensure_element(config_elem, "m:includes")
             self.editor.create_sub_element(includes_elem, "m:include", text="**/*Test.class")
             self.editor.create_sub_element(includes_elem, "m:include", text="**/RegressionTest*.class")
             self.editor._save()
