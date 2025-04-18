@@ -1,5 +1,5 @@
 import os
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from lxml import etree
 
@@ -19,22 +19,37 @@ class MavenPomEditor:
         if None in self.namespaces:
             self.namespaces["m"] = self.namespaces.pop(None)
 
-    def ensure_element(self, parent_xpath: str, tag: str) -> etree._Element:
+    def ensure_element(self, parent: Union[str, etree._Element], tag: str) -> etree._Element:
         """
-        Ensure that an element with the specified tag exists under the first element matching parent_xpath.
+        Ensure that an element with the specified tag exists under the given parent.
+        The parent can be an XPath string or an lxml Element.
         If it exists, return it; otherwise, create it and then return it.
 
-        :param parent_xpath: XPath of the parent element.
-        :param tag: Tag name (with prefix) for the desired child element.
+        :param parent: XPath of the parent element or the parent lxml Element.
+        :param tag: Tag name with prefix for the desired child element (e.g., "m:executions").
         :return: The existing or newly created element.
         """
-        # Build a full XPath query for the child under the parent.
-        full_xpath = f"{parent_xpath}/{tag}"
-        elements = self.root.xpath(full_xpath, namespaces=self.namespaces)
-        if elements:
-            return elements[0]
-        # If not found, add it using the add_element method.
-        return self.add_element(parent_xpath, tag)
+        try:
+            if isinstance(parent, str):
+                full_xpath = f"{parent}/{tag}"
+                parent_elements = self.root.xpath(parent, namespaces=self.namespaces)
+                if not parent_elements:
+                    raise ValueError(f"No parent element found for XPath '{parent}'.")
+                parent_element = parent_elements[0]
+            elif isinstance(parent, etree._Element):
+                parent_element = parent
+                full_xpath = tag  # When parent is an element, we directly look for the tag
+            else:
+                raise TypeError("parent must be an XPath string or an lxml Element.")
+
+            elements = parent_element.xpath(tag, namespaces=self.namespaces)
+            if elements:
+                return elements[0]
+            # If not found, add it using the create_sub_element method.
+            return self.create_sub_element(parent_element, tag)
+        except Exception as e:
+            raise ValueError(f"Error ensuring element {tag} under {parent}: {e}")
+            
 
     def create_sub_element(
         self, parent: etree._Element, tag: str, text: Optional[str] = None, attrib: Optional[Dict[str, str]] = None
@@ -55,20 +70,19 @@ class MavenPomEditor:
         return sub_elem
 
     def _qname(self, tag: str) -> str:
-        """
-        Convert a tag with a prefix (e.g. "m:dependency") to a qualified name.
-
-        :param tag: Tag in "prefix:local" format.
-        :return: A qualified tag "{namespace}local".
-        :raises ValueError: if the prefix is not found in the namespace map.
-        """
-        if ":" in tag:
-            prefix, local = tag.split(":", 1)
-            ns = self.namespaces.get(prefix)
-            if ns is None:
-                raise ValueError(f"No namespace found for prefix '{prefix}'")
-            return f"{{{ns}}}{local}"
-        return tag
+            """
+            Convert a tag with a prefix (e.g. "m:dependency") to a qualified name.
+            If the tag is already qualified, return it unchanged.
+            """
+            if tag.startswith("{"):
+                return tag
+            if ":" in tag:
+                prefix, local = tag.split(":", 1)
+                ns = self.namespaces.get(prefix)
+                if ns is None:
+                    raise ValueError(f"No namespace found for prefix '{prefix}'")
+                return f"{{{ns}}}{local}"
+            return tag
 
     def _save(self) -> None:
         """Save the modified XML tree back to the pom.xml file."""
