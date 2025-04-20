@@ -22,7 +22,7 @@ class PomUpdater:
         """
         return (
             "${project.parent.basedir}/randoop-tests"
-            if self.editor.element_exists("m:parent")
+            if self.project.is_multi_module()
             else "${project.basedir}/randoop-tests"
         )
 
@@ -52,6 +52,7 @@ class PomUpdater:
             config_elem = self.editor.ensure_element(plugin, "m:configuration")
             includes_elem = self.editor.ensure_element(config_elem, "m:includes")
             self.editor.create_sub_element(includes_elem, "m:include", text="**/*Test.class")
+            self.editor.create_sub_element(includes_elem, "m:include", text="**/*Tests.class")
             self.editor.create_sub_element(includes_elem, "m:include", text="**/RegressionTest*.class")
             self.editor._save()
 

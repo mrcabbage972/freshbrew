@@ -86,6 +86,8 @@ class RandoopRunner:
             if not output_dir.exists():
                 output_dir.mkdir()
 
+            PomUpdater(repo_path).update()
+
             success = False
             for attempt in range(1, self.num_retries + 1):
                 print(f"Randoop run attempt {attempt} of {self.num_retries}...")
@@ -106,7 +108,7 @@ class RandoopRunner:
 
             deps_man.cleanup()
 
-            PomUpdater(repo_path).update()
+            
 
             # Create the dedicated test module and update the parent's modules.
             # create_dedicated_test_module(repo_path)
@@ -125,3 +127,34 @@ class RandoopRunner:
             raise RuntimeError(f"Error processing repo {repo_path}: {e}")
         finally:
             os.chdir(original_cwd)
+
+
+
+def main():
+    # if len(sys.argv) < 2:
+    #     print("Usage: python script.py <repo_path1> [<repo_path2> ...]")
+    #     sys.exit(1)
+
+    # v5tech_oltu-oauth2-example
+    # grpc-swagger_grpc-swagger
+    # yeecode_EasyRPC
+    # baichengzhou_SpringMVC-Mybatis-shiro
+    # scxwhite_hera
+    # ESAPI_esapi-java
+    repos = [Path("/home/user/java-migration-paper/data/workspace/nydiarra_springboot-jwt")]  # sys.argv[1:]
+    for repo in repos:
+        if os.path.isdir(repo):
+
+            randoop_runner = RandoopRunner(
+            target_java_version="8", randoop_jar_path=Path("/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar")
+        )
+
+            randoop_runner.run(repos[0])
+
+            #run_randoop_on_repo(repo, Path("/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar"))
+        else:
+            print(f"Path does not exist or is not a directory: {repo}")
+
+
+if __name__ == "__main__":
+    main()
