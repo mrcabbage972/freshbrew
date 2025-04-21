@@ -19,14 +19,15 @@ class MavenPomEditor:
         if None in self.namespaces:
             self.namespaces["m"] = self.namespaces.pop(None)
 
-    def ensure_element(self, parent: Union[str, etree._Element], tag: str) -> etree._Element:
+    def ensure_element(self, parent: Union[str, etree._Element], tag: str, text: Optional[str] = None) -> etree._Element:
         """
         Ensure that an element with the specified tag exists under the given parent.
         The parent can be an XPath string or an lxml Element.
-        If it exists, return it; otherwise, create it and then return it.
+        If it exists, return it; otherwise, create it and optionally set its text.
 
         :param parent: XPath of the parent element or the parent lxml Element.
         :param tag: Tag name with prefix for the desired child element (e.g., "m:executions").
+        :param text: Optional text content to set for the element.
         :return: The existing or newly created element.
         """
         try:
@@ -44,9 +45,14 @@ class MavenPomEditor:
 
             elements = parent_element.xpath(tag, namespaces=self.namespaces)
             if elements:
+                if text is not None:
+                    elements[0].text = text
                 return elements[0]
             # If not found, add it using the create_sub_element method.
-            return self.create_sub_element(parent_element, tag)
+            new_element = self.create_sub_element(parent_element, tag)
+            if text is not None:
+                new_element.text = text
+            return new_element
         except Exception as e:
             raise ValueError(f"Error ensuring element {tag} under {parent}: {e}")
             
