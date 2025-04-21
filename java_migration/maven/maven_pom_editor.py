@@ -325,3 +325,73 @@ class MavenPomEditor:
         if scope:
             self.add_element("m:dependencies/m:dependency[last()]", "m:scope", text=scope)
         return new_dep
+
+    def ensure_managed_dependency(self, group_id: str, artifact_id: str, version: str, scope: Optional[str] = None) -> etree._Element:
+        """
+        Ensure a dependency exists in the <dependencyManagement><dependencies> section.
+        Adds or updates the dependency. Uses ensure_element logic.
+
+        :param group_id: Dependency groupId.
+        :param artifact_id: Dependency artifactId.
+        :param version: Dependency version (can be a property like ${junit.version}).
+        :param scope: Optional dependency scope.
+        :return: The managed dependency element.
+        """
+        mgmt_xpath = ".//m:dependencyManagement"
+        deps_xpath = f"{mgmt_xpath}/m:dependencies"
+
+        # Ensure <dependencyManagement> and <dependencies> exist
+        mgmt_elem = self.ensure_element(".", "m:dependencyManagement")
+        deps_elem = self.ensure_element(mgmt_elem, "m:dependencies")
+
+        # Check if dependency already exists in management
+        existing_dep = None
+        found_deps = deps_elem.xpath(
+            f"m:dependency[m:groupId='{group_id}' and m:artifactId='{artifact_id}']",
+            namespaces=self.namespaces
+        )
+        if found_deps:
+            existing_dep = found_deps[0]
+
+        if existing_dep is not None:
+            # Update existing managed dependency
+            self.ensure_element(existing_dep, "m:version", text=version)
+            if scope:
+                self.ensure_element(existing_dep, "m:scope", text=scope)
+            else:
+                # Remove scope if it exists and is not needed
+                scope_elem = existing_dep.find("m:scope", namespaces=self.namespaces)
+                if scope_elem is not None:
+                    existing_dep.remove(scope_elem)
+            dep_element = existing_dep
+        else:
+            # Add new managed dependency
+            dep_element = self.create_sub_element(deps_elem, "m:dependency")
+            self.create_sub_element(dep_element, "m:groupId", text=group_id)
+            self.create_sub_element(dep_element, "m:artifactId", text=artifact_id)
+            self.create_sub_element(dep_element, "m:version", text=version)
+            if scope:
+                self.create_sub_element(dep_element, "m:scope", text=scope)
+
+        self._save() # Save after ensuring the dependency
+        return dep_element
+
+    def ensure_property(self, property_name: str, property_value: str) -> etree._Element:
+        """
+        Ensure a property exists in the <properties> section. Adds or updates.
+
+        :param property_name: The name of the property (e.g., "junit.version").
+        :param property_value: The value of the property.
+        :return: The property element.
+        """
+        properties_elem = self.ensure_element(".", "m:properties")
+        # Use ensure_element which handles creation or update of text content
+        prop_elem = self.ensure_element(properties_elem, f"m:{property_name}", text=property_value)
+        self._save() # Save after ensuring the property
+        return prop_elem
+
+    def add_skip_plugin_config(self, parent_plugin_element: etree._Element):
+        """Adds <configuration><skip>true</skip></configuration> to a plugin element."""
+        config_elem = self.ensure_element(parent_plugin_element, "m:configuration")
+        self.ensure_element(config_elem, "m:skip", text="true")
+        self._save() # Save after adding config

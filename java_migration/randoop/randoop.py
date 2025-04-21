@@ -9,19 +9,7 @@ from java_migration.randoop.pom_updater import PomUpdater
 from java_migration.utils import create_git_diff
 
 RANDOOP_TESTS_DIR = "randoop-tests"
-
-
-def extract_failing_class(error_output: str) -> str | None:
-    """
-    Extract the failing class name from Randoop's error output.
-    Expects a line like: "Could not load class com.sojson.core.statics.Constant: ..."
-    """
-    m = re.search(r"Could not load class\s+([\w\.\$]+)", error_output)
-    if m:
-        failing_class = m.group(1)
-        print(f"Extracted failing class: {failing_class}")
-        return failing_class
-    return None
+RANDOOP_SRC_TEST_JAVA = os.path.join(RANDOOP_TESTS_DIR, "src", "test", "java")
 
 
 class RandoopRunner:
@@ -44,31 +32,57 @@ class RandoopRunner:
         return [
             "gentests",
             "--no-error-revealing-tests=true",
-            "--junit-output-dir=randoop-tests",
+            f"--junit-output-dir={RANDOOP_SRC_TEST_JAVA}",
             f"--time-limit={self.time_limit}",
             f"--output-limit={self.output_limit}",
         ]
 
+    def _to_wildcard_classpath(self, classpath: str) -> str:
+        """
+        Collapse any jars in the same folder into folder/* wildcards.
+        """
+        parts = classpath.split(os.pathsep)
+        jar_dirs = {}
+        others = []
+        for p in parts:
+            if p.endswith(".jar"):
+                d = os.path.dirname(p)
+                jar_dirs.setdefault(d, []).append(p)
+            else:
+                others.append(p)
+
+        # build wildcard entries for each jar directory
+        wildcard_parts = [os.path.join(d, "*") for d in jar_dirs]
+        return os.pathsep.join(others + wildcard_parts)
+
     def _ensure_repo_sanity(self, repo_path: Path):
-        if not Maven(target_java_version=self.target_java_version).install(repo_path, skip_tests=True).status == 0:
+        if Maven(target_java_version=self.target_java_version) \
+               .install(repo_path, skip_tests=True).status != 0:
             raise RuntimeError("Maven install failed. Skipping.")
 
-        if not os.path.exists(os.path.join(repo_path, ".git")):
+        if not (repo_path / ".git").exists():
             raise RuntimeError("Error: Not a valid Git repository. Skipping.")
 
     def execute_randoop(self, classpath: str, class_list_file: str) -> tuple[str, str]:
         """
-        Execute Randoop with the given classpath and class list.
-        Returns stdout and stderr if an error occurs.
+        Execute Randoop, but first convert any long jar lists into wildcard dirs.
         """
+        wildcard_cp = self._to_wildcard_classpath(classpath)
         cmd = (
-            ["java", "-classpath", classpath, "randoop.main.Main"]
+            ["java", "-classpath", wildcard_cp, "randoop.main.Main"]
             + self.randoop_opts
             + [f"--classlist={class_list_file}"]
         )
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        result = subprocess.run(cmd,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                text=True)
         if result.returncode != 0:
-            raise subprocess.CalledProcessError(result.returncode, cmd, output=result.stdout, stderr=result.stderr)
+            raise subprocess.CalledProcessError(
+                result.returncode, cmd,
+                output=result.stdout,
+                stderr=result.stderr
+            )
         return result.stdout, result.stderr
 
     def run(self, repo_path: Path) -> Path:
@@ -79,55 +93,49 @@ class RandoopRunner:
 
             self._ensure_repo_sanity(repo_path)
 
-            deps_man = RandoopDependencyManager(repo_path, self.randoop_jar_path, self.target_java_version)
+            deps_man = RandoopDependencyManager(
+                repo_path, self.randoop_jar_path, self.target_java_version
+            )
 
-            # Ensure output directory for Randoop tests exists.
-            output_dir = repo_path / RANDOOP_TESTS_DIR
-            if not output_dir.exists():
-                output_dir.mkdir()
+            # Prepare output dirs
+            output_dir = repo_path / RANDOOP_SRC_TEST_JAVA
+            output_dir.mkdir(parents=True, exist_ok=True)
 
             PomUpdater(repo_path).update()
 
-            success = False
             for attempt in range(1, self.num_retries + 1):
-                print(f"Randoop run attempt {attempt} of {self.num_retries}...")
+                print(f"Randoop run attempt {attempt} of {self.num_retries}…")
                 try:
-                    stdout, stderr = self.execute_randoop(deps_man.get_class_path(), deps_man.get_class_list_file())
-                    print("Randoop completed successfully.")
-                    success = True
+                    stdout, stderr = self.execute_randoop(
+                        deps_man.get_class_path(),
+                        deps_man.get_class_list_file()
+                    )
+                    print("✅ Randoop completed successfully.")
                     break
                 except subprocess.CalledProcessError as e:
-                    print("Randoop failed")
-                    failing_class = extract_failing_class(e.stdout)
-                    if not failing_class:
-                        print("Could not extract failing class; aborting retries.")
-                        break
-                    remove_class_from_list(deps_man.get_class_list_file(), failing_class)
-            if not success:
-                raise RuntimeError("Randoop did not complete successfully after retries.")
+                    print(f"❌ Randoop failed: {e.stderr or e.output}")
+                    cls = extract_failing_class(e.stdout or e.stderr)
+                    if not cls:
+                        raise RuntimeError("Could not extract failing class.")
+                    remove_class_from_list(deps_man.get_class_list_file(), cls)
+            else:
+                raise RuntimeError("Randoop did not succeed after retries.")
 
             deps_man.cleanup()
-
-            
-
-            # Create the dedicated test module and update the parent's modules.
-            # create_dedicated_test_module(repo_path)
-            # update_parent_modules_for_test_module(repo_path)
-
-            # Update all pom files for regression test configuration.
-            # update_pom_for_regression_tests(str(repo_path))
-            # dedicated_test_pom = output_dir / "pom.xml"
-            # update_pom_for_regression_tests(str(dedicated_test_pom.parent))
-
-            # Stage changes and generate a Git diff.
             diff_file = create_git_diff(repo_path)
             return Path(diff_file)
 
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Error processing repo {repo_path}: {e}")
         finally:
             os.chdir(original_cwd)
 
+
+def extract_failing_class(error_output: str) -> str | None:
+    m = re.search(r"Could not load class\s+([\w\.\$]+)", error_output)
+    if m:
+        cls = m.group(1)
+        print(f"Extracted failing class: {cls}")
+        return cls
+    return None
 
 
 def main():
@@ -141,7 +149,9 @@ def main():
     # baichengzhou_SpringMVC-Mybatis-shiro
     # scxwhite_hera
     # ESAPI_esapi-java
-    repos = [Path("/home/user/java-migration-paper/data/workspace/nydiarra_springboot-jwt")]  # sys.argv[1:]
+    # /home/user/java-migration-paper/data/workspace/yangxiufeng666_Micro-Service-Skeleton
+    # "/home/user/java-migration-paper/data/workspace/zykzhangyukang_Xinguan"
+    repos = [Path("/home/user/java-migration-paper/data/workspace/yangxiufeng666_Micro-Service-Skeleton")]  # sys.argv[1:]
     for repo in repos:
         if os.path.isdir(repo):
 
@@ -149,8 +159,7 @@ def main():
             target_java_version="8", randoop_jar_path=Path("/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar")
         )
 
-            randoop_runner.run(repos[0])
-
+            randoop_runner.run(repo)
             #run_randoop_on_repo(repo, Path("/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar"))
         else:
             print(f"Path does not exist or is not a directory: {repo}")
