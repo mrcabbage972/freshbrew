@@ -5,13 +5,12 @@ from java_migration.maven.maven_pom_editor import MavenPomEditor
 from java_migration.maven.maven_project import MavenProject
 
 
-
 class PomUpdater:
     RANDOOP_MODULE_NAME = "randoop-tests"
 
     JUNIT_VERSION = "4.13.2"
     RANDOOP_VERSION = "4.3.2"
-    SUREFIRE_VERSION = "2.22.2" 
+    SUREFIRE_VERSION = "2.22.2"
     INSTALL_PLUGIN_VERSION = "2.5.2"
     DEPLOY_PLUGIN_VERSION = "2.8.2"
 
@@ -94,12 +93,40 @@ class PomUpdater:
             if module_name == self.RANDOOP_MODULE_NAME:
                 continue # Don't add self
 
-            module_dep = randoop_editor.create_sub_element(dependencies_elem, "m:dependency")
-            randoop_editor.create_sub_element(module_dep, "m:groupId", text=root_group_id)
-            randoop_editor.create_sub_element(module_dep, "m:artifactId", text=module_name)
-            # Use parent version (effectively ${project.version})
-            randoop_editor.create_sub_element(module_dep, "m:version", text=root_version)
-            randoop_editor.create_sub_element(module_dep, "m:scope", text="test") # Crucial
+            module_pom_path = os.path.join(self.project_root, module_name, "pom.xml")
+            if not os.path.exists(module_pom_path):
+                 print(f"Warning: Could not find pom.xml for module '{module_name}' at '{module_pom_path}'. Skipping dependency.")
+                 continue
+
+            try:
+                # Read the module's pom.xml to get its actual artifactId
+                module_editor = MavenPomEditor(module_pom_path)
+                module_group_id = module_editor.root.findtext('m:groupId', namespaces=module_editor.namespaces)
+                module_artifact_id = module_editor.root.findtext('m:artifactId', namespaces=module_editor.namespaces)
+                module_version = module_editor.root.findtext('m:version', namespaces=module_editor.namespaces)
+
+                if not module_artifact_id:
+                     print(f"Warning: Could not find artifactId in pom.xml for module '{module_name}'. Skipping dependency.")
+                     continue
+
+
+                module_dep = randoop_editor.create_sub_element(dependencies_elem, "m:dependency")
+
+                # Use the actual groupId from the module's POM if present, otherwise use the root's
+                randoop_editor.create_sub_element(module_dep, "m:groupId", text=module_group_id if module_group_id else root_group_id)
+                # Use the actual artifactId from the module's POM
+                randoop_editor.create_sub_element(module_dep, "m:artifactId", text=module_artifact_id)
+                 # Use the actual version from the module's POM if present, otherwise use the root's (as before)
+                randoop_editor.create_sub_element(module_dep, "m:version", text=module_version if module_version else root_version)
+
+                randoop_editor.create_sub_element(module_dep, "m:scope", text="test") # Crucial
+                print(f"  - Added dependency for {module_group_id if module_group_id else root_group_id}:{module_artifact_id}:{module_version if module_version else root_version}")
+
+            except Exception as e:
+                 # Catch potential errors during XML parsing or element finding
+                 print(f"Warning: Error processing pom.xml for module '{module_name}' at '{module_pom_path}'. Skipping dependency. Error: {e}")
+                 # Optionally log the traceback for debugging
+
 
         # Add Surefire plugin for running tests
         build_elem = randoop_editor.ensure_element(".", "m:build")
