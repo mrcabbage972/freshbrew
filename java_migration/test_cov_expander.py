@@ -23,9 +23,10 @@ from java_migration.utils import REPO_ROOT
 
 
 class TestCovExpander:
-    def __init__(self, randoop_jar_path: Path, target_jdk_version: str = "8"):
+    def __init__(self, randoop_jar_path: Path, target_jdk_version: str = "8", clear_cache: str=True):
         self.randoop_jar_path = randoop_jar_path
         self.target_jdk_version = target_jdk_version
+        self.clear_cache = clear_cache
 
         validator = EnvironmentValidator()
         if not validator.validate(int(target_jdk_version)):
@@ -46,6 +47,10 @@ class TestCovExpander:
         workspace = None
         try:
             output_dir = output_root / safe_repo_name(dataset_item.repo_name)
+            if not self.clear_cache and output_dir.exists() and (output_dir / "randoop.patch").exists():
+                print(f"Skipping existing output for {dataset_item.repo_name}")
+                return
+
             if output_dir.exists():
                 shutil.rmtree(output_dir)
             output_dir.mkdir(parents=True, exist_ok=True)
@@ -77,7 +82,7 @@ class TestCovExpander:
                 workspace.clean()
 
     def _get_cov(self, workspace_dir: Path, output_path: Path):
-        test_cov, _, _, _, _ = get_test_cov(
+        test_cov = get_test_cov(
             str(workspace_dir), use_wrapper=False, target_java_version=self.target_jdk_version
         )
 
@@ -89,8 +94,8 @@ class TestCovExpander:
 
 
 class TestCovExpandWorker(Worker):
-    def __init__(self, randoop_jar_path: Path, target_jdk_version: str):
-        self.test_cov_expander = TestCovExpander(randoop_jar_path, target_jdk_version)
+    def __init__(self, randoop_jar_path: Path, target_jdk_version: str, clear_cache: str):
+        self.test_cov_expander = TestCovExpander(randoop_jar_path, target_jdk_version, clear_cache)
 
     def __call__(self, job: JobCfg) -> JobResult:
         try:
@@ -105,9 +110,9 @@ class TestCovExpandWorker(Worker):
 
 
 def main():
-    output_dir = REPO_ROOT / "output" / "cov_expand_new_mini_v2"
+    output_dir = REPO_ROOT / "output" / "cov_expand_new_medium_v15"
 
-    dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.MINI))
+    dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.MEDIUM))
 
     # TestCovExpander(Path(os.environ["RANDOOP_JAR_PATH"])).run(dataset[0], output_dir)
 
@@ -117,8 +122,8 @@ def main():
     ]
 
     job_runner = JobRunner(
-        TestCovExpandWorker(Path(os.environ["RANDOOP_JAR_PATH"]), target_jdk_version="8"),
-        concurrency=multiprocessing.cpu_count(),
+        TestCovExpandWorker(Path(os.environ["RANDOOP_JAR_PATH"]), target_jdk_version="8", clear_cache=False),
+        concurrency=8,
     )
     job_results = job_runner.run(job_cfgs)
 
