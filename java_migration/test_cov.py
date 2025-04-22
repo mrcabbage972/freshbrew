@@ -10,7 +10,7 @@ from java_migration.eval.data_model import TestCoverage, CoverageSummary
 JACOCO_VERSION = "0.8.8"
 
 
-def _install_all_modules(repo: Path, use_wrapper: bool) -> None:
+def _install_all_modules(repo: Path, use_wrapper: bool, target_java_version: str) -> None:
     """
     Pre‑install every module in the reactor so that snapshot
     dependencies (e.g. base, logic, comet, web) are available
@@ -19,30 +19,23 @@ def _install_all_modules(repo: Path, use_wrapper: bool) -> None:
     mvn_cmd = str(repo / "mvnw") if use_wrapper and (repo / "mvnw").exists() else "mvn"
     cmd = [
         mvn_cmd,
-        "clean", "install",
+        "install",
         "-DskipTests=true",
         "-DskipITs=true",
         "-DskipDocs=true",
         "-B",
         "-ntp",
+        f"-Dmaven.compiler.source={target_java_version}",
+        f"-Dmaven.compiler.target={target_java_version}",
+        "-Dmaven.test.failure.ignore=true",
     ]
     print(f"Installing modules: {' '.join(cmd)}")
     subprocess.run(cmd, cwd=repo, check=True, capture_output=True)
 
 
-def _run_maven_with_jacoco(repo: Path, use_wrapper: bool) -> None:
-    """
-    Runs:
-      mvn clean \
-          org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:prepare-agent \
-          test \
-          org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:report \
-          org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:report-aggregate \
-        -B -ntp -Dmaven.test.failure.ignore=true
-    """
+def _run_maven_with_jacoco(repo: Path, use_wrapper: bool, target_java_version) -> None:
     mvn_cmd = str(repo / "mvnw") if use_wrapper and (repo / "mvnw").exists() else "mvn"
-    goals = [
-        "clean",
+    goals = [        
         f"org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:prepare-agent",
         "test",
         f"org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:report",
@@ -51,7 +44,9 @@ def _run_maven_with_jacoco(repo: Path, use_wrapper: bool) -> None:
     cmd = [mvn_cmd] + goals + [
         "-B",
         "-ntp",
-        "-Dmaven.test.failure.ignore=true"
+        "-Dmaven.test.failure.ignore=true",
+        f"-Dmaven.compiler.source={target_java_version}",
+        f"-Dmaven.compiler.target={target_java_version}",
     ]
     print(f"Running JaCoCo goals: {' '.join(cmd)}")
     subprocess.run(cmd, cwd=repo, check=True, capture_output=True)
@@ -116,7 +111,7 @@ def _aggregate_counters(all_counters: List[dict]) -> TestCoverage:
     )
 
 
-def get_test_cov(repo_path: str, use_wrapper: bool = False) -> Optional[TestCoverage]:
+def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version: str = "8") -> Optional[TestCoverage]:
     """
     1. Pre‑install all modules so snapshot dependencies for randoop-tests resolve.
     2. Instrument & run tests with JaCoCo, generating per-module and aggregate reports.
@@ -129,10 +124,10 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False) -> Optional[TestCove
         raise FileNotFoundError(f"Repo path not found: {repo_path}")
 
     # 1) Ensure all modules are installed locally
-    _install_all_modules(repo, use_wrapper)
+    _install_all_modules(repo, use_wrapper, target_java_version)
 
     # 2) Run Maven + JaCoCo goals
-    _run_maven_with_jacoco(repo, use_wrapper)
+    _run_maven_with_jacoco(repo, use_wrapper, target_java_version)
 
     # 3) Find generated jacoco.xml files
     reports = _find_jacoco_reports(repo)
