@@ -235,7 +235,7 @@ class PomUpdater:
             self.update_build_helper_plugin()
             self.update_surefire_plugin()
             # Original logic (Now likely redundant due to ensure_managed_dependencies_in_root if called)
-            # self.update_junit_dependency()
+            self.update_junit_dependency()
             print(f"POM file at {self.editor.pom_file} updated (single-module logic).")
 
 

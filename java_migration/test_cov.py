@@ -10,6 +10,26 @@ from java_migration.eval.data_model import TestCoverage, CoverageSummary
 JACOCO_VERSION = "0.8.8"
 
 
+def _install_all_modules(repo: Path, use_wrapper: bool) -> None:
+    """
+    Pre‑install every module in the reactor so that snapshot
+    dependencies (e.g. base, logic, comet, web) are available
+    before running randoop-tests or coverage.
+    """
+    mvn_cmd = str(repo / "mvnw") if use_wrapper and (repo / "mvnw").exists() else "mvn"
+    cmd = [
+        mvn_cmd,
+        "clean", "install",
+        "-DskipTests=true",
+        "-DskipITs=true",
+        "-DskipDocs=true",
+        "-B",
+        "-ntp",
+    ]
+    print(f"Installing modules: {' '.join(cmd)}")
+    subprocess.run(cmd, cwd=repo, check=True, capture_output=True)
+
+
 def _run_maven_with_jacoco(repo: Path, use_wrapper: bool) -> None:
     """
     Runs:
@@ -33,6 +53,7 @@ def _run_maven_with_jacoco(repo: Path, use_wrapper: bool) -> None:
         "-ntp",
         "-Dmaven.test.failure.ignore=true"
     ]
+    print(f"Running JaCoCo goals: {' '.join(cmd)}")
     subprocess.run(cmd, cwd=repo, check=True, capture_output=True)
 
 
@@ -97,26 +118,29 @@ def _aggregate_counters(all_counters: List[dict]) -> TestCoverage:
 
 def get_test_cov(repo_path: str, use_wrapper: bool = False) -> Optional[TestCoverage]:
     """
-    1. Instruments & runs all tests + generates both per-module and aggregate
-       jacoco.xml reports.
-    2. Globs for every jacoco.xml under target/site/jacoco*.
-    3. Parses & sums all LINE/METHOD counters.
+    1. Pre‑install all modules so snapshot dependencies for randoop-tests resolve.
+    2. Instrument & run tests with JaCoCo, generating per-module and aggregate reports.
+    3. Globs for every jacoco.xml under target/site/jacoco*.
+    4. Parses & sums all LINE/METHOD counters.
     Returns None if no reports were found.
     """
     repo = Path(repo_path)
     if not repo.is_dir():
         raise FileNotFoundError(f"Repo path not found: {repo_path}")
 
-    # 1) Run Maven with JaCoCo plugin directly
+    # 1) Ensure all modules are installed locally
+    _install_all_modules(repo, use_wrapper)
+
+    # 2) Run Maven + JaCoCo goals
     _run_maven_with_jacoco(repo, use_wrapper)
 
-    # 2) Find all generated jacoco.xml files
+    # 3) Find generated jacoco.xml files
     reports = _find_jacoco_reports(repo)
     if not reports:
         print("❗ No jacoco.xml files found under target/site/jacoco*")
         return None
 
-    # 3) Parse each, collect counters
+    # 4) Parse each, collect counters
     all_counts = []
     for rpt in reports:
         try:
@@ -128,27 +152,21 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False) -> Optional[TestCove
         print("❗ No valid coverage data could be parsed.")
         return None
 
-    # 4) Aggregate and return
+    # 5) Aggregate and return
     coverage = _aggregate_counters(all_counts)
     print(f"Aggregated Coverage → LINE: {coverage.LINE.percent:.2f}%, "
           f"METHOD: {coverage.METHOD.percent:.2f}%")
     return coverage
 
 
-
 if __name__ == "__main__":
-    import sys
-
-    # if len(sys.argv) < 2:
-    #     print("Usage: python coverage_runner.py <repo_path> [--wrapper]")
-    #     sys.exit(1)
-
-    #path = sys.argv[1]
-    path = "/home/user/java-migration-paper/data/workspace/wenweihu86_raft-java"
+    # Example invocation; replace with CLI parsing as needed
+    path    = "/home/user/java-migration-paper/data/workspace/wenweihu86_raft-java"
     wrapper = False
-    #wrapper = "--wrapper" in sys.argv[2:]
+
     coverage = get_test_cov(path, wrapper)
     if coverage:
-        print(f"Final: {coverage.LINE.covered}/{coverage.LINE.total} lines ({coverage.LINE.percent:.2f}%)")
+        print(f"Final: {coverage.LINE.covered}/{coverage.LINE.total} lines "
+              f"({coverage.LINE.percent:.2f}%)")
     else:
         print("Coverage could not be determined.")
