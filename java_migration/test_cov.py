@@ -279,7 +279,10 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version:
     # Downgrade TestNG if found
     ensure_testng_version(root_editor)
     # ensure_jacoco_plugin_configuration(root_editor)
-    ensure_jacoco_argline(root_editor)
+    if project.is_multi_module() and "randoop-tests" in project.get_modules():
+        ensure_jacoco_argline(project.get_pom_editor("randoop-tests"))
+    else:
+        ensure_jacoco_argline(root_editor)
 
     # 1) Ensure all modules are installed locally
     _install_all_modules(repo, use_wrapper, target_java_version)
@@ -314,7 +317,7 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version:
 
 if __name__ == "__main__":
     # Example invocation; replace with CLI parsing as needed
-    path    = "/home/user/java-migration-paper/data/workspace/WebGoat_WebGoat-Legacy" # Original example path
+    path    = "/home/user/java-migration-paper/data/workspace/Qbian61_forum-java" # Original example path
     wrapper = False
 
     coverage = get_test_cov(path, wrapper)

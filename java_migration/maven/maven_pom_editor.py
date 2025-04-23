@@ -319,10 +319,10 @@ class MavenPomEditor:
         if not self.element_exists("m:dependencies"):
             self.add_element(".", "m:dependencies")
         dep = self.get_dependency(group_id, artifact_id)
-        if dep:
-            self.editor.ensure_element(build_elem, "m:groupId", text=group_id)
-            self.editor.ensure_element(build_elem, "m:artifactId", text=artifact_id)
-            self.editor.ensure_element(build_elem, "m:version", text=version)
+        if dep is not None:
+            self.ensure_element(dep, "m:groupId", text=group_id)
+            self.ensure_element(dep, "m:artifactId", text=artifact_id)
+            self.ensure_element(dep, "m:version", text=version)
         else:
             new_dep = self.add_element("m:dependencies", "m:dependency")
             self.add_element("m:dependencies/m:dependency[last()]", "m:groupId", text=group_id)
