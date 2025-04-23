@@ -24,7 +24,8 @@ class Maven:
             os.chmod(mvnw_path, new_permissions)
 
     def _use_wrapper(self, repo_path: Path) -> bool:
-        return (repo_path / "mvnw").exists()
+        return (repo_path / "mvnw").exists() & (repo_path / ".mvn" / "wrapper" / "maven-wrapper.properties").exists()
+        
 
     def _get_base_cmd(self, repo_path: Path) -> str:
         if self._use_wrapper(repo_path):
@@ -56,8 +57,7 @@ class Maven:
         cmd = [
             self._get_base_cmd(repo_path),
             "install",
-            "--batch-mode",
-            "-ntp",
+            "--batch-mode",            
             "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn",
             f"-Dmaven.compiler.source={self.target_java_version}",
             f"-Dmaven.compiler.target={self.target_java_version}",
