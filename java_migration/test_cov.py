@@ -179,6 +179,81 @@ def _aggregate_counters(all_counters: List[dict]) -> TestCoverage:
     )
 
 
+def ensure_testng_version(root_editor):
+    testng_group_id = "org.testng"
+    testng_artifact_id = "testng"
+    target_testng_version = "6.14.3" # Java 8 compatible version
+
+    # Check direct dependencies
+    testng_dep_element = root_editor.get_dependency(testng_group_id, testng_artifact_id)
+    if testng_dep_element is not None:
+        root_editor.ensure_element(
+            parent=testng_dep_element,
+            tag="m:version",
+            text=target_testng_version
+        )
+    else:
+        # Check dependencyManagement if not found directly
+        mgmt_xpath = f".//m:dependencyManagement/m:dependencies/m:dependency[m:groupId='{testng_group_id}' and m:artifactId='{testng_artifact_id}']"
+        managed_deps = root_editor.root.xpath(mgmt_xpath, namespaces=root_editor.namespaces)
+        if managed_deps:
+            managed_dep_element = managed_deps[0]
+            root_editor.ensure_element(
+                parent=managed_dep_element,
+                tag="m:version",
+                text=target_testng_version
+            )
+    root_editor._save()
+
+def ensure_jacoco_plugin_configuration(editor: MavenPomEditor):
+    """
+    Ensures the standard JaCoCo plugin configuration is present using a
+    'remove-then-add' strategy. It first removes any existing
+    org.jacoco:jacoco-maven-plugin configuration, then adds the standard one.
+    WARNING: This approach discards any prior customizations in the plugin.
+
+    :param editor: The MavenPomEditor instance for the target pom.xml.
+    :return: True if the POM was modified (plugin removed or added), False otherwise.
+    """
+    group_id = "org.jacoco"
+    artifact_id = "jacoco-maven-plugin"
+    target_version = "0.8.8"
+
+    # Define the standard configuration to be added
+    desired_executions = [
+        {'id': 'prepare-agent', 'goals': ['prepare-agent'], 'phase': 'initialize'},
+        {'id': 'report',        'goals': ['report'],        'phase': 'test'},
+        {'id': 'report-aggregate','goals': ['report-aggregate'],'phase': 'verify'}
+    ]
+
+    initial_plugin_exists = editor.plugin_exists(group_id, artifact_id) # Check state *before* any changes
+    plugin_removed_successfully = False
+    plugin_added_successfully = False
+
+    # --- Step 1: Remove existing plugin if it exists ---
+    if initial_plugin_exists:
+        existing_plugin_element = editor.get_plugin(group_id, artifact_id)
+        if existing_plugin_element is not None:
+            try:
+                parent = existing_plugin_element.getparent()
+                if parent is not None:
+                    parent.remove(existing_plugin_element)
+                    editor._save() # Save the removal explicitly
+                    plugin_removed_successfully = True
+            except Exception as e:
+                print(f"Warning: Failed to remove existing plugin {group_id}:{artifact_id}: {e}")
+    try:
+        editor.add_plugin(
+            group_id=group_id,
+            artifactId=artifact_id,
+            version=target_version,
+            executions=desired_executions
+        )
+        plugin_added_successfully = True
+    except Exception as e:
+         print(f"Error: Failed to add plugin {group_id}:{artifact_id}: {e}")
+
+
 def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version: str = "8") -> Optional[TestCoverage]:
     """
     1. Pre‑install all modules so snapshot dependencies for randoop-tests resolve.
@@ -193,7 +268,11 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version:
 
     project = MavenProject(repo / "pom.xml")
     root_editor = project.get_pom_editor()
-    ensure_jacoco_argline(root_editor)    
+
+    # Downgrade TestNG if found
+    ensure_testng_version(root_editor)
+    # ensure_jacoco_plugin_configuration(root_editor)
+    ensure_jacoco_argline(root_editor)
 
     # 1) Ensure all modules are installed locally
     _install_all_modules(repo, use_wrapper, target_java_version)
@@ -228,7 +307,7 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version:
 
 if __name__ == "__main__":
     # Example invocation; replace with CLI parsing as needed
-    path    = "/home/user/java-migration-paper/data/workspace/scxwhite_hera"
+    path    = "/home/user/java-migration-paper/data/workspace/WebGoat_WebGoat-Legacy" # Original example path
     wrapper = False
 
     coverage = get_test_cov(path, wrapper)
