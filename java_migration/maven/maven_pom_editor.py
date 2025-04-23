@@ -318,13 +318,19 @@ class MavenPomEditor:
         """
         if not self.element_exists("m:dependencies"):
             self.add_element(".", "m:dependencies")
-        new_dep = self.add_element("m:dependencies", "m:dependency")
-        self.add_element("m:dependencies/m:dependency[last()]", "m:groupId", text=group_id)
-        self.add_element("m:dependencies/m:dependency[last()]", "m:artifactId", text=artifact_id)
-        self.add_element("m:dependencies/m:dependency[last()]", "m:version", text=version)
-        if scope:
-            self.add_element("m:dependencies/m:dependency[last()]", "m:scope", text=scope)
-        return new_dep
+        dep = self.get_dependency(group_id, artifact_id)
+        if dep:
+            self.editor.ensure_element(build_elem, "m:groupId", text=group_id)
+            self.editor.ensure_element(build_elem, "m:artifactId", text=artifact_id)
+            self.editor.ensure_element(build_elem, "m:version", text=version)
+        else:
+            new_dep = self.add_element("m:dependencies", "m:dependency")
+            self.add_element("m:dependencies/m:dependency[last()]", "m:groupId", text=group_id)
+            self.add_element("m:dependencies/m:dependency[last()]", "m:artifactId", text=artifact_id)
+            self.add_element("m:dependencies/m:dependency[last()]", "m:version", text=version)
+            if scope:
+                self.add_element("m:dependencies/m:dependency[last()]", "m:scope", text=scope)
+            return new_dep
 
     def ensure_managed_dependency(self, group_id: str, artifact_id: str, version: str, scope: Optional[str] = None) -> etree._Element:
         """

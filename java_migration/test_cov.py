@@ -7,6 +7,7 @@ import xmltodict
 from java_migration.eval.data_model import TestCoverage, CoverageSummary
 from java_migration.maven.maven_pom_editor import MavenPomEditor
 from java_migration.maven.maven_project import MavenProject
+from java_migration.maven.maven_runner import Maven
 
 
 
@@ -84,21 +85,27 @@ def _install_all_modules(repo: Path, use_wrapper: bool, target_java_version: str
     dependencies (e.g. base, logic, comet, web) are available
     before running randoop-tests or coverage.
     """
-    mvn_cmd = str(repo / "mvnw") if use_wrapper and (repo / "mvnw").exists() else "mvn"
-    cmd = [
-        mvn_cmd,
-        "install",
-        "-DskipTests=true",
-        "-DskipITs=true",
-        "-DskipDocs=true",
-        "-B",
-        "-ntp",
-        f"-Dmaven.compiler.source={target_java_version}",
-        f"-Dmaven.compiler.target={target_java_version}",
-        "-Dmaven.test.failure.ignore=true",
-    ]
-    print(f"Installing modules: {' '.join(cmd)}")
-    subprocess.run(cmd, cwd=repo, check=True, capture_output=True)
+
+    result = Maven(target_java_version).install(repo, skip_tests=True, ignore_test_failures=True, 
+        skip_its=True, skip_docs=True)
+    if result.status != 0:
+        raise RuntimeError(f"Maven install failed: {result.stdout + "\nstderr:\n" + result.stderr}")
+    
+    # mvn_cmd = str(repo / "mvnw") if use_wrapper and (repo / "mvnw").exists() else "mvn"
+    # cmd = [
+    #     mvn_cmd,
+    #     "install",
+    #     "-DskipTests=true",
+    #     "-DskipITs=true",
+    #     "-DskipDocs=true",
+    #     "-B",
+    #     "-ntp",
+    #     f"-Dmaven.compiler.source={target_java_version}",
+    #     f"-Dmaven.compiler.target={target_java_version}",
+    #     "-Dmaven.test.failure.ignore=true",
+    # ]
+    # print(f"Installing modules: {' '.join(cmd)}")
+    # subprocess.run(cmd, cwd=repo, check=True, capture_output=True)
 
 
 def _run_maven_with_jacoco(repo: Path, use_wrapper: bool, target_java_version) -> None:

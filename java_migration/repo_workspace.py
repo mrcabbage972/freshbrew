@@ -29,3 +29,7 @@ class RepoWorkspace:
         if self.workspace_dir.exists():
             shutil.rmtree(self.workspace_dir)
             logger.info(f"Cleaned workspace {self.workspace_dir}")
+
+    def reset(self):
+        repo = Repo(self.workspace_dir)
+        repo.git.reset('--hard')

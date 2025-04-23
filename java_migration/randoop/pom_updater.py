@@ -1,6 +1,6 @@
 import os
 from typing import Optional
-
+from pathlib import Path
 from java_migration.maven.maven_pom_editor import MavenPomEditor
 from java_migration.maven.maven_project import MavenProject
 
@@ -45,6 +45,22 @@ class PomUpdater:
         # Ensure dependencies are managed in root pom
         self.editor.ensure_managed_dependency("junit", "junit", "${junit.version}", scope="test")
 
+    def _needs_servlet_api(self, repo: Path) -> bool:
+        for f in repo.glob("**/src/main/java/**/*.java"):
+            with open(f, encoding="utf-8") as src:
+                for line in src:
+                    if line.startswith("import javax.servlet"):
+                        return True
+        return False
+
+    def _needs_slf4j_api(self, repo: Path) -> bool:
+        for src in repo.glob("**/src/main/java/**/*.java"):
+            text = src.read_text(encoding="utf-8")
+            # check for either Logger or LoggerFactory
+            if "import org.slf4j.Logger" in text or "import org.slf4j.LoggerFactory" in text:
+                return True
+        return False
+
     def _create_randoop_module_pom(self, module_path: str) -> MavenPomEditor:
         """
         Create a new pom.xml for the randoop-tests module.
@@ -82,6 +98,31 @@ class PomUpdater:
         # randoop_editor.create_sub_element(dependency_randoop, "m:artifactId", text="randoop")
         # # randoop_editor.create_sub_element(dependency_randoop, "m:version", text="...") # NO VERSION
         # randoop_editor.create_sub_element(dependency_randoop, "m:scope", text="test")
+
+        if self._needs_servlet_api(self.project_root):
+            print("adding servlet dependency")
+            randoop_editor.add_dependency(
+                group_id="javax.servlet", 
+                artifact_id="javax.servlet-api",
+                version="4.0.1",
+                scope="test" )
+            randoop_editor._save()
+
+        if self._needs_slf4j_api(self.project_root):
+            print("adding slf4j dependency")
+            randoop_editor.add_dependency(
+                group_id="org.slf4j", 
+                artifact_id="slf4j-api",
+                version="1.7.36",
+                scope="test" )
+
+            randoop_editor.add_dependency(
+                group_id="org.slf4j", 
+                artifact_id="slf4j-simple",
+                version="1.7.36",
+                scope="test" )
+            randoop_editor._save()
+            
 
         # --- Add dependencies to other project modules ---
         root_group_id = self.editor.root.findtext("m:groupId", namespaces=self.editor.namespaces)
@@ -235,7 +276,12 @@ class PomUpdater:
         Ensure that the JUnit dependency exists; add it if missing.
         """
         if not self.editor.dependency_exists("junit", "junit"):
-            self.editor.add_dependency("junit", "junit", "4.13.2", scope="test")
+            self.editor.add_dependency("junit", "junit", self.JUNIT_VERSION, scope="test")
+        else:
+            build_elem = self.editor.get_dependency("junit", "junit")
+            self.editor.ensure_element(build_elem, "m:version", text=self.JUNIT_VERSION)
+            self.editor._save()
+            # Update the version
             print("Added JUnit dependency to pom.")
 
     def update(self) -> None:
@@ -263,6 +309,26 @@ class PomUpdater:
             self.update_surefire_plugin()
             # Original logic (Now likely redundant due to ensure_managed_dependencies_in_root if called)
             self.update_junit_dependency()
+            if self._needs_servlet_api(self.project_root):
+                print("adding servlet dependency")
+                self.editor.add_dependency(
+                    group_id="javax.servlet", 
+                    artifact_id="javax.servlet-api",
+                    version="4.0.1",
+                    scope="test" )
+                self.editor._save()
+            if self._needs_slf4j_api(self.project_root):                
+                self.editor.add_dependency(
+                    group_id="org.slf4j", 
+                    artifact_id="slf4j-api",
+                    version="1.7.36",
+                    scope="test" )                
+                self.editor.add_dependency(
+                    group_id="org.slf4j", 
+                    artifact_id="slf4j-simple",
+                    version="1.7.36",
+                    scope="test")
+                self.editor._save()
             print(f"POM file at {self.editor.pom_file} updated (single-module logic).")
 
 

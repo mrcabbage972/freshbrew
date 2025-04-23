@@ -57,7 +57,7 @@ class RandoopRunner:
 
     def _ensure_repo_sanity(self, repo_path: Path):
         if Maven(target_java_version=self.target_java_version) \
-               .install(repo_path, skip_tests=True).status != 0:
+               .test(repo_path, skip_tests=True).status != 0:
             raise RuntimeError("Maven install failed. Skipping.")
 
         if not (repo_path / ".git").exists():
@@ -113,7 +113,8 @@ class RandoopRunner:
                     print("✅ Randoop completed successfully.")
                     break
                 except subprocess.CalledProcessError as e:
-                    print(f"❌ Randoop failed: {e.stderr or e.output}")
+                    error_str = e.stderr or e.output
+                    print(f"❌ Randoop failed: {error_str[:500]}")
                     cls = extract_failing_class(e.stdout or e.stderr)
                     if not cls:
                         raise RuntimeError("Could not extract failing class.")
@@ -151,7 +152,7 @@ def main():
     # ESAPI_esapi-java
     # /home/user/java-migration-paper/data/workspace/yangxiufeng666_Micro-Service-Skeleton
     # "/home/user/java-migration-paper/data/workspace/zykzhangyukang_Xinguan"
-    repos = [Path("/home/user/java-migration-paper/data/workspace/yangxiufeng666_Micro-Service-Skeleton")]  # sys.argv[1:]
+    repos = [Path("/home/user/java-migration-paper/data/workspace/WebGoat_WebGoat-Legacy")]  # sys.argv[1:]
     for repo in repos:
         if os.path.isdir(repo):
 

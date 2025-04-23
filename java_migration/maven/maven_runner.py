@@ -51,17 +51,25 @@ class Maven:
             status=result.returncode, stdout=result.stdout.decode("utf-8"), stderr=result.stderr.decode("utf-8")
         )
 
-    def install(self, repo_path: Path, skip_tests: bool = False) -> CliResult:
+    def install(self, repo_path: Path, skip_tests: bool = False, ignore_test_failures: bool = False,
+     skip_its: bool = True, skip_docs: bool = True) -> CliResult:
         cmd = [
             self._get_base_cmd(repo_path),
             "install",
             "--batch-mode",
+            "-ntp",
             "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn",
             f"-Dmaven.compiler.source={self.target_java_version}",
             f"-Dmaven.compiler.target={self.target_java_version}",
         ]
         if skip_tests:
             cmd.append("-DskipTests")
+        if ignore_test_failures:
+            cmd.append("-Dmaven.test.failure.ignore=true")
+        if skip_its:
+            cmd.append("-DskipITs")
+        if skip_docs:
+            cmd.append("-DskipDocs")
         result = subprocess.run(cmd, capture_output=True, cwd=str(repo_path))
         return CliResult(
             status=result.returncode, stdout=result.stdout.decode("utf-8"), stderr=result.stderr.decode("utf-8")

@@ -70,6 +70,7 @@ class TestCovExpander:
                 fout.write(build_result.build_log)
 
             self._get_cov(repo_workspace.workspace_dir, output_dir / "cov_before.yaml")
+            repo_workspace.reset()
             patch_path = self.randoop_runner.run(repo_workspace.workspace_dir)
             self._get_cov(repo_workspace.workspace_dir, output_dir / "cov_after.yaml")
 
@@ -110,9 +111,11 @@ class TestCovExpandWorker(Worker):
 
 
 def main():
-    output_dir = REPO_ROOT / "output" / "cov_expand_new_medium_v15"
+    output_dir = REPO_ROOT / "output" / "cov_expand_new_medium_v18"
 
     dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.MEDIUM))
+
+    #dataset = [x for x in dataset if "wenwei" in x.repo_name]
 
     # TestCovExpander(Path(os.environ["RANDOOP_JAR_PATH"])).run(dataset[0], output_dir)
 
@@ -123,7 +126,7 @@ def main():
 
     job_runner = JobRunner(
         TestCovExpandWorker(Path(os.environ["RANDOOP_JAR_PATH"]), target_jdk_version="8", clear_cache=False),
-        concurrency=8,
+        concurrency=16,
     )
     job_results = job_runner.run(job_cfgs)
 
