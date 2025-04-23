@@ -111,10 +111,10 @@ def _install_all_modules(repo: Path, use_wrapper: bool, target_java_version: str
 def _run_maven_with_jacoco(repo: Path, use_wrapper: bool, target_java_version) -> None:
     mvn_cmd = str(repo / "mvnw") if use_wrapper and (repo / "mvnw").exists() else "mvn"
     goals = [        
-        f"org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:prepare-agent",
-        "test",
-        f"org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:report",
-        f"org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:report-aggregate",
+        # f"org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:prepare-agent",
+         "test",
+        # f"org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:report",
+        # f"org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:report-aggregate",
     ]
     cmd = [mvn_cmd] + goals + [
         "-B",
@@ -212,7 +212,7 @@ def ensure_testng_version(root_editor):
             )
     root_editor._save()
 
-def ensure_jacoco_plugin_configuration(editor: MavenPomEditor):
+def ensure_jacoco_plugin_configuration(editor: MavenPomEditor, prepare_agent: bool = True, report: bool = True, report_aggregate: bool = True):
     """
     Ensures the standard JaCoCo plugin configuration is present using a
     'remove-then-add' strategy. It first removes any existing
@@ -227,11 +227,19 @@ def ensure_jacoco_plugin_configuration(editor: MavenPomEditor):
     target_version = "0.8.8"
 
     # Define the standard configuration to be added
-    desired_executions = [
-        {'id': 'prepare-agent', 'goals': ['prepare-agent'], 'phase': 'initialize'},
-        {'id': 'report',        'goals': ['report'],        'phase': 'test'},
-        {'id': 'report-aggregate','goals': ['report-aggregate'],'phase': 'verify'}
-    ]
+    desired_executions = []
+
+    if prepare_agent:
+        desired_executions.append(
+        {'id': 'prepare-agent', 'goals': ['prepare-agent'], 'phase': 'initialize'})
+
+    if report:
+        desired_executions.append(
+        {'id': 'report',        'goals': ['report'],        'phase': 'test'})
+
+    if report_aggregate:
+        desired_executions.append(
+        {'id': 'report-aggregate','goals': ['report-aggregate'],'phase': 'test'})
 
     initial_plugin_exists = editor.plugin_exists(group_id, artifact_id) # Check state *before* any changes
     plugin_removed_successfully = False
@@ -252,7 +260,7 @@ def ensure_jacoco_plugin_configuration(editor: MavenPomEditor):
     try:
         editor.add_plugin(
             group_id=group_id,
-            artifactId=artifact_id,
+            artifact_id=artifact_id,
             version=target_version,
             executions=desired_executions
         )
@@ -278,11 +286,15 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version:
 
     # Downgrade TestNG if found
     ensure_testng_version(root_editor)
-    # ensure_jacoco_plugin_configuration(root_editor)
+   
     if project.is_multi_module() and "randoop-tests" in project.get_modules():
         ensure_jacoco_argline(project.get_pom_editor("randoop-tests"))
+        ensure_jacoco_plugin_configuration(root_editor, prepare_agent=False, report=False, report_aggregate=True)
+        for module in project.get_modules():
+            ensure_jacoco_plugin_configuration(project.get_pom_editor(module), prepare_agent=True, report=True, report_aggregate=False)
     else:
         ensure_jacoco_argline(root_editor)
+        ensure_jacoco_plugin_configuration(root_editor, prepare_agent=True, report=True, report_aggregate=True)
 
     # 1) Ensure all modules are installed locally
     _install_all_modules(repo, use_wrapper, target_java_version)
@@ -317,7 +329,7 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version:
 
 if __name__ == "__main__":
     # Example invocation; replace with CLI parsing as needed
-    path    = "/home/user/java-migration-paper/data/workspace/Qbian61_forum-java" # Original example path
+    path    = "/home/user/java-migration-paper/data/workspace/wenweihu86_raft-java" # Original example path
     wrapper = False
 
     coverage = get_test_cov(path, wrapper)
