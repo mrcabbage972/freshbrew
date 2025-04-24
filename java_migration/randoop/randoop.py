@@ -17,8 +17,8 @@ class RandoopRunner:
         self,
         randoop_jar_path: Path,
         target_java_version: str = "8",
-        time_limit: int = 60,
-        output_limit: int = 200,
+        time_limit: int = 300,
+        output_limit: int = 500,
         num_retries: int = 20,
     ):
         self.randoop_jar_path = randoop_jar_path
@@ -152,7 +152,7 @@ def main():
     # ESAPI_esapi-java
     # /home/user/java-migration-paper/data/workspace/yangxiufeng666_Micro-Service-Skeleton
     # "/home/user/java-migration-paper/data/workspace/zykzhangyukang_Xinguan"
-    repos = [Path("/home/user/java-migration-paper/data/workspace/WebGoat_WebGoat-Legacy")]  # sys.argv[1:]
+    repos = [Path("/home/user/java-migration-paper/data/workspace_tmp/forum-java")]  # sys.argv[1:]
     for repo in repos:
         if os.path.isdir(repo):
 

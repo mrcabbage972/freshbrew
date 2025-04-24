@@ -15,6 +15,70 @@ from java_migration.maven.maven_runner import Maven
 # JaCoCo plugin version to use
 JACOCO_VERSION = "0.8.8"
 
+def add_copy_app_classes_to_randoop_pom(project: MavenProject):
+    """
+    Adds a maven-resources-plugin execution to the randoop-tests module POM
+    that copies compiled classes from the app modules into randoop-tests/target/classes.
+    """
+    # Locate the randoop-tests pom
+    editor = project.get_pom_editor("randoop-tests")
+
+    ns = editor.namespaces
+
+    # Ensure <build><plugins> exists
+    build_elem = editor.ensure_element(".", "m:build")
+    plugins_elem = editor.ensure_element(build_elem, "m:plugins")
+
+    # Check if the plugin already exists
+    plugin_xpath = (
+        "m:plugin[m:groupId='org.apache.maven.plugins' and "
+        "m:artifactId='maven-resources-plugin']"
+    )
+    existing_plugins = plugins_elem.xpath(plugin_xpath, namespaces=ns)
+    if existing_plugins:
+        plugin_elem = existing_plugins[0]
+    else:
+        # Create the plugin entry
+        plugin_elem = editor.create_sub_element(plugins_elem, "m:plugin")
+        editor.create_sub_element(plugin_elem, "m:groupId", text="org.apache.maven.plugins")
+        editor.create_sub_element(plugin_elem, "m:artifactId", text="maven-resources-plugin")
+        editor.create_sub_element(plugin_elem, "m:version", text="3.0.0")
+
+    # Add the execution to copy classes
+    executions_elem = editor.ensure_element(plugin_elem, "m:executions")
+
+    # Avoid duplicate execution
+    exec_xpath = "m:execution[m:id='copy-app-classes']"
+    if not executions_elem.xpath(exec_xpath, namespaces=ns):
+        exec_elem = editor.create_sub_element(executions_elem, "m:execution")
+        editor.create_sub_element(exec_elem, "m:id", text="copy-app-classes")
+        editor.create_sub_element(exec_elem, "m:phase", text="process-test-classes")
+        goals_elem = editor.create_sub_element(exec_elem, "m:goals")
+        editor.create_sub_element(goals_elem, "m:goal", text="copy-resources")
+
+        # Configuration block
+        config_elem = editor.create_sub_element(exec_elem, "m:configuration")
+        editor.create_sub_element(
+            config_elem,
+            "m:outputDirectory",
+            text="${project.build.outputDirectory}"
+        )
+        resources_elem = editor.create_sub_element(config_elem, "m:resources")
+
+        # List of modules whose classes should be copied
+        modules = project.get_modules()
+        for mod in modules:
+            res = editor.create_sub_element(resources_elem, "m:resource")
+            editor.create_sub_element(
+                res,
+                "m:directory",
+                text=f"${{project.parent.basedir}}/{mod}/target/classes"
+            )
+            editor.create_sub_element(res, "m:filtering", text="false")
+
+    # Save changes
+    editor._save()
+
 def ensure_jacoco_argline(editor: MavenPomEditor) -> bool:
     """
     Ensures the JaCoCo agent property ${argLine} is included in the <argLine>
@@ -290,6 +354,7 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version:
     if project.is_multi_module() and "randoop-tests" in project.get_modules():
         ensure_jacoco_argline(project.get_pom_editor("randoop-tests"))
         ensure_jacoco_plugin_configuration(root_editor, prepare_agent=False, report=False, report_aggregate=True)
+        add_copy_app_classes_to_randoop_pom(project)
         for module in project.get_modules():
             ensure_jacoco_plugin_configuration(project.get_pom_editor(module), prepare_agent=True, report=True, report_aggregate=False)
     else:
@@ -329,7 +394,7 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version:
 
 if __name__ == "__main__":
     # Example invocation; replace with CLI parsing as needed
-    path    = "/home/user/java-migration-paper/data/workspace/wenweihu86_raft-java" # Original example path
+    path    = "/home/user/java-migration-paper/data/workspace_tmp/forum-java" # Original example path
     wrapper = False
 
     coverage = get_test_cov(path, wrapper)
