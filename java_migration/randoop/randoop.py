@@ -18,7 +18,7 @@ class RandoopRunner:
         randoop_jar_path: Path,
         target_java_version: str = "8",
         time_limit: int = 300,
-        output_limit: int = 500,
+        output_limit: int = 2000,
         num_retries: int = 20,
     ):
         self.randoop_jar_path = randoop_jar_path

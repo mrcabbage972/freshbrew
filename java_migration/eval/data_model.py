@@ -18,7 +18,7 @@ class TestCoverage(BaseModel):
 
 class MigrationDatasetItem(BaseModel):
     repo_name: str
-    commit: str
+    commit: str | None = None
 
     @staticmethod
     def from_yaml(dataset_path: Path) -> list["MigrationDatasetItem"]:

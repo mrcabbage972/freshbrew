@@ -47,7 +47,7 @@ class TestCovExpander:
         workspace = None
         try:
             output_dir = output_root / safe_repo_name(dataset_item.repo_name)
-            if not self.clear_cache and output_dir.exists() and (output_dir / "randoop.patch").exists():
+            if not self.clear_cache and output_dir.exists() and ((output_dir / "randoop.patch").exists() or (output_dir / "stdout.txt").exists()):
                 print(f"Skipping existing output for {dataset_item.repo_name}")
                 return
 
@@ -111,11 +111,14 @@ class TestCovExpandWorker(Worker):
 
 
 def main():
-    output_dir = REPO_ROOT / "output" / "cov_expand_new_medium_v18"
+    output_dir = REPO_ROOT / "output" / "cov_expand_30k"
 
-    dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.MEDIUM))
+    #dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.MEDIUM))
+    dataset = MigrationDatasetItem.from_yaml("/home/user/java-migration-paper/data/30k_dataset/30k_processed.yaml")
 
-    #dataset = [x for x in dataset if "wenwei" in x.repo_name]
+    print(len(dataset))
+
+    #dataset = [x for x in dataset if "hera" in x.repo_name]
 
     # TestCovExpander(Path(os.environ["RANDOOP_JAR_PATH"])).run(dataset[0], output_dir)
 
@@ -126,7 +129,7 @@ def main():
 
     job_runner = JobRunner(
         TestCovExpandWorker(Path(os.environ["RANDOOP_JAR_PATH"]), target_jdk_version="8", clear_cache=False),
-        concurrency=16,
+        concurrency=8,
     )
     job_results = job_runner.run(job_cfgs)
 
