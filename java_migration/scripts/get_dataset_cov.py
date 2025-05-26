@@ -6,6 +6,7 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel
 from tqdm import tqdm
+from dotenv import load_dotenv
 
 from java_migration.eval.data_model import MigrationDatasetItem
 from java_migration.eval.maven_build_verifier import MavenBuildVerifier
@@ -48,7 +49,7 @@ class Worker:
                 commit_sha=job.dataset_item.commit,
             )
 
-            build_result = MavenBuildVerifier().verify(workspace.workspace_dir)
+            build_result = MavenBuildVerifier().verify(workspace.workspace_dir, target_java_version="8")
             if not build_result.build_success:
                 print(f"Repo {job.dataset_item.repo_name} build failed, skipping")
                 return JobResult(status=JobStatus.SKIP)
@@ -126,13 +127,15 @@ def _run_jobs(job_cfgs: list[JobCfg], concurrency: int, timeout_seconds: int) ->
 
 
 def main():
-    output_path = REPO_ROOT / "data" / "cov_output_full"
+    load_dotenv()
+    output_path = REPO_ROOT / "data" / "cov_output_30k"
     workspace_dir = REPO_ROOT / "data" / "workspace"
 
     output_path.mkdir(parents=True, exist_ok=True)
     workspace_dir.mkdir(parents=True, exist_ok=True)
 
-    dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.FULL))
+    dataset = MigrationDatasetItem.from_yaml("/home/user/java-migration-paper/data/30k_dataset/30k_processed.yaml")
+    #dataset = [ x for x in dataset if x.repo_name == "4ra1n/mysql-fake-server"]
 
     job_cfgs = [
         JobCfg(dataset_item=item, output_root=output_path, workspace_root=workspace_dir, cleanup_workspace=True)
