@@ -153,7 +153,7 @@ def _install_all_modules(repo: Path, use_wrapper: bool, target_java_version: str
     result = Maven(target_java_version).install(repo, skip_tests=True, ignore_test_failures=True, 
         skip_its=True, skip_docs=True)
     if result.status != 0:
-        raise RuntimeError(f"Maven install failed: {result.stdout + "\nstderr:\n" + result.stderr}")
+        raise RuntimeError(f"Maven install failed: {result.stdout} + \nstderr:\" + {result.stderr}")
     
     # mvn_cmd = str(repo / "mvnw") if use_wrapper and (repo / "mvnw").exists() else "mvn"
     # cmd = [
