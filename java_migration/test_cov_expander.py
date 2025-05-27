@@ -101,6 +101,7 @@ class TestCovExpandWorker(Worker):
 
     def __call__(self, job: JobCfg) -> JobResult:
         try:
+            print(f"Processing repo {job.dataset_item.repo_name}")
             buffer = io.StringIO()
             with contextlib.redirect_stdout(buffer):
                 self.test_cov_expander.run(job.dataset_item, job.output_root, job.workspace_root, job.cleanup_workspace)
