@@ -47,7 +47,7 @@ class TestCovExpander:
         workspace = None
         try:
             output_dir = output_root / safe_repo_name(dataset_item.repo_name)
-            if not self.clear_cache and output_dir.exists() and ((output_dir / "randoop.patch").exists() or (output_dir / "stdout.txt").exists()):
+            if not self.clear_cache and output_dir.exists() and ((output_dir / "randoop.patch").exists() or (output_dir / "stdout.txt").exists() or (output_dir / "cov_before.yaml").exists()):
                 print(f"Skipping existing output for {dataset_item.repo_name}")
                 return
 
