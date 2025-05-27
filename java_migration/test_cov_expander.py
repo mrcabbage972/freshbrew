@@ -61,7 +61,8 @@ class TestCovExpander:
                 workspace_dir=workspace_root / safe_repo_name(dataset_item.repo_name),
             )
             build_result = self.build_verifier.verify(
-                repo_workspace.workspace_dir, target_java_version=self.target_jdk_version
+                repo_workspace.workspace_dir, target_java_version=self.target_jdk_version,
+                build_only=True
             )
             if not build_result.build_success:
                 raise RuntimeError(f"Build failed for repo {dataset_item.repo_name}")
