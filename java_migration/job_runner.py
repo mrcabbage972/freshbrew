@@ -59,7 +59,7 @@ class JobRunner:
         progress_process = multiprocessing.Process(target=listener, args=(progress_queue, len(job_cfgs)))
         progress_process.start()
 
-        with multiprocessing.Pool(processes=self.concurrency) as pool:
+        with multiprocessing.Pool(processes=self.concurrency, maxtasksperchild=5) as pool:
             task_futures = [
                 pool.apply_async(worker_wrapper, (self.worker, job_cfg, progress_queue)) for job_cfg in job_cfgs
             ]
