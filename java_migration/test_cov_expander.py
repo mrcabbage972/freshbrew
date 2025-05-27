@@ -5,6 +5,7 @@ import os
 import shutil
 import traceback
 from pathlib import Path
+import random
 
 import yaml
 from dotenv import load_dotenv
@@ -50,6 +51,8 @@ class TestCovExpander:
             if not self.clear_cache and output_dir.exists() and ((output_dir / "randoop.patch").exists() or (output_dir / "stdout.txt").exists() or (output_dir / "cov_before.yaml").exists()):
                 print(f"Skipping existing output for {dataset_item.repo_name}")
                 return
+
+            print(f"Processing repo {job.dataset_item.repo_name}")
 
             if output_dir.exists():
                 shutil.rmtree(output_dir)
@@ -100,8 +103,7 @@ class TestCovExpandWorker(Worker):
         self.test_cov_expander = TestCovExpander(randoop_jar_path, target_jdk_version, clear_cache)
 
     def __call__(self, job: JobCfg) -> JobResult:
-        try:
-            print(f"Processing repo {job.dataset_item.repo_name}")
+        try:  
             buffer = io.StringIO()
             with contextlib.redirect_stdout(buffer):
                 self.test_cov_expander.run(job.dataset_item, job.output_root, job.workspace_root, job.cleanup_workspace)
@@ -133,6 +135,7 @@ def main():
         TestCovExpandWorker(Path(os.environ["RANDOOP_JAR_PATH"]), target_jdk_version="8", clear_cache=False),
         concurrency=os.cpu_count() - 4,
     )
+    random.shuffle(job_cfgs)
     job_results = job_runner.run(job_cfgs)
 
     print(job_runner.get_result_stats(job_results))
