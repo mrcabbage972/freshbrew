@@ -115,7 +115,7 @@ def main():
     output_dir = REPO_ROOT / "output" / "cov_expand_30k"
 
     #dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.MEDIUM))
-    dataset = MigrationDatasetItem.from_yaml("/home/user/java-migration-paper/data/30k_dataset/30k_processed.yaml")
+    dataset = MigrationDatasetItem.from_yaml("data/30k_dataset/30k_processed.yaml")
 
     print(len(dataset))
 
@@ -130,7 +130,7 @@ def main():
 
     job_runner = JobRunner(
         TestCovExpandWorker(Path(os.environ["RANDOOP_JAR_PATH"]), target_jdk_version="8", clear_cache=False),
-        concurrency=8,
+        concurrency=os.cpu_count() - 4,
     )
     job_results = job_runner.run(job_cfgs)
 
