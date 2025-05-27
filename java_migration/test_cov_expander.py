@@ -52,7 +52,7 @@ class TestCovExpander:
                 print(f"Skipping existing output for {dataset_item.repo_name}")
                 return
 
-            print(f"Processing repo {job.dataset_item.repo_name}")
+            print(f"Processing repo {dataset_item.repo_name}")
 
             if output_dir.exists():
                 shutil.rmtree(output_dir)
