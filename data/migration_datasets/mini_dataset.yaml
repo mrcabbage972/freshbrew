@@ -1,90 +1,30 @@
-- commit: 5aa238cc8ada09e0974760b9e58b6131f1b945a5
-  repo_name: nydiarra/springboot-jwt
-  test_count:
-    tests_failed: 0
-    tests_run: 1
-    tests_skipped: 0
-    tests_successful: 1
-- commit: 2f02edac5c168e14b0a5400bad3b408e176b660b
-  repo_name: alibaba/QLExpress
-  test_count:
-    tests_failed: 0
-    tests_run: 193
-    tests_skipped: 2
-    tests_successful: 191
-- commit: 091af3b8e76c8ba4b5a96aa7151f7da433a717bb
-  repo_name: Ouyangan/hunt-admin
-- commit: 1b3e7c133ab76a26c9c5b3653679d77d0cd6358d
-  repo_name: DeemOpen/zkui
-  test_count:
-    tests_failed: 0
-    tests_run: 0
-    tests_skipped: 0
-    tests_successful: 0
-- commit: 78ee96b893197e1d36ff2b6d3e633c08bba75284
-  repo_name: EalenXie/spring-microservice-ddd
-  test_count:
-    tests_failed: 0
-    tests_run: 1
-    tests_skipped: 0
-    tests_successful: 1
-- commit: b7d191461e66a55f33795229d160e5267f6d8445
-  repo_name: SPuerBRead/Bridge
-- commit: 6c1c3215419faaca427fa8d1e960f13cde76e766
-  repo_name: ata4/disunity
-  test_count:
-    tests_failed: 0
-    tests_run: 164
-    tests_skipped: 0
-    tests_successful: 164
-- commit: 05659af43697f6dae5743fd0a1931c210757e1e7
-  repo_name: Netflix/Surus
-  test_count:
-    tests_failed: 0
-    tests_run: 10
-    tests_skipped: 0
-    tests_successful: 10
-- commit: eec7d3a878d35201082883c7378341e5497fb4e3
-  repo_name: anjia0532/unidbg-boot-server
-- commit: 4922c077c07a3744ae67ee8a932786f15bf57411
-  repo_name: EnterpriseQualityCoding/FizzBuzzEnterpriseEdition
-  test_count:
-    tests_failed: 0
-    tests_run: 1
-    tests_skipped: 0
-    tests_successful: 1
-- commit: 50b2fcad36391a4a17113ddfa93691645c79fa6a
-  repo_name: joelittlejohn/jsonschema2pojo
-  test_count:
-    tests_failed: 0
-    tests_run: 608
-    tests_skipped: 0
-    tests_successful: 608
-- commit: 7d78be3cab526501ad876495862f4cec108da2af
-  repo_name: opengoofy/hippo4j
-  test_count:
-    tests_failed: 0
-    tests_run: 404
-    tests_skipped: 0
-    tests_successful: 404
-- commit: 900adcafbcce2cf93093e168e2cfafb246c3be4d
-  repo_name: killme2008/aviatorscript
-  test_count:
-    tests_failed: 0
-    tests_run: 856
-    tests_skipped: 0
-    tests_successful: 856
-- commit: 1973e402f5d4c1442ad34a1d38ed0758079f7773
-  repo_name: perwendel/spark
-  test_count:
-    tests_failed: 0
-    tests_run: 318
-    tests_skipped: 0
-    tests_successful: 318
-- commit: bfb889be9c5b111092cdd2c8be07b1afc293cd00
-  repo_name: Codecademy/EventHub
-  test_count:
-    tests_failed: 0
-    tests_run: 21
-    tests_skipped: 0
-    tests_successful: 21
+- commit: 401cb9e51b1b4e14c9350b06f8e0029a34ce6853
+  repo_name: jirutka/spring-rest-exception-handler
+- commit: c69646098f1cf48a7163af5fbac903303938e420
+  repo_name: kohsuke/wordnet-random-name
+- commit: 6761db704876de6c8d7a5a08c330629a7c2957d0
+  repo_name: JakeWharton/RxReplayingShare
+- commit: bc63e0a8f95981482771958a530e44000470d2bc
+  repo_name: Devskiller/friendly-id
+- commit: cdc1f259f727c12c0fc489a62769529e611af413
+  repo_name: code4craft/hello-design-pattern
+- commit: abd54e87d94293044c84bf71a2bda573b2f742c5
+  repo_name: jamesmorgan/ReloadablePropertiesAnnotation
+- commit: c6e2f272b3cb99b414bb1e1b0456c9d0f3efe359
+  repo_name: pivotalsoftware/ESarch
+- commit: 36fe5d05942cbd0c85852acd14971113b2702607
+  repo_name: playframework/netty-reactive-streams
+- commit: 99e113f1f71fe800037487a6ae5b2f437935bed7
+  repo_name: davidmoten/rxjava-extras
+- commit: 860ecb84b339cc2ef905b1ac600897cfd3a27c40
+  repo_name: keepcosmos/beanmother
+- commit: 7fd6de09581fee0eabf3b95125962bfbcc9e0283
+  repo_name: google/closure-stylesheets
+- commit: f9c6a00b43007695a792e8e085f62648d6249d84
+  repo_name: arocketman/Spring-oauth2-jpa-example
+- commit: a38b10014bec5ba1ef56e8bea062da7ec57db9c6
+  repo_name: cheese10yun/spring-jpa-best-practices
+- commit: 958838a693bc471a0eb19ac010a95319f6cf8444
+  repo_name: yahoo/sherlock
+- commit: c25329245d1e0f94df21ee05bbc5805a655b795a
+  repo_name: vlingo/xoom-actors
