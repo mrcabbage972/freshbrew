@@ -52,7 +52,7 @@
 59,ToastShaman/dropwizard-auth-jwt,Apache-2.0
 60,VisualDataWeb/OWL2VOWL,MIT
 61,Wolfgang-Schuetzelhofer/jcypher,Apache-2.0
-62,Yubico/java-u2flib-server,NO_LICENSE
+62,Yubico/java-u2flib-server,BSD-3-Clause
 63,abahgat/suffixtree,Apache-2.0
 64,acogoluegnes/Spring-Batch-Workshop,Apache-2.0
 65,addthis/stream-lib,Apache-2.0
@@ -92,7 +92,7 @@
 109,chanjarster/spring-test-examples,Apache-2.0
 111,chrisgleissner/spring-batch-rest,Apache-2.0
 112,code4craft/hello-design-pattern,Apache-2.0
-113,cowtowncoder/low-gc-membuffers,NO_LICENSE
+113,cowtowncoder/low-gc-membuffers,Apache-2.0
 114,craigwblake/redline,MIT
 115,crossoverJie/distributed-redis-tool,MIT
 116,cstettler/ddd-to-the-code-workshop-sample,Apache-2.0
@@ -149,7 +149,7 @@
 183,logstash/log4j-jsonevent-layout,Apache-2.0
 184,magro/kryo-serializers,Apache-2.0
 185,mangstadt/biweekly,BSD-2-Clause
-186,mangstadt/ez-vcard,NO_LICENSE
+186,mangstadt/ez-vcard,FreeBSD
 187,mboudreau/Alternator,Apache-2.0
 188,medallia/Word2VecJava,MIT
 189,meixuesong/aggregate-persistence,Apache-2.0
@@ -184,7 +184,7 @@
 225,rrice/java-string-similarity,MIT
 226,rstoyanchev/spring-websocket-portfolio,Apache-2.0
 230,sbtourist/Journal.IO,Apache-2.0
-232,scijava/native-lib-loader,NO_LICENSE
+232,scijava/native-lib-loader,BSD-2-Clause
 233,shazam/shazamcrest,Apache-2.0
 234,sidd-harth/kubernetes-devops-security,CC0-1.0
 236,smacke/jaydio,Apache-2.0
@@ -199,7 +199,7 @@
 247,spullara/cli-parser,Apache-2.0
 248,square/javapoet,Apache-2.0
 249,square/mimecraft,Apache-2.0
-250,stephenc/high-scale-lib,NO_LICENSE
+250,stephenc/high-scale-lib,CC-PDDC
 251,swagger-api/swagger-inflector,Apache-2.0
 252,szerhusenBC/jwt-spring-security-demo,MIT
 253,tcplugins/tcWebHooks,MIT
@@ -219,7 +219,7 @@
 270,virgo47/javasimon,BSD-3-Clause
 272,watson-developer-cloud/java-sdk,Apache-2.0
 273,wilkinsona/spring-boot-sample-tomcat-jndi,Apache-2.0
-274,wkennedy/swagger4spring-web,NO_LICENSE
+274,wkennedy/swagger4spring-web,MIT
 275,wso2/balana,Apache-2.0
 277,xuender/unidecode,MIT
 279,youngmonkeys/ezyfox-server,Apache-2.0
