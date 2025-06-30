@@ -14,12 +14,12 @@ import argparse
 import csv
 import os
 import sys
+import time
 from typing import Iterable, Tuple
-import yaml
+
 import dotenv
 import requests
-import time
-
+import yaml
 
 dotenv.load_dotenv()
 

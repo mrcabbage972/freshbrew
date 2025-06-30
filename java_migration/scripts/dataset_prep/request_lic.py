@@ -1,8 +1,9 @@
+import os
+import time
+
+import dotenv
 import pandas as pd
 import requests
-import time
-import os
-import dotenv
 
 dotenv.load_dotenv()
 

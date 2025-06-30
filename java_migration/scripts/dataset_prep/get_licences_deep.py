@@ -13,8 +13,7 @@ Unauthenticated quota ≈ 60 req/h ; authenticated ≈ 5 000 req/h.
 """
 
 from __future__ import annotations
-import yaml
-import dotenv
+
 import argparse
 import base64
 import csv
@@ -24,7 +23,9 @@ import sys
 import time
 from typing import Iterable, Tuple
 
+import dotenv
 import requests
+import yaml
 
 dotenv.load_dotenv()
 

@@ -1,6 +1,7 @@
 import os
-from typing import Optional
 from pathlib import Path
+from typing import Optional
+
 from java_migration.maven.maven_pom_editor import MavenPomEditor
 from java_migration.maven.maven_project import MavenProject
 

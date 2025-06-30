@@ -34,14 +34,12 @@ class MavenPomEditor:
         """
         try:
             if isinstance(parent, str):
-                full_xpath = f"{parent}/{tag}"
                 parent_elements = self.root.xpath(parent, namespaces=self.namespaces)
                 if not parent_elements:
                     raise ValueError(f"No parent element found for XPath '{parent}'.")
                 parent_element = parent_elements[0]
             elif isinstance(parent, etree._Element):
                 parent_element = parent
-                full_xpath = tag  # When parent is an element, we directly look for the tag
             else:
                 raise TypeError("parent must be an XPath string or an lxml Element.")
 
@@ -346,8 +344,6 @@ class MavenPomEditor:
         :param scope: Optional dependency scope.
         :return: The managed dependency element.
         """
-        mgmt_xpath = ".//m:dependencyManagement"
-        deps_xpath = f"{mgmt_xpath}/m:dependencies"
 
         # Ensure <dependencyManagement> and <dependencies> exist
         mgmt_elem = self.ensure_element(".", "m:dependencyManagement")
