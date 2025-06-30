@@ -1,684 +1,1819 @@
 - commit: 76b4e1b4fcca28e57e3a23cb6ea61fb428275442
   license: MIT
   repo_name: AdRoll/cantor
+  test_count:
+    tests_failed: 0
+    tests_run: 13
+    tests_skipped: 0
+    tests_successful: 13
 - commit: 924610151ea5408e077882f3cfc552e4f4a2c678
   license: MIT
   repo_name: AmadeusITGroup/sonar-stash
+  test_count:
+    tests_failed: 0
+    tests_run: 168
+    tests_skipped: 0
+    tests_successful: 168
 - commit: 262d793db60cdc1b2a3ea064d0d9aee264fa2147
   license: Apache-2.0
   repo_name: Ardesco/driver-binary-downloader-maven-plugin
+  test_count:
+    tests_failed: 0
+    tests_run: 89
+    tests_skipped: 2
+    tests_successful: 87
 - commit: b59360ddc0694d8257c3be810ac1f5a92ca0f8ca
   license: Apache-2.0
   repo_name: Atmosphere/nettosphere
+  test_count:
+    tests_failed: 0
+    tests_run: 31
+    tests_skipped: 0
+    tests_successful: 31
 - commit: f2ec91a8872a6ed2756029ee2b1085f3e257baf1
   license: Apache-2.0
   repo_name: Beh01der/EasyFlow
+  test_count:
+    tests_failed: 0
+    tests_run: 24
+    tests_skipped: 0
+    tests_successful: 24
 - commit: fa98ebd8ba326bb944be05e65af1d747286bad6d
   license: Apache-2.0
   repo_name: BottegaIT/ddd-cqrs-sample
+  test_count:
+    tests_failed: 0
+    tests_run: 24
+    tests_skipped: 0
+    tests_successful: 24
 - commit: a1a0cf597e430cf58afe627cd5a724fa33665d2e
   license: Apache-2.0
   repo_name: BottegaIT/ddd-leaven-v2
+  test_count:
+    tests_failed: 0
+    tests_run: 3
+    tests_skipped: 0
+    tests_successful: 3
 - commit: d929397a9b4990917d08a06205e3e8d552fba483
   license: Apache-2.0
   repo_name: Cetsoft/imcache
+  test_count:
+    tests_failed: 0
+    tests_run: 235
+    tests_skipped: 0
+    tests_successful: 235
 - commit: d73fa68de1580b128c0932d2e873d92b556801f3
   license: Apache-2.0
   repo_name: ChannelApe/shopify-sdk
+  test_count:
+    tests_failed: 0
+    tests_run: 162
+    tests_skipped: 0
+    tests_successful: 162
 - commit: 1c549de6f2363d7c296037874cff944de38fb66f
   license: Apache-2.0
   repo_name: Comcast/jrugged
+  test_count:
+    tests_failed: 0
+    tests_run: 350
+    tests_skipped: 0
+    tests_successful: 350
 - commit: ad5419af39b16851744da51cfc87febfbce267c0
   license: Apache-2.0
   repo_name: Cue/greplin-bloom-filter
+  test_count:
+    tests_failed: 0
+    tests_run: 16
+    tests_skipped: 0
+    tests_successful: 16
 - commit: a7228a3f4eb2020262382bcbbcfb2ebb12ef9b08
   license: Apache-2.0
   repo_name: DaisyDiff/DaisyDiff
+  test_count:
+    tests_failed: 0
+    tests_run: 244
+    tests_skipped: 0
+    tests_successful: 244
 - commit: 0a14861c7be1a942a6cfe037ba012a59dfca2755
   license: Apache-2.0
   repo_name: DerekYRC/mini-spring
+  test_count:
+    tests_failed: 0
+    tests_run: 34
+    tests_skipped: 0
+    tests_successful: 34
 - commit: bc63e0a8f95981482771958a530e44000470d2bc
   license: Apache-2.0
   repo_name: Devskiller/friendly-id
+  test_count:
+    tests_failed: 0
+    tests_run: 34
+    tests_skipped: 0
+    tests_successful: 34
 - commit: 4652c4ecdc68d2aba31467a2c00279ed5fd3724d
   license: Apache-2.0
   repo_name: Devskiller/jpa2ddl
+  test_count:
+    tests_failed: 0
+    tests_run: 19
+    tests_skipped: 1
+    tests_successful: 18
 - commit: a8b8ff0acc6fcc629d08a3a9952f83be56a9a3c3
   license: Apache-2.0
   repo_name: DiUS/java-faker
+  test_count:
+    tests_failed: 0
+    tests_run: 579
+    tests_skipped: 0
+    tests_successful: 579
 - commit: cad4d755114e80169727fd030c85d55db3997bd8
   license: BSD-3-Clause
   repo_name: EsotericSoftware/reflectasm
+  test_count:
+    tests_failed: 0
+    tests_run: 16
+    tests_skipped: 0
+    tests_successful: 16
 - commit: 5bb07f1cde3f03e7e48c83f7ebbefb4c09ba7ae9
   license: MIT
   repo_name: EsotericSoftware/yamlbeans
+  test_count:
+    tests_failed: 0
+    tests_run: 223
+    tests_skipped: 0
+    tests_successful: 223
 - commit: e4293905526a9f22dea6a5ce2677d1264d39f79e
   license: Apache-2.0
   repo_name: ExpediaGroup/adaptive-alerting
+  test_count:
+    tests_failed: 0
+    tests_run: 562
+    tests_skipped: 0
+    tests_successful: 562
 - commit: a4ec08fbb565a4b3f31299ca031f2ed49e3bc17a
   license: Apache-2.0
   repo_name: FasterXML/jackson-annotations
+  test_count:
+    tests_failed: 0
+    tests_run: 60
+    tests_skipped: 0
+    tests_successful: 60
 - commit: b4b98d9b59b6abe1919a4b86d3ce9619ff6bdce8
   license: Apache-2.0
   repo_name: GoogleCloudPlatform/cloud-opensource-java
+  test_count:
+    tests_failed: 0
+    tests_run: 367
+    tests_skipped: 2
+    tests_successful: 365
 - commit: 0be34c87c421b910fa2021df5ccd2a785d10c18c
   license: Apache-2.0
   repo_name: HiveRunner/HiveRunner
+  test_count:
+    tests_failed: 0
+    tests_run: 298
+    tests_skipped: 4
+    tests_successful: 294
 - commit: 3e016356cfc7e5f9644a7a732fe0223e9742e024
   license: Apache-2.0
   repo_name: JakeWharton/DiskLruCache
+  test_count:
+    tests_failed: 0
+    tests_run: 61
+    tests_skipped: 0
+    tests_successful: 61
 - commit: f8144e6ebc5c895312c0d49e21ab070b810db426
   license: Apache-2.0
   repo_name: JakeWharton/RxRelay
+  test_count:
+    tests_failed: 0
+    tests_run: 64
+    tests_skipped: 3
+    tests_successful: 61
 - commit: 6761db704876de6c8d7a5a08c330629a7c2957d0
   license: Apache-2.0
   repo_name: JakeWharton/RxReplayingShare
+  test_count:
+    tests_failed: 0
+    tests_run: 34
+    tests_skipped: 1
+    tests_successful: 33
 - commit: ebc35bd47ba8b124d39629327d7bc0f7ba20bc24
   license: Apache-2.0
   repo_name: JakeWharton/RxWindowIfChanged
+  test_count:
+    tests_failed: 0
+    tests_run: 4
+    tests_skipped: 0
+    tests_successful: 4
 - commit: 9993fdca2f14f1cda2b36835a9930504fcc3a08e
   license: Apache-2.0
   repo_name: JakeWharton/retrofit1-okhttp3-client
+  test_count:
+    tests_failed: 0
+    tests_run: 9
+    tests_skipped: 0
+    tests_successful: 9
 - commit: 517a9b371396dc60d62f1afb1c25e51b0ef0ba20
   license: MIT
   repo_name: JamesZBL/java_design_patterns
+  test_count:
+    tests_failed: 0
+    tests_run: 33
+    tests_skipped: 0
+    tests_successful: 33
 - commit: 0b20336369c22f0ac0556b6c672322a6f3070124
   license: BSD-2-Clause
   repo_name: KnisterPeter/jreact
+  test_count:
+    tests_failed: 0
+    tests_run: 26
+    tests_skipped: 0
+    tests_successful: 26
 - commit: dad76acd05c6dbcf477cdc2cda2817b4f9bb2d89
   license: BSD-2-Clause
   repo_name: LatencyUtils/LatencyUtils
+  test_count:
+    tests_failed: 0
+    tests_run: 9
+    tests_skipped: 0
+    tests_successful: 9
 - commit: c40d5855ce2c5e0b6dfb06aa4a421ae9560d6548
   license: MIT
   repo_name: LearningByExample/reactive-ms-example
+  test_count:
+    tests_failed: 0
+    tests_run: 49
+    tests_skipped: 0
+    tests_successful: 49
 - commit: fabb338edb14276aa7ef9f5f9b59f680335b22d3
   license: Apache-2.0
   repo_name: Merck/Halyard
+  test_count:
+    tests_failed: 0
+    tests_run: 980
+    tests_skipped: 5
+    tests_successful: 975
 - commit: b5a64de6185f621c17fbe6a18988ce39d0971161
   license: CC-BY-4.0
   repo_name: MicrosoftDocs/pipelines-java
+  test_count:
+    tests_failed: 0
+    tests_run: 2
+    tests_skipped: 0
+    tests_successful: 2
 - commit: 05659af43697f6dae5743fd0a1931c210757e1e7
   license: Apache-2.0
   repo_name: Netflix/Surus
+  test_count:
+    tests_failed: 0
+    tests_run: 10
+    tests_skipped: 0
+    tests_successful: 10
 - commit: 7fa8c085f45977be1db980731f4faf580925db08
   license: Apache-2.0
   repo_name: Netflix/curator
+  test_count:
+    tests_failed: 0
+    tests_run: 44
+    tests_skipped: 2
+    tests_successful: 42
 - commit: 02d4862c15985a26a21279d5ed1e3ab7279ff072
   license: Apache-2.0
   repo_name: NetherlandsForensicInstitute/kafka-spout
+  test_count:
+    tests_failed: 0
+    tests_run: 51
+    tests_skipped: 0
+    tests_successful: 51
 - commit: d5d4a2c6b7ef578582f37a59d48ccb1ecc2217a8
   license: MIT
   repo_name: OPCFoundation/UA-Java-Legacy
+  test_count:
+    tests_failed: 0
+    tests_run: 246
+    tests_skipped: 0
+    tests_successful: 246
 - commit: a093b7f087e951c62625dc7d00a50ef7b6a7f2e8
   license: Apache-2.0
   repo_name: OpenHFT/Zero-Allocation-Hashing
+  test_count:
+    tests_failed: 0
+    tests_run: 14889
+    tests_skipped: 5
+    tests_successful: 14884
 - commit: 740829c59084146d69118004f0f9adfd5c0d3aca
   license: Apache-2.0
   repo_name: Ordina-Group/microservices-dashboard
+  test_count:
+    tests_failed: 0
+    tests_run: 77
+    tests_skipped: 0
+    tests_successful: 77
 - commit: b39de7282e3db69cc59cd640088b9c763169e40b
   license: Apache-2.0
   repo_name: OrienteerBAP/Orienteer
+  test_count:
+    tests_failed: 0
+    tests_run: 105
+    tests_skipped: 11
+    tests_successful: 94
 - commit: 7e419130fdefad3c31bac32f8dd623cbdf580a93
   license: MIT
   repo_name: Pablissimo/SonarTsPlugin
+  test_count:
+    tests_failed: 0
+    tests_run: 113
+    tests_skipped: 0
+    tests_successful: 113
 - commit: 37e7a963772ef770f72d2296ef54b2dfb41c586c
   license: Apache-2.0
   repo_name: RNCryptor/JNCryptor
+  test_count:
+    tests_failed: 0
+    tests_run: 69
+    tests_skipped: 0
+    tests_successful: 69
 - commit: 941d72dacdeedbc18628d1d6c64878ea41852079
   license: MIT
   repo_name: RichardWarburton/slab
+  test_count:
+    tests_failed: 0
+    tests_run: 30
+    tests_skipped: 0
+    tests_successful: 30
 - commit: 90f0e67d5977ee40200093702b4353de5a53c5c3
   license: Apache-2.0
   repo_name: SAP-archive/cloud-espm-v2
+  test_count:
+    tests_failed: 0
+    tests_run: 41
+    tests_skipped: 0
+    tests_successful: 41
 - commit: 59dc148f402da6a8a82ad8604a64fa35d1f70460
   license: Apache-2.0
   repo_name: Simmetrics/simmetrics
+  test_count:
+    tests_failed: 0
+    tests_run: 1563
+    tests_skipped: 0
+    tests_successful: 1563
 - commit: 4c8192a7fa28c3aeeb93301e5608d2d4ec7e5b38
   license: Apache-2.0
   repo_name: SquareSquash/java
+  test_count:
+    tests_failed: 0
+    tests_run: 6
+    tests_skipped: 0
+    tests_successful: 6
 - commit: a94a4d9af6c25d40e1108729974c35c27c54441c
   license: Apache-2.0
   repo_name: Stratio/cassandra-lucene-index
+  test_count:
+    tests_failed: 0
+    tests_run: 1343
+    tests_skipped: 0
+    tests_successful: 1343
 - commit: 8a40dd3b7c12cd9f7cffbc930c2d1fa2f20092c3
   license: Apache-2.0
   repo_name: Syncleus/aparapi
+  test_count:
+    tests_failed: 0
+    tests_run: 575
+    tests_skipped: 122
+    tests_successful: 453
 - commit: b89b7fc2e2b0813ba0f56834c8f9bc9bfceee189
   license: Apache-2.0
   repo_name: TU-Berlin-DIMA/scotty-window-processor
+  test_count:
+    tests_failed: 0
+    tests_run: 66
+    tests_skipped: 0
+    tests_successful: 66
 - commit: edbc3416ed981b3c6a6673ab5e47d08ef54983fe
   license: BSD-3-Clause
   repo_name: ThreeTen/threetenbp
+  test_count:
+    tests_failed: 0
+    tests_run: 17868
+    tests_skipped: 0
+    tests_successful: 17868
 - commit: 17850c4ad75d1209b1218d140dcef399f4061988
   license: Apache-2.0
   repo_name: ToastShaman/dropwizard-auth-jwt
+  test_count:
+    tests_failed: 0
+    tests_run: 17
+    tests_skipped: 0
+    tests_successful: 17
 - commit: 35312f89c8866c6f90955585755312f897187376
   license: MIT
   repo_name: VisualDataWeb/OWL2VOWL
+  test_count:
+    tests_failed: 0
+    tests_run: 5
+    tests_skipped: 0
+    tests_successful: 5
 - commit: 849e13e78c8594cbed1cfe6e558070dcb5168e1e
   license: Apache-2.0
   repo_name: Wolfgang-Schuetzelhofer/jcypher
+  test_count:
+    tests_failed: 0
+    tests_run: 171
+    tests_skipped: 4
+    tests_successful: 167
 - commit: df59a357d079603f13377004def79898f894a73b
   license: BSD-3-Clause
   repo_name: Yubico/java-u2flib-server
+  test_count:
+    tests_failed: 0
+    tests_run: 115
+    tests_skipped: 0
+    tests_successful: 115
 - commit: b95b632e7a88ab8175714e0c4a55488048fb2d04
   license: Apache-2.0
   repo_name: abahgat/suffixtree
+  test_count:
+    tests_failed: 0
+    tests_run: 11
+    tests_skipped: 0
+    tests_successful: 11
 - commit: 5f07095e873cb7b0a17031456e115b9d2c11d5a9
   license: Apache-2.0
   repo_name: acogoluegnes/Spring-Batch-Workshop
+  test_count:
+    tests_failed: 0
+    tests_run: 45
+    tests_skipped: 11
+    tests_successful: 34
 - commit: 5a3bc87c5314f7771ea3968e9015a3d25536343e
   license: Apache-2.0
   repo_name: addthis/stream-lib
+  test_count:
+    tests_failed: 0
+    tests_run: 152
+    tests_skipped: 12
+    tests_successful: 140
 - commit: 5afdc7668fa16c148b36b992ce42db8973414886
   license: Apache-2.0
   repo_name: adyliu/zkclient
+  test_count:
+    tests_failed: 0
+    tests_run: 19
+    tests_skipped: 0
+    tests_successful: 19
 - commit: e7f16b0523b24a34a7971d4df7ecbb48b4539639
   license: Apache-2.0
   repo_name: alexa/alexa-skills-kit-sdk-for-java
+  test_count:
+    tests_failed: 0
+    tests_run: 460
+    tests_skipped: 1
+    tests_successful: 459
 - commit: a10d07b217c28da38b6399a8282a5a2cd33109c4
   license: Apache-2.0
   repo_name: alexnederlof/Jasper-report-maven-plugin
+  test_count:
+    tests_failed: 0
+    tests_run: 10
+    tests_skipped: 0
+    tests_successful: 10
 - commit: 2f02edac5c168e14b0a5400bad3b408e176b660b
   license: Apache-2.0
   repo_name: alibaba/QLExpress
+  test_count:
+    tests_failed: 0
+    tests_run: 193
+    tests_skipped: 2
+    tests_successful: 191
 - commit: b1f96e97cb92626e265f20857d973b553953a361
   license: Apache-2.0
   repo_name: alibaba/compileflow
+  test_count:
+    tests_failed: 0
+    tests_run: 8
+    tests_skipped: 0
+    tests_successful: 8
 - commit: c942c83443117b73af5ad278cc780270998ba3e1
   license: Apache-2.0
   repo_name: alibaba/fastjson
+  test_count:
+    tests_failed: 0
+    tests_run: 5022
+    tests_skipped: 0
+    tests_successful: 5022
 - commit: 56b04c4355d53dc422ed184f4a3074fbe212ac05
   license: Apache-2.0
   repo_name: alibaba/fastjson2
+  test_count:
+    tests_failed: 0
+    tests_run: 8920
+    tests_skipped: 0
+    tests_successful: 8920
 - commit: 184df1c8cd0b4c11e0c582039eddb308e8ef1761
   license: Apache-2.0
   repo_name: alibaba/spring-context-support
+  test_count:
+    tests_failed: 0
+    tests_run: 49
+    tests_skipped: 0
+    tests_successful: 49
 - commit: 781c159496991705e273fb8538024dfa687235a5
   license: Apache-2.0
   repo_name: alibaba/tamper
+  test_count:
+    tests_failed: 0
+    tests_run: 62
+    tests_skipped: 0
+    tests_successful: 62
 - commit: e5bd4ad55bac1f2bc0889a14cff9eeae2b2e8433
   license: Apache-2.0
   repo_name: alibaba/velocity-spring-boot-project
+  test_count:
+    tests_failed: 0
+    tests_run: 12
+    tests_skipped: 0
+    tests_successful: 12
 - commit: 41d2b0466a0e7d5cfb3a7e6a7d801c28820c6525
   license: Apache-2.0
   repo_name: alimate/errors-spring-boot-starter
+  test_count:
+    tests_failed: 0
+    tests_run: 153
+    tests_skipped: 0
+    tests_successful: 153
 - commit: 05e7ebd511c99e7d19bd194757e8d6e92732e125
   license: Apache-2.0
   repo_name: amaembo/huntbugs
+  test_count:
+    tests_failed: 0
+    tests_run: 15
+    tests_skipped: 0
+    tests_successful: 15
 - commit: 468ba47b722eab199841eea0832a13ca08f9bb34
   license: Apache-2.0
   repo_name: amazon-archives/aws-apigateway-importer
+  test_count:
+    tests_failed: 0
+    tests_run: 22
+    tests_skipped: 2
+    tests_successful: 20
 - commit: 9bc0d442e67248d0899429ae8548340c055ee50f
   license: Apache-2.0
   repo_name: americanexpress/nodes
+  test_count:
+    tests_failed: 0
+    tests_run: 55
+    tests_skipped: 0
+    tests_successful: 55
 - commit: 653943a3012fe104ff5d226351cebbe52785eba5
   license: BSD-3-Clause
   repo_name: amihaiemil/docker-java-api
+  test_count:
+    tests_failed: 0
+    tests_run: 240
+    tests_skipped: 0
+    tests_successful: 240
 - commit: 96f4a6fda0fd6b22d6b5c8e15508cc45d57c0c0f
   license: Apache-2.0
   repo_name: antkorwin/better-strings
+  test_count:
+    tests_failed: 0
+    tests_run: 28
+    tests_skipped: 0
+    tests_successful: 28
 - commit: 0df11c350e08048d0b347ba07ebe41d1bd9b0be6
   license: Apache-2.0
   repo_name: apache/servicecomb-saga-actuator
+  test_count:
+    tests_failed: 0
+    tests_run: 138
+    tests_skipped: 1
+    tests_successful: 137
 - commit: 03b709c7dfe9dc1e04d88f5e16e0b3308bdad295
   license: Apache-2.0
   repo_name: apache/servicecomb-toolkit
+  test_count:
+    tests_failed: 0
+    tests_run: 290
+    tests_skipped: 0
+    tests_successful: 290
 - commit: 2601bcd2d8c7c5f1dde663830093c426ffff3da4
   license: Apache-2.0
   repo_name: apache/tiles
+  test_count:
+    tests_failed: 0
+    tests_run: 465
+    tests_skipped: 0
+    tests_successful: 465
 - commit: 361c11c12eafc5dcf28f2fb54c296dbdd60f8091
   license: Apache-2.0
   repo_name: artsok/rerunner-jupiter
+  test_count:
+    tests_failed: 0
+    tests_run: 126
+    tests_skipped: 113
+    tests_successful: 13
 - commit: c90b88ccd5c63d6ea0b49fb77c25e2f3272a7b10
   license: Apache-2.0
   repo_name: atomix/copycat
+  test_count:
+    tests_failed: 0
+    tests_run: 868
+    tests_skipped: 0
+    tests_successful: 868
 - commit: c7450c5e861d099a98a59825d0c7b45c6fd65116
   license: Apache-2.0
   repo_name: aws/aws-dynamodb-encryption-java
+  test_count:
+    tests_failed: 0
+    tests_run: 256
+    tests_skipped: 0
+    tests_successful: 256
 - commit: 1ce6123a788c28c5c24d1783b590215b20b8a41c
   license: Apache-2.0
   repo_name: awslabs/amazon-kinesis-client
+  test_count:
+    tests_failed: 0
+    tests_run: 924
+    tests_skipped: 6
+    tests_successful: 918
 - commit: 385052f634a8ba44e37d3ad57ea48c317ec41797
   license: Apache-2.0
   repo_name: awslabs/dynamodb-streams-kinesis-adapter
+  test_count:
+    tests_failed: 0
+    tests_run: 384
+    tests_skipped: 0
+    tests_successful: 384
 - commit: 5eb0ef5a209145a627e14e8448f4f3fc103ccc35
   license: Apache-2.0
   repo_name: bbeck/token-bucket
+  test_count:
+    tests_failed: 0
+    tests_run: 38
+    tests_skipped: 0
+    tests_successful: 38
 - commit: a081e15e107b77304ce2c68f7e7a17bba8243059
   license: Apache-2.0
   repo_name: beckchr/staxon
+  test_count:
+    tests_failed: 0
+    tests_run: 382
+    tests_skipped: 2
+    tests_successful: 380
 - commit: df56dc9b3de8620024879bb979a2da3ec48c07b7
   license: Apache-2.0
   repo_name: bedatadriven/jackson-datatype-jts
+  test_count:
+    tests_failed: 0
+    tests_run: 20
+    tests_skipped: 0
+    tests_successful: 20
 - commit: a90cc5c3e080d755ec9bb47923e3dd3dcb24e9c6
   license: Apache-2.0
   repo_name: brettwooldridge/HikariJSON
+  test_count:
+    tests_failed: 0
+    tests_run: 4
+    tests_skipped: 0
+    tests_successful: 4
 - commit: ab22721db79c5f20c0e8483f09eda2844d596557
   license: Apache-2.0
   repo_name: brettwooldridge/SansOrm
+  test_count:
+    tests_failed: 0
+    tests_run: 85
+    tests_skipped: 0
+    tests_successful: 85
 - commit: 8b32633706533a1fb828e05415dbdbc2c32f3a31
   license: Apache-2.0
   repo_name: brettwooldridge/SparseBitSet
+  test_count:
+    tests_failed: 0
+    tests_run: 49
+    tests_skipped: 0
+    tests_successful: 49
 - commit: db08372fa1ac58ca16f718d9741be306ae6a530d
   license: Apache-2.0
   repo_name: bucharest-jug/dropwizard-todo
+  test_count:
+    tests_failed: 0
+    tests_run: 13
+    tests_skipped: 0
+    tests_successful: 13
 - commit: eb6bc8cbc3400ed75c733d7c4dccd3e7135c9aac
   license: MIT
   repo_name: cassiomolin/jersey-jwt
+  test_count:
+    tests_failed: 0
+    tests_run: 15
+    tests_skipped: 0
+    tests_successful: 15
 - commit: 9d67875290d269c9b1ff5e4f4bc578a9f05c392e
   license: Apache-2.0
   repo_name: cglib/cglib
+  test_count:
+    tests_failed: 0
+    tests_run: 306
+    tests_skipped: 0
+    tests_successful: 306
 - commit: 942de79793cd91c91eda245535b6d2a81165aa04
   license: Apache-2.0
   repo_name: chanjarster/spring-test-examples
+  test_count:
+    tests_failed: 0
+    tests_run: 55
+    tests_skipped: 0
+    tests_successful: 55
 - commit: a11c45be88ada011f529cbd896a669e2f2b14656
   license: Apache-2.0
   repo_name: chrisgleissner/spring-batch-rest
+  test_count:
+    tests_failed: 0
+    tests_run: 63
+    tests_skipped: 0
+    tests_successful: 63
 - commit: cdc1f259f727c12c0fc489a62769529e611af413
   license: Apache-2.0
   repo_name: code4craft/hello-design-pattern
+  test_count:
+    tests_failed: 0
+    tests_run: 25
+    tests_skipped: 0
+    tests_successful: 25
 - commit: 96b73b91f4f5af099693cf50416fdf5ec08b25b5
   license: Apache-2.0
   repo_name: cowtowncoder/low-gc-membuffers
+  test_count:
+    tests_failed: 0
+    tests_run: 51
+    tests_skipped: 0
+    tests_successful: 51
 - commit: 15afff553f65e3c9d0e9d904fd1e8ce46c4d1515
   license: MIT
   repo_name: craigwblake/redline
+  test_count:
+    tests_failed: 0
+    tests_run: 63
+    tests_skipped: 0
+    tests_successful: 63
 - commit: 7610a48d9ee7d1b8af2bb5451cf9e2860318cebb
   license: MIT
   repo_name: crossoverJie/distributed-redis-tool
+  test_count:
+    tests_failed: 0
+    tests_run: 23
+    tests_skipped: 0
+    tests_successful: 23
 - commit: 03f2746c54c6fa64c1b393e93ccd1e8e63a1c1ae
   license: Apache-2.0
   repo_name: cstettler/ddd-to-the-code-workshop-sample
+  test_count:
+    tests_failed: 0
+    tests_run: 49
+    tests_skipped: 0
+    tests_successful: 49
 - commit: 761839f1c151f37b2fb7ac1fdfecb4d099e4e0bb
   license: Apache-2.0
   repo_name: cternes/openkeepass
+  test_count:
+    tests_failed: 0
+    tests_run: 197
+    tests_skipped: 0
+    tests_successful: 197
 - commit: 4b045ecc73b3ef88cac9074a62b2e212bdaad9b7
   license: Apache-2.0
   repo_name: cutting/trevni
+  test_count:
+    tests_failed: 0
+    tests_run: 61
+    tests_skipped: 0
+    tests_successful: 61
 - commit: db8086c2b4d178c820277bb24fa81de7d3102e76
   license: MIT
   repo_name: davidmarquis/redis-scheduler
+  test_count:
+    tests_failed: 0
+    tests_run: 29
+    tests_skipped: 0
+    tests_successful: 29
 - commit: 99e113f1f71fe800037487a6ae5b2f437935bed7
   license: Apache-2.0
   repo_name: davidmoten/rxjava-extras
+  test_count:
+    tests_failed: 0
+    tests_run: 736
+    tests_skipped: 6
+    tests_successful: 730
 - commit: 515b781521272e779e08988bb3006c6dc454ca39
   license: Apache-2.0
   repo_name: davidmoten/rxjava-file
+  test_count:
+    tests_failed: 0
+    tests_run: 10
+    tests_skipped: 0
+    tests_successful: 10
 - commit: e4765c970f1f35c8d5601058291cda963dbb89a8
   license: Apache-2.0
   repo_name: davidmoten/rxjava2-extras
+  test_count:
+    tests_failed: 0
+    tests_run: 407
+    tests_skipped: 5
+    tests_successful: 402
 - commit: 096baf60f3c2cac7b6abe56d574af1226763210f
   license: LGPL-3.0-or-later
   repo_name: demoiselle/framework
+  test_count:
+    tests_failed: 0
+    tests_run: 228
+    tests_skipped: 0
+    tests_successful: 228
 - commit: 21f2ec64ed8f8294dcd7705a55477a4f85ed9d0a
   license: Apache-2.0
   repo_name: dschulten/hydra-java
+  test_count:
+    tests_failed: 0
+    tests_run: 184
+    tests_skipped: 1
+    tests_successful: 183
 - commit: 733482a8a5afb1fb257c682b3767655e56f7a0fe
   license: MIT
   repo_name: ef-labs/vertx-jersey
+  test_count:
+    tests_failed: 0
+    tests_run: 60
+    tests_skipped: 0
+    tests_successful: 60
 - commit: 3e36658521cb56b50c6568da5d42d8c7a8d14914
   license: Apache-2.0
   repo_name: esastack/esa-restlight
+  test_count:
+    tests_failed: 0
+    tests_run: 843
+    tests_skipped: 0
+    tests_successful: 843
 - commit: 7c348c5f3c903e4c629825183de674ba49a8c973
   license: MIT
   repo_name: etsy/statsd-jvm-profiler
+  test_count:
+    tests_failed: 0
+    tests_run: 47
+    tests_skipped: 0
+    tests_successful: 47
 - commit: 88af4bf32b2275c5ab4d07c85087a466cef30c8a
   license: Apache-2.0
   repo_name: evsinev/ber-tlv
+  test_count:
+    tests_failed: 0
+    tests_run: 21
+    tests_skipped: 0
+    tests_successful: 21
 - commit: 2f8548749839e9095c8dc597e4b61521d259fa5d
   license: Apache-2.0
   repo_name: exchange-core/exchange-core
+  test_count:
+    tests_failed: 0
+    tests_run: 177
+    tests_skipped: 0
+    tests_successful: 177
 - commit: a415710efce1aa25ad3bade754b8b57ed398f36e
   license: MIT
   repo_name: feroult/yawp
+  test_count:
+    tests_failed: 0
+    tests_run: 380
+    tests_skipped: 1
+    tests_successful: 379
 - commit: c570d8e4366474e881fa87610f90fb228b4a981e
   license: Apache-2.0
   repo_name: gaul/are-we-consistent-yet
+  test_count:
+    tests_failed: 0
+    tests_run: 5
+    tests_skipped: 0
+    tests_successful: 5
 - commit: e824ceaa59a08d938bffb6b4f74ca12576d6c18a
   license: Apache-2.0
   repo_name: ghillert/botanic-ng
+  test_count:
+    tests_failed: 0
+    tests_run: 7
+    tests_skipped: 0
+    tests_successful: 7
 - commit: e837692d3b1621cfebaf4dcfc8a927bc6b653c36
   license: Apache-2.0
   repo_name: giltene/PauselessHashMap
+  test_count:
+    tests_failed: 0
+    tests_run: 1550
+    tests_skipped: 0
+    tests_successful: 1550
 - commit: 8d6d49393d1453be709ecc4cfe87f41f2081f5c5
   license: MIT
   repo_name: github/maven-plugins
+  test_count:
+    tests_failed: 0
+    tests_run: 34
+    tests_skipped: 0
+    tests_successful: 34
 - commit: 0939cd90125d851e28f5d048a16ad61ff9e0d905
   license: MIT
   repo_name: gkopff/gson-jodatime-serialisers
+  test_count:
+    tests_failed: 0
+    tests_run: 43
+    tests_skipped: 0
+    tests_successful: 43
 - commit: 7fd6de09581fee0eabf3b95125962bfbcc9e0283
   license: Apache-2.0
   repo_name: google/closure-stylesheets
+  test_count:
+    tests_failed: 0
+    tests_run: 1087
+    tests_skipped: 2
+    tests_successful: 1085
 - commit: 292bd36335126dd9ea3fd8329ce629efddeeb91c
   license: MIT
   repo_name: greengerong/prerender-java
+  test_count:
+    tests_failed: 0
+    tests_run: 13
+    tests_skipped: 0
+    tests_successful: 13
 - commit: 4f14539ee15f16b6ddc54be9555c807d82fa7874
   license: BSD-3-Clause
   repo_name: grumlimited/geocalc
+  test_count:
+    tests_failed: 0
+    tests_run: 24
+    tests_skipped: 0
+    tests_successful: 24
 - commit: 3f3d1bc1df461b938947dd50722bba5ad8efe42e
   license: Apache-2.0
   repo_name: hazelcast/hazelcast-kubernetes
+  test_count:
+    tests_failed: 0
+    tests_run: 60
+    tests_skipped: 0
+    tests_successful: 60
 - commit: 410539213c44b8794ca4111f678714a1c2395749
   license: Apache-2.0
   repo_name: hotchemi/LruCache
+  test_count:
+    tests_failed: 0
+    tests_run: 13
+    tests_skipped: 0
+    tests_successful: 13
 - commit: dd360aa3a1911b5d835579fc1c0f1db4cc8c3753
   license: Apache-2.0
   repo_name: hypercube1024/firefly
+  test_count:
+    tests_failed: 0
+    tests_run: 1862
+    tests_skipped: 9
+    tests_successful: 1853
 - commit: 31334388bded8a25848c334f85a2a01966a427fe
   license: Apache-2.0
   repo_name: hyperledger-archives/quilt
+  test_count:
+    tests_failed: 0
+    tests_run: 2613
+    tests_skipped: 0
+    tests_successful: 2613
 - commit: 58f3448b423ad792c480d7a1dc257a79056cf844
   license: Apache-2.0
   repo_name: idealista/format-preserving-encryption-java
+  test_count:
+    tests_failed: 0
+    tests_run: 44
+    tests_skipped: 0
+    tests_successful: 44
 - commit: 8bddb48dae1ec1297c45cd1538ccd472bb85b26e
   license: MIT
   repo_name: inreachventures/aws-signing-request-interceptor
+  test_count:
+    tests_failed: 0
+    tests_run: 18
+    tests_skipped: 0
+    tests_successful: 18
 - commit: eaac73406a80ca75fb9423bdf3faada67f955083
   license: Apache-2.0
   repo_name: intuit/wasabi
+  test_count:
+    tests_failed: 0
+    tests_run: 1039
+    tests_skipped: 3
+    tests_successful: 1036
 - commit: 1262deed73f280f61edc8d9fc001366ebcad18a0
   license: Apache-2.0
   repo_name: jahlborn/jackcess
+  test_count:
+    tests_failed: 0
+    tests_run: 195
+    tests_skipped: 0
+    tests_successful: 195
 - commit: 7d1d94b9f50023eb9ee6e52fa9e40ef5871b95fe
   license: Apache-2.0
   repo_name: jahlborn/sqlbuilder
+  test_count:
+    tests_failed: 0
+    tests_run: 61
+    tests_skipped: 0
+    tests_successful: 61
 - commit: abd54e87d94293044c84bf71a2bda573b2f742c5
   license: MIT
   repo_name: jamesmorgan/ReloadablePropertiesAnnotation
+  test_count:
+    tests_failed: 0
+    tests_run: 41
+    tests_skipped: 0
+    tests_successful: 41
 - commit: 9af15b4a6c0074f9fa23dfa030027c631b9c2f78
   license: Apache-2.0
   repo_name: janvanbesien/java-ipv6
+  test_count:
+    tests_failed: 0
+    tests_run: 89
+    tests_skipped: 0
+    tests_successful: 89
 - commit: 74c1aa5e53c07b610d6c8f12cb87ddf1cd224df5
   license: MIT
   repo_name: jdbc-observations/datasource-proxy
+  test_count:
+    tests_failed: 0
+    tests_run: 522
+    tests_skipped: 0
+    tests_successful: 522
 - commit: d7cdd90caba5ae7c4ba8272dd4cca2ce1d54c2dd
   license: MIT
   repo_name: jenkinsci/kubernetes-cd-plugin
+  test_count:
+    tests_failed: 0
+    tests_run: 45
+    tests_skipped: 0
+    tests_successful: 45
 - commit: 3a67385e0f9f11197512a3457ddb09c3c927304f
   license: Apache-2.0
   repo_name: jhalterman/concurrentunit
+  test_count:
+    tests_failed: 0
+    tests_run: 26
+    tests_skipped: 0
+    tests_successful: 26
 - commit: 344f9659eb432dd7b9202501ba22a8a2efe64750
   license: MIT
   repo_name: jirutka/rsql-parser
+  test_count:
+    tests_failed: 0
+    tests_run: 129
+    tests_skipped: 0
+    tests_successful: 129
 - commit: 401cb9e51b1b4e14c9350b06f8e0029a34ce6853
   license: Apache-2.0
   repo_name: jirutka/spring-rest-exception-handler
+  test_count:
+    tests_failed: 0
+    tests_run: 47
+    tests_skipped: 0
+    tests_successful: 47
 - commit: 51e74aab9d62b43350f60d2b89976f6d6c4adece
   license: MIT
   repo_name: johannburkard/StringSearch
+  test_count:
+    tests_failed: 0
+    tests_run: 69
+    tests_skipped: 0
+    tests_successful: 69
 - commit: a858900ebe3c90e511e3a2d316786207bdb0e6fe
   license: Apache-2.0
   repo_name: jorabin/KeePassJava2
+  test_count:
+    tests_failed: 0
+    tests_run: 230
+    tests_skipped: 13
+    tests_successful: 217
 - commit: 747e9913b1cf03da04b302708a4cf3022bfc1728
   license: Apache-2.0
   repo_name: jparsec/jparsec
+  test_count:
+    tests_failed: 0
+    tests_run: 941
+    tests_skipped: 0
+    tests_successful: 941
 - commit: 08201256063f8de7c19d5cc18dab112c7b9953b7
   license: MIT
   repo_name: julienchastang/charts4j
+  test_count:
+    tests_failed: 0
+    tests_run: 192
+    tests_skipped: 0
+    tests_successful: 192
 - commit: 51628b3d316a2db1c1a7218572d03c56f2c98b0c
   license: BSD-2-Clause
   repo_name: junkdog/artemis-odb
+  test_count:
+    tests_failed: 0
+    tests_run: 442
+    tests_skipped: 0
+    tests_successful: 442
 - commit: 0f580d0b512b8aa4612052a90dcd6f6a6a3d9272
   license: MIT
   repo_name: kayahr/pherialize
+  test_count:
+    tests_failed: 0
+    tests_run: 51
+    tests_skipped: 0
+    tests_successful: 51
 - commit: 860ecb84b339cc2ef905b1ac600897cfd3a27c40
   license: Apache-2.0
   repo_name: keepcosmos/beanmother
+  test_count:
+    tests_failed: 0
+    tests_run: 171
+    tests_skipped: 0
+    tests_successful: 171
 - commit: c10defe2d3f44327495ffde0b1ab05470a8f1453
   license: MIT
   repo_name: khoubyari/spring-boot-rest-example
+  test_count:
+    tests_failed: 0
+    tests_run: 2
+    tests_skipped: 0
+    tests_successful: 2
 - commit: 902eae05aee88a2b62897e0fff99b7a89840e9de
   license: Apache-2.0
   repo_name: kristofa/mock-http-server
+  test_count:
+    tests_failed: 0
+    tests_run: 160
+    tests_skipped: 0
+    tests_successful: 160
 - commit: 7e25aa39d40b2ebcb6e5e2b59320e0be1ea8b02a
   license: Apache-2.0
   repo_name: lagodiuk/genetic-algorithm
+  test_count:
+    tests_failed: 0
+    tests_run: 2
+    tests_skipped: 0
+    tests_successful: 2
 - commit: b561c409ae455f13f38556fabb6656825ffb7e2e
   license: Apache-2.0
   repo_name: larsga/Duke
+  test_count:
+    tests_failed: 0
+    tests_run: 673
+    tests_skipped: 0
+    tests_successful: 673
 - commit: e68d9141c5fba691bceac4d7ce9907a41eb7ab8a
   license: Apache-2.0
   repo_name: locationtech/spatial4j
+  test_count:
+    tests_failed: 0
+    tests_run: 466
+    tests_skipped: 4
+    tests_successful: 462
 - commit: 6fe6dcdbda0245d3a2b59f3bfe47f222468f87e4
   license: Apache-2.0
   repo_name: logstash/log4j-jsonevent-layout
+  test_count:
+    tests_failed: 0
+    tests_run: 30
+    tests_skipped: 2
+    tests_successful: 28
 - commit: cc89b036d90403a9c6c98dd13800811a33a48962
   license: Apache-2.0
   repo_name: magro/kryo-serializers
+  test_count:
+    tests_failed: 0
+    tests_run: 381
+    tests_skipped: 0
+    tests_successful: 381
 - commit: e0d486d5cd7e84339d39db25c21aaa6804676e6c
   license: BSD-2-Clause
   repo_name: mangstadt/biweekly
+  test_count:
+    tests_failed: 0
+    tests_run: 1156
+    tests_skipped: 1
+    tests_successful: 1155
 - commit: 3de4d56527f7160de1b1e05fba2f4dce2466c243
   license: FreeBSD
   repo_name: mangstadt/ez-vcard
+  test_count:
+    tests_failed: 0
+    tests_run: 986
+    tests_skipped: 0
+    tests_successful: 986
 - commit: 4b230ac843494cb10e46ddc2848f5b5d377d7b72
   license: Apache-2.0
   repo_name: mboudreau/Alternator
+  test_count:
+    tests_failed: 0
+    tests_run: 426
+    tests_skipped: 0
+    tests_successful: 426
 - commit: eb31fbb99ac6bbab82d7f807b3e2240edca50eb7
   license: MIT
   repo_name: medallia/Word2VecJava
+  test_count:
+    tests_failed: 0
+    tests_run: 12
+    tests_skipped: 0
+    tests_successful: 12
 - commit: 692371a515f0a645a03af97f17575c542f3307b3
   license: Apache-2.0
   repo_name: meixuesong/aggregate-persistence
+  test_count:
+    tests_failed: 0
+    tests_run: 42
+    tests_skipped: 0
+    tests_successful: 42
 - commit: 9c6ee97f999a2719937502eb286b7de8b02d3743
   license: MIT
   repo_name: merapar/graphql-spring-boot-starter
+  test_count:
+    tests_failed: 0
+    tests_run: 37
+    tests_skipped: 0
+    tests_successful: 37
 - commit: cf91467608f7a705496362b3140d7f5241d91a95
   license: MIT
   repo_name: messenger4j/messenger4j
+  test_count:
+    tests_failed: 0
+    tests_run: 81
+    tests_skipped: 0
+    tests_successful: 81
 - commit: 86e84adb430bdfad06173c8804a2b3ebfd529b73
   license: Apache-2.0
   repo_name: modelmapper/modelmapper
+  test_count:
+    tests_failed: 0
+    tests_run: 643
+    tests_skipped: 0
+    tests_successful: 643
 - commit: 969af8823c5d9b162ea674731f3f38d437e811f1
   license: BSD-3-Clause
   repo_name: momosecurity/rhizobia_J
+  test_count:
+    tests_failed: 0
+    tests_run: 38
+    tests_skipped: 0
+    tests_successful: 38
 - commit: 4e1ec5e381121fc9e5ad54881c84029114bafa52
   license: Apache-2.0
   repo_name: mongobee/mongobee
+  test_count:
+    tests_failed: 0
+    tests_run: 41
+    tests_skipped: 1
+    tests_successful: 40
 - commit: a938063de1f822c8d26c8d51ed3871db24355017
   license: MIT
   repo_name: mp911de/logstash-gelf
+  test_count:
+    tests_failed: 0
+    tests_run: 269
+    tests_skipped: 2
+    tests_successful: 267
 - commit: bf3a1ab46bf542734712bad27fdb0fe5470621fe
   license: MIT
   repo_name: mpatric/mp3agic
+  test_count:
+    tests_failed: 0
+    tests_run: 495
+    tests_skipped: 0
+    tests_successful: 495
 - commit: 22a0da9f31218fd0420866a8b3502a4c4ade146d
   license: Apache-2.0
   repo_name: naver/lucy-xss-servlet-filter
+  test_count:
+    tests_failed: 0
+    tests_run: 24
+    tests_skipped: 0
+    tests_successful: 24
 - commit: 372d3fa5b72cf5fb6f90cc4c10ada2c96b016a1b
   license: Apache-2.0
   repo_name: neoremind/easy-mapper
+  test_count:
+    tests_failed: 0
+    tests_run: 31
+    tests_skipped: 1
+    tests_successful: 30
 - commit: 2663851363d0bc887da4efe29b340dc1b9ae24ca
   license: Apache-2.0
   repo_name: nurkiewicz/typeof
+  test_count:
+    tests_failed: 0
+    tests_run: 23
+    tests_skipped: 0
+    tests_successful: 23
 - commit: 2d41d1f274d4054123250698a596c02ff0b63687
   license: Apache-2.0
   repo_name: opendatalab-de/geojson-jackson
+  test_count:
+    tests_failed: 0
+    tests_run: 76
+    tests_skipped: 0
+    tests_successful: 76
 - commit: f8838e23168eb9b0df2e870ba1b5e2eeae77750f
   license: Apache-2.0
   repo_name: organicveggie/metrics-statsd
+  test_count:
+    tests_failed: 0
+    tests_run: 11
+    tests_skipped: 0
+    tests_successful: 11
 - commit: 1973e402f5d4c1442ad34a1d38ed0758079f7773
   license: Apache-2.0
   repo_name: perwendel/spark
+  test_count:
+    tests_failed: 0
+    tests_run: 318
+    tests_skipped: 0
+    tests_successful: 318
 - commit: c6e2f272b3cb99b414bb1e1b0456c9d0f3efe359
   license: Apache-2.0
   repo_name: pivotalsoftware/ESarch
+  test_count:
+    tests_failed: 0
+    tests_run: 171
+    tests_skipped: 0
+    tests_successful: 171
 - commit: 36fe5d05942cbd0c85852acd14971113b2702607
   license: Apache-2.0
   repo_name: playframework/netty-reactive-streams
+  test_count:
+    tests_failed: 0
+    tests_run: 293
+    tests_skipped: 98
+    tests_successful: 195
 - commit: b73cd3ceb17d0a5122216f2cacc86c4f864ee957
   license: Apache-2.0
   repo_name: pveentjer/Multiverse
+  test_count:
+    tests_failed: 0
+    tests_run: 3015
+    tests_skipped: 81
+    tests_successful: 2934
 - commit: 965cd8a8f639041c7e4115f1c8309968b3c3136f
   license: Apache-2.0
   repo_name: qos-ch/reload4j
+  test_count:
+    tests_failed: 0
+    tests_run: 656
+    tests_skipped: 3
+    tests_successful: 653
 - commit: a963eded0604ab9fe1950611a64807851d790c1c
   license: Apache-2.0
   repo_name: quicktheories/QuickTheories
+  test_count:
+    tests_failed: 0
+    tests_run: 470
+    tests_skipped: 0
+    tests_successful: 470
 - commit: 06780d8c0fab139fb20b4deb23fc63decef0fce7
   license: MIT
   repo_name: ragnor/simple-spring-memcached
+  test_count:
+    tests_failed: 0
+    tests_run: 539
+    tests_skipped: 132
+    tests_successful: 407
 - commit: d2935eb7eec3aee4b5badd644d51f14e09eadb3d
   license: Apache-2.0
   repo_name: raml-org/raml-java-parser
+  test_count:
+    tests_failed: 0
+    tests_run: 993
+    tests_skipped: 0
+    tests_successful: 993
 - commit: 5e3921b674bfb03ba9ac042238a8db0b9b17ca3a
   license: Apache-2.0
   repo_name: raphaeljolivet/java2typescript
+  test_count:
+    tests_failed: 0
+    tests_run: 21
+    tests_skipped: 0
+    tests_successful: 21
 - commit: e790412049dfe06427fc688999df21051dc6f9b7
   license: Apache-2.0
   repo_name: raydac/j-j-jvm
+  test_count:
+    tests_failed: 0
+    tests_run: 172
+    tests_skipped: 1
+    tests_successful: 171
 - commit: ac9af46cd80e45e71c50e5f1e17755b466f4fc2f
   license: Apache-2.0
   repo_name: resthub/springmvc-router
+  test_count:
+    tests_failed: 0
+    tests_run: 195
+    tests_skipped: 0
+    tests_successful: 195
 - commit: 0194cd215000672c78cc4c9ba761b5ac641921b3
   license: Apache-2.0
   repo_name: rfoltyns/log4j2-elasticsearch
+  test_count:
+    tests_failed: 0
+    tests_run: 2447
+    tests_skipped: 0
+    tests_successful: 2447
 - commit: 108cee6b209a362843729c032c2d982625d12d98
   license: Apache-2.0
   repo_name: rjeschke/txtmark
+  test_count:
+    tests_failed: 0
+    tests_run: 1
+    tests_skipped: 0
+    tests_successful: 1
 - commit: 350da0813dfabb3a41b8bc0c9cd2fd01f954c0d2
   license: Apache-2.0
   repo_name: rkapsi/patricia-trie
+  test_count:
+    tests_failed: 0
+    tests_run: 17
+    tests_skipped: 0
+    tests_successful: 17
 - commit: 177f3be00f69058fea41eec2b95300f0348b6b2f
   license: Apache-2.0
   repo_name: rmuller/infomas-asl
+  test_count:
+    tests_failed: 0
+    tests_run: 15
+    tests_skipped: 0
+    tests_successful: 15
 - commit: 6b4a7e89cbf67dab0be32e7517f3d8ae3c2b4d75
   license: Apache-2.0
   repo_name: rometools/rome
+  test_count:
+    tests_failed: 0
+    tests_run: 740
+    tests_skipped: 0
+    tests_successful: 740
 - commit: 379f3c6ae55ec9d8b264637e89c6011137cf0c42
   license: MIT
   repo_name: rrice/java-string-similarity
+  test_count:
+    tests_failed: 0
+    tests_run: 39
+    tests_skipped: 0
+    tests_successful: 39
 - commit: 4b9a1ea250647c6eb720d78fb5beeeb9237aa816
   license: Apache-2.0
   repo_name: rstoyanchev/spring-websocket-portfolio
+  test_count:
+    tests_failed: 0
+    tests_run: 6
+    tests_skipped: 0
+    tests_successful: 6
 - commit: N/A
   license: Apache-2.0
   repo_name: sbtourist/Journal.IO
+  test_count:
+    tests_failed: 0
+    tests_run: 65
+    tests_skipped: 2
+    tests_successful: 63
 - commit: 104bb8ba5344e30477640685311e9515a9d6f5a2
   license: BSD-2-Clause
   repo_name: scijava/native-lib-loader
+  test_count:
+    tests_failed: 0
+    tests_run: 3
+    tests_skipped: 0
+    tests_successful: 3
 - commit: 67a42d436811e25f85abe0788120ad9719c5a625
   license: Apache-2.0
   repo_name: shazam/shazamcrest
+  test_count:
+    tests_failed: 0
+    tests_run: 242
+    tests_skipped: 0
+    tests_successful: 242
 - commit: 94f45cb0af149bde385836d01682f78c63e4bed1
   license: CC0-1.0
   repo_name: sidd-harth/kubernetes-devops-security
+  test_count:
+    tests_failed: 0
+    tests_run: 3
+    tests_skipped: 0
+    tests_successful: 3
 - commit: d9e4b394bdaae819e7f7c00862fc3ffd27f20642
   license: Apache-2.0
   repo_name: smacke/jaydio
+  test_count:
+    tests_failed: 0
+    tests_run: 44
+    tests_skipped: 0
+    tests_successful: 44
 - commit: 5de39469ad8071d71208f630296ec374be2ba701
   license: Apache-2.0
   repo_name: sockeqwe/fragmentargs
+  test_count:
+    tests_failed: 0
+    tests_run: 15
+    tests_skipped: 0
+    tests_successful: 15
 - commit: 66ae93ad9ac514c79d7821ff90129f1bc1fa0f82
   license: Apache-2.0
   repo_name: sonian/elasticsearch-jetty
+  test_count:
+    tests_failed: 0
+    tests_run: 28
+    tests_skipped: 0
+    tests_successful: 28
 - commit: a03105ee1f98f8c5878f4e3c4d03c8732c6384bd
   license: Apache-2.0
   repo_name: spotify/apollo
+  test_count:
+    tests_failed: 0
+    tests_run: 462
+    tests_skipped: 0
+    tests_successful: 462
 - commit: 540464b8b2dfa52282722ab819d9ba27c1be66e6
   license: Apache-2.0
   repo_name: spotify/dataenum
 - commit: 2daf31fbeefb0d8c5187e483e503b6675431706d
   license: Apache-2.0
   repo_name: spotify/netty-zmtp
+  test_count:
+    tests_failed: 0
+    tests_run: 48
+    tests_skipped: 0
+    tests_successful: 48
 - commit: d02fafb5d65e7f70f7708edf2c2e39731e921922
   license: Apache-2.0
   repo_name: spotify/trickle
+  test_count:
+    tests_failed: 0
+    tests_run: 63
+    tests_skipped: 0
+    tests_successful: 63
 - commit: 2ec02d06f2fd2082d824183af01e5d4c6cc3bb9b
   license: Apache-2.0
   repo_name: spring-attic/authserver
+  test_count:
+    tests_failed: 0
+    tests_run: 3
+    tests_skipped: 0
+    tests_successful: 3
 - commit: e9e7b8cb158013464caa792b3e2de9cf7179678a
   license: Apache-2.0
   repo_name: spring-attic/spring-cloud-aws
+  test_count:
+    tests_failed: 0
+    tests_run: 751
+    tests_skipped: 0
+    tests_successful: 751
 - commit: 95edeb2d1a21fb13760b4f96f976a7f3108e0942
   license: Apache-2.0
   repo_name: spullara/cli-parser
+  test_count:
+    tests_failed: 0
+    tests_run: 18
+    tests_skipped: 0
+    tests_successful: 18
 - commit: b9017a9503b76e11b4ad4c1a9f050e2d29112cb0
   license: Apache-2.0
   repo_name: square/javapoet
+  test_count:
+    tests_failed: 0
+    tests_run: 389
+    tests_skipped: 1
+    tests_successful: 388
 - commit: 88f689c73972dde450961714ec4766378c777ad0
   license: Apache-2.0
   repo_name: square/mimecraft
+  test_count:
+    tests_failed: 0
+    tests_run: 14
+    tests_skipped: 0
+    tests_successful: 14
 - commit: 7da06269a9918c0a5d53944c2fb26e14a7dd0942
   license: CC-PDDC
   repo_name: stephenc/high-scale-lib
+  test_count:
+    tests_failed: 0
+    tests_run: 42
+    tests_skipped: 0
+    tests_successful: 42
 - commit: 5c56ccf5334d96beac8d024e29ede39137bcf88c
   license: Apache-2.0
   repo_name: swagger-api/swagger-inflector
+  test_count:
+    tests_failed: 0
+    tests_run: 184
+    tests_skipped: 0
+    tests_successful: 184
 - commit: dcf718c67c0d403f78ee390c23715c3f5e6f5f4c
   license: MIT
   repo_name: szerhusenBC/jwt-spring-security-demo
+  test_count:
+    tests_failed: 0
+    tests_run: 16
+    tests_skipped: 0
+    tests_successful: 16
 - commit: ba9b9bef5616dd0eec7f9cdf4d273adb1b63d821
   license: MIT
   repo_name: tcplugins/tcWebHooks
+  test_count:
+    tests_failed: 0
+    tests_run: 435
+    tests_skipped: 7
+    tests_successful: 428
 - commit: bb6376dffdf021dd6ab22e6224d3be997c1094b9
   license: Apache-2.0
   repo_name: tedyoung/kid-bank
+  test_count:
+    tests_failed: 0
+    tests_run: 121
+    tests_skipped: 0
+    tests_successful: 121
 - commit: 495d8ffb7cd191d287a4ef409d19eef27292d750
   license: MIT
   repo_name: tools4j/unix4j
+  test_count:
+    tests_failed: 0
+    tests_run: 460
+    tests_skipped: 0
+    tests_successful: 460
 - commit: 1dda637edb6fea9d019bc2b921b4dd2a6ffac9f0
   license: MIT
   repo_name: trystan/AsciiPanel
+  test_count:
+    tests_failed: 0
+    tests_run: 29
+    tests_skipped: 0
+    tests_successful: 29
 - commit: 373629fd545defb016e227ea758f092507fbd624
   license: Apache-2.0
   repo_name: tumblr/jumblr
+  test_count:
+    tests_failed: 0
+    tests_run: 103
+    tests_skipped: 0
+    tests_successful: 103
 - commit: 193d1c4edffe634371e7663a36b313c23b9e1cd5
   license: Apache-2.0
   repo_name: twitter-archive/cloudhopper-smpp
+  test_count:
+    tests_failed: 0
+    tests_run: 196
+    tests_skipped: 3
+    tests_successful: 193
 - commit: 90ec26e4f31cb64df7838d8f14aefaabc5184b5c
   license: Apache-2.0
   repo_name: twitter-archive/libcrunch
+  test_count:
+    tests_failed: 0
+    tests_run: 35
+    tests_skipped: 0
+    tests_successful: 35
 - commit: d61647a23b4e3cbc88a6855a506c042692e686be
   license: Apache-2.0
   repo_name: twitter/hbc
+  test_count:
+    tests_failed: 0
+    tests_run: 111
+    tests_skipped: 0
+    tests_successful: 111
 - commit: 3aab711e746c155b1a0359c7abb928ffeca2280e
   license: Apache-2.0
   repo_name: twitter/joauth
+  test_count:
+    tests_failed: 0
+    tests_run: 308
+    tests_skipped: 0
+    tests_successful: 308
 - commit: c7c2fe6e4ea1cf82cecf02b9490309f1d0c36522
   license: Apache-2.0
   repo_name: uwolfer/gerrit-rest-java-client
+  test_count:
+    tests_failed: 0
+    tests_run: 350
+    tests_skipped: 1
+    tests_successful: 349
 - commit: bc5f07c0d3fd5e40167ab72b36206b218555f734
   license: Apache-2.0
   repo_name: vbauer/caesar
+  test_count:
+    tests_failed: 0
+    tests_run: 53
+    tests_skipped: 0
+    tests_successful: 53
 - commit: 68484bf13622efc363e03f805ad44151ca3bb583
   license: Apache-2.0
   repo_name: vdenotaris/spring-boot-security-saml-sample
+  test_count:
+    tests_failed: 0
+    tests_run: 6
+    tests_skipped: 0
+    tests_successful: 6
 - commit: fedca18ae1ca3e5167487f737e48877939ca8dc7
   license: Apache-2.0
   repo_name: vidstige/jadb
+  test_count:
+    tests_failed: 0
+    tests_run: 42
+    tests_skipped: 0
+    tests_successful: 42
 - commit: 508ce33c91ef89c37773ef2cb3c7d126901c2036
   license: Apache-2.0
   repo_name: vincentrussell/sql-to-mongo-db-query-converter
+  test_count:
+    tests_failed: 0
+    tests_run: 237
+    tests_skipped: 0
+    tests_successful: 237
 - commit: 05fa0d4708a81e0860896cc90a52a5b2c867ca54
   license: BSD-3-Clause
   repo_name: virgo47/javasimon
+  test_count:
+    tests_failed: 0
+    tests_run: 369
+    tests_skipped: 0
+    tests_successful: 369
 - commit: 9ef627de3421f925bf53051084e934ea63e25870
   license: Apache-2.0
   repo_name: watson-developer-cloud/java-sdk
+  test_count:
+    tests_failed: 0
+    tests_run: 1628
+    tests_skipped: 0
+    tests_successful: 1628
 - commit: 7661dd2c9cadd8350b5b71958a4fda308a6cdb61
   license: Apache-2.0
   repo_name: wilkinsona/spring-boot-sample-tomcat-jndi
+  test_count:
+    tests_failed: 0
+    tests_run: 2
+    tests_skipped: 0
+    tests_successful: 2
 - commit: 85526fc5f3cd822a584df1ab9c8f0643ac4dd272
   license: MIT
   repo_name: wkennedy/swagger4spring-web
+  test_count:
+    tests_failed: 0
+    tests_run: 16
+    tests_skipped: 0
+    tests_successful: 16
 - commit: 72a6bfe08337951e00eeb19860b24ef2fb7a327b
   license: Apache-2.0
   repo_name: wso2/balana
+  test_count:
+    tests_failed: 0
+    tests_run: 26
+    tests_skipped: 0
+    tests_successful: 26
 - commit: 88a1f81e995beb1b64bc68241a7ab9894dc7d2fe
   license: MIT
   repo_name: xuender/unidecode
+  test_count:
+    tests_failed: 0
+    tests_run: 38
+    tests_skipped: 0
+    tests_successful: 38
 - commit: d87f125f2023bd71f1caaae684e75199027d75d2
   license: Apache-2.0
   repo_name: youngmonkeys/ezyfox-server
+  test_count:
+    tests_failed: 0
+    tests_run: 808
+    tests_skipped: 0
+    tests_successful: 808
 - commit: 7ccb7a5cf2e441dc17917bfb10796088741223df
   license: MIT
   repo_name: yuequan1997/watchdog-spring-boot-starter
+  test_count:
+    tests_failed: 0
+    tests_run: 5
+    tests_skipped: 0
+    tests_successful: 5
 - commit: d5bb0867acd3e897c3a55b23de59bdea46ba6bc7
   license: Apache-2.0
   repo_name: ywilkof/spark-jobs-rest-client
+  test_count:
+    tests_failed: 0
+    tests_run: 31
+    tests_skipped: 0
+    tests_successful: 31
 - commit: e289fafebd4c503f43b88598a745e8a571e3ed5d
   license: MIT
   repo_name: zalando/opentracing-toolbox
+  test_count:
+    tests_failed: 0
+    tests_run: 235
+    tests_skipped: 0
+    tests_successful: 235
 - commit: 9879ce8da55a90e952fbf1906dee7b1e8fd87fc0
   license: Apache-2.0
   repo_name: zapr-oss/druidry
+  test_count:
+    tests_failed: 0
+    tests_run: 475
+    tests_skipped: 0
+    tests_successful: 475
