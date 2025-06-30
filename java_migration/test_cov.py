@@ -1,14 +1,13 @@
 import subprocess
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
 
 import xmltodict
 
-from java_migration.eval.data_model import TestCoverage, CoverageSummary
+from java_migration.eval.data_model import CoverageSummary, TestCoverage
 from java_migration.maven.maven_pom_editor import MavenPomEditor
 from java_migration.maven.maven_project import MavenProject
 from java_migration.maven.maven_runner import Maven
-
 
 # JaCoCo plugin version to use
 JACOCO_VERSION = "0.8.8"
@@ -284,8 +283,6 @@ def ensure_jacoco_plugin_configuration(
         desired_executions.append({"id": "report-aggregate", "goals": ["report-aggregate"], "phase": "test"})
 
     initial_plugin_exists = editor.plugin_exists(group_id, artifact_id)  # Check state *before* any changes
-    plugin_removed_successfully = False
-    plugin_added_successfully = False
 
     # --- Step 1: Remove existing plugin if it exists ---
     if initial_plugin_exists:

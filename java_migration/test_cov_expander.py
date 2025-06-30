@@ -1,10 +1,10 @@
 import contextlib
 import io
 import os
+import random
 import shutil
 import traceback
 from pathlib import Path
-import random
 
 import yaml
 from dotenv import load_dotenv
