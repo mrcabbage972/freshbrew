@@ -14,7 +14,6 @@ class PomUpdater:
     INSTALL_PLUGIN_VERSION = "2.5.2"
     DEPLOY_PLUGIN_VERSION = "2.8.2"
 
-
     def __init__(self, repo_path: str) -> None:
         """
         Initialize the updater with a repository path (containing pom.xml) and optionally a module name.
@@ -67,22 +66,32 @@ class PomUpdater:
         """
         pom_path = os.path.join(module_path, "pom.xml")
         with open(pom_path, "w") as f:
-            f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-            f.write("<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n")
-            f.write("         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n")
+            f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+            f.write(
+                '<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
+            )
+            f.write(
+                '         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">\n'
+            )
             f.write("    <modelVersion>4.0.0</modelVersion>\n")
             # Basic parent info needed for dependency resolution during creation
             f.write("    <parent>\n")
-            f.write(f"        <groupId>{self.editor.root.findtext('m:groupId', namespaces=self.editor.namespaces)}</groupId>\n") # Get from root editor
-            f.write(f"        <artifactId>{self.editor.root.findtext('m:artifactId', namespaces=self.editor.namespaces)}</artifactId>\n") # Get from root editor
-            f.write(f"        <version>{self.editor.root.findtext('m:version', namespaces=self.editor.namespaces)}</version>\n") # Get from root editor
+            f.write(
+                f"        <groupId>{self.editor.root.findtext('m:groupId', namespaces=self.editor.namespaces)}</groupId>\n"
+            )  # Get from root editor
+            f.write(
+                f"        <artifactId>{self.editor.root.findtext('m:artifactId', namespaces=self.editor.namespaces)}</artifactId>\n"
+            )  # Get from root editor
+            f.write(
+                f"        <version>{self.editor.root.findtext('m:version', namespaces=self.editor.namespaces)}</version>\n"
+            )  # Get from root editor
             f.write("    </parent>\n")
             f.write(f"    <artifactId>{self.RANDOOP_MODULE_NAME}</artifactId>\n")
             f.write(f"    <name>{self.RANDOOP_MODULE_NAME}</name>\n")
             f.write("    <packaging>jar</packaging>\n")
             f.write("</project>\n")
 
-        randoop_editor = MavenPomEditor(pom_path) # Create editor for the new pom
+        randoop_editor = MavenPomEditor(pom_path)  # Create editor for the new pom
 
         # Add JUnit and Randoop dependencies (WITHOUT version - managed by parent)
         dependencies_elem = randoop_editor.ensure_element(".", "m:dependencies")
@@ -102,79 +111,82 @@ class PomUpdater:
         if self._needs_servlet_api(self.project_root):
             print("adding servlet dependency")
             randoop_editor.add_dependency(
-                group_id="javax.servlet", 
-                artifact_id="javax.servlet-api",
-                version="4.0.1",
-                scope="test" )
+                group_id="javax.servlet", artifact_id="javax.servlet-api", version="4.0.1", scope="test"
+            )
             randoop_editor._save()
 
         if self._needs_slf4j_api(self.project_root):
             print("adding slf4j dependency")
-            randoop_editor.add_dependency(
-                group_id="org.slf4j", 
-                artifact_id="slf4j-api",
-                version="1.7.36",
-                scope="test" )
+            randoop_editor.add_dependency(group_id="org.slf4j", artifact_id="slf4j-api", version="1.7.36", scope="test")
 
             randoop_editor.add_dependency(
-                group_id="org.slf4j", 
-                artifact_id="slf4j-simple",
-                version="1.7.36",
-                scope="test" )
+                group_id="org.slf4j", artifact_id="slf4j-simple", version="1.7.36", scope="test"
+            )
             randoop_editor._save()
-            
 
         # --- Add dependencies to other project modules ---
         root_group_id = self.editor.root.findtext("m:groupId", namespaces=self.editor.namespaces)
-        root_version = self.editor.root.findtext("m:version", namespaces=self.editor.namespaces) # Use root version
+        root_version = self.editor.root.findtext("m:version", namespaces=self.editor.namespaces)  # Use root version
         all_modules = self.project.get_modules()
-        print(f"Adding dependencies in {self.RANDOOP_MODULE_NAME} to modules: {[m for m in all_modules if m != self.RANDOOP_MODULE_NAME]}")
+        print(
+            f"Adding dependencies in {self.RANDOOP_MODULE_NAME} to modules: {[m for m in all_modules if m != self.RANDOOP_MODULE_NAME]}"
+        )
 
         for module_name in all_modules:
             if module_name == self.RANDOOP_MODULE_NAME:
-                continue # Don't add self
+                continue  # Don't add self
 
             module_pom_path = os.path.join(self.project_root, module_name, "pom.xml")
             if not os.path.exists(module_pom_path):
-                 print(f"Warning: Could not find pom.xml for module '{module_name}' at '{module_pom_path}'. Skipping dependency.")
-                 continue
+                print(
+                    f"Warning: Could not find pom.xml for module '{module_name}' at '{module_pom_path}'. Skipping dependency."
+                )
+                continue
 
             try:
                 # Read the module's pom.xml to get its actual artifactId
                 module_editor = MavenPomEditor(module_pom_path)
-                module_group_id = module_editor.root.findtext('m:groupId', namespaces=module_editor.namespaces)
-                module_artifact_id = module_editor.root.findtext('m:artifactId', namespaces=module_editor.namespaces)
-                module_version = module_editor.root.findtext('m:version', namespaces=module_editor.namespaces)
+                module_group_id = module_editor.root.findtext("m:groupId", namespaces=module_editor.namespaces)
+                module_artifact_id = module_editor.root.findtext("m:artifactId", namespaces=module_editor.namespaces)
+                module_version = module_editor.root.findtext("m:version", namespaces=module_editor.namespaces)
 
                 if not module_artifact_id:
-                     print(f"Warning: Could not find artifactId in pom.xml for module '{module_name}'. Skipping dependency.")
-                     continue
-
+                    print(
+                        f"Warning: Could not find artifactId in pom.xml for module '{module_name}'. Skipping dependency."
+                    )
+                    continue
 
                 module_dep = randoop_editor.create_sub_element(dependencies_elem, "m:dependency")
 
                 # Use the actual groupId from the module's POM if present, otherwise use the root's
-                randoop_editor.create_sub_element(module_dep, "m:groupId", text=module_group_id if module_group_id else root_group_id)
+                randoop_editor.create_sub_element(
+                    module_dep, "m:groupId", text=module_group_id if module_group_id else root_group_id
+                )
                 # Use the actual artifactId from the module's POM
                 randoop_editor.create_sub_element(module_dep, "m:artifactId", text=module_artifact_id)
-                 # Use the actual version from the module's POM if present, otherwise use the root's (as before)
-                randoop_editor.create_sub_element(module_dep, "m:version", text=module_version if module_version else root_version)
+                # Use the actual version from the module's POM if present, otherwise use the root's (as before)
+                randoop_editor.create_sub_element(
+                    module_dep, "m:version", text=module_version if module_version else root_version
+                )
 
-                randoop_editor.create_sub_element(module_dep, "m:scope", text="test") # Crucial
-                print(f"  - Added dependency for {module_group_id if module_group_id else root_group_id}:{module_artifact_id}:{module_version if module_version else root_version}")
+                randoop_editor.create_sub_element(module_dep, "m:scope", text="test")  # Crucial
+                print(
+                    f"  - Added dependency for {module_group_id if module_group_id else root_group_id}:{module_artifact_id}:{module_version if module_version else root_version}"
+                )
 
             except Exception as e:
-                 # Catch potential errors during XML parsing or element finding
-                 print(f"Warning: Error processing pom.xml for module '{module_name}' at '{module_pom_path}'. Skipping dependency. Error: {e}")
-                 # Optionally log the traceback for debugging
-
+                # Catch potential errors during XML parsing or element finding
+                print(
+                    f"Warning: Error processing pom.xml for module '{module_name}' at '{module_pom_path}'. Skipping dependency. Error: {e}"
+                )
+                # Optionally log the traceback for debugging
 
         # Add Surefire plugin for running tests
         build_elem = randoop_editor.ensure_element(".", "m:build")
         plugins_elem = randoop_editor.ensure_element(build_elem, "m:plugins")
 
         # Surefire Plugin
-        plugin_elem = randoop_editor.create_sub_element(plugins_elem, "m:plugin") # Use create_sub_element
+        plugin_elem = randoop_editor.create_sub_element(plugins_elem, "m:plugin")  # Use create_sub_element
         randoop_editor.create_sub_element(plugin_elem, "m:groupId", text="org.apache.maven.plugins")
         randoop_editor.create_sub_element(plugin_elem, "m:artifactId", text="maven-surefire-plugin")
         # Version could be managed in root <pluginManagement> but adding here is simpler for now
@@ -182,7 +194,9 @@ class PomUpdater:
         config_elem = randoop_editor.ensure_element(plugin_elem, "m:configuration")
         includes_elem = randoop_editor.ensure_element(config_elem, "m:includes")
         randoop_editor.create_sub_element(includes_elem, "m:include", text="**/RegressionTest*.java")
-        randoop_editor.create_sub_element(includes_elem, "m:include", text="**/ErrorTest*.java") # Also include error tests
+        randoop_editor.create_sub_element(
+            includes_elem, "m:include", text="**/ErrorTest*.java"
+        )  # Also include error tests
 
         # --- Add install/deploy skip plugins ---
         # Install Plugin skip
@@ -191,7 +205,7 @@ class PomUpdater:
         randoop_editor.create_sub_element(install_plugin, "m:artifactId", text="maven-install-plugin")
         # Optionally add version
         # randoop_editor.create_sub_element(install_plugin, "m:version", text=self.INSTALL_PLUGIN_VERSION)
-        randoop_editor.add_skip_plugin_config(install_plugin) # Use helper
+        randoop_editor.add_skip_plugin_config(install_plugin)  # Use helper
 
         # Deploy Plugin skip
         deploy_plugin = randoop_editor.create_sub_element(plugins_elem, "m:plugin")
@@ -199,7 +213,7 @@ class PomUpdater:
         randoop_editor.create_sub_element(deploy_plugin, "m:artifactId", text="maven-deploy-plugin")
         # Optionally add version
         # randoop_editor.create_sub_element(deploy_plugin, "m:version", text=self.DEPLOY_PLUGIN_VERSION)
-        randoop_editor.add_skip_plugin_config(deploy_plugin) # Use helper
+        randoop_editor.add_skip_plugin_config(deploy_plugin)  # Use helper
         # --- End Add install/deploy skip plugins ---
 
         randoop_editor._save()
@@ -211,7 +225,7 @@ class PomUpdater:
         """
         if not self.project.is_multi_module():
             print("Project is not multi-module. Skipping Randoop module creation.")
-            return None # Indicate no editor created/found
+            return None  # Indicate no editor created/found
 
         if not self._randoop_module_exists():
             print(f"Creating Randoop test module: {self.RANDOOP_MODULE_NAME}...")
@@ -222,10 +236,12 @@ class PomUpdater:
             # Add the new module to the root pom.xml
             modules_elem = self.editor.ensure_element(".", "m:modules")
             # Check if module is already listed before adding
-            module_exists_in_list = modules_elem.xpath(f"m:module[text()='{self.RANDOOP_MODULE_NAME}']", namespaces=self.editor.namespaces)
+            module_exists_in_list = modules_elem.xpath(
+                f"m:module[text()='{self.RANDOOP_MODULE_NAME}']", namespaces=self.editor.namespaces
+            )
             if not module_exists_in_list:
-                 self.editor.create_sub_element(modules_elem, "m:module", text=self.RANDOOP_MODULE_NAME)
-                 self.editor._save() # Save root pom after adding module
+                self.editor.create_sub_element(modules_elem, "m:module", text=self.RANDOOP_MODULE_NAME)
+                self.editor._save()  # Save root pom after adding module
             print(f"Created and configured Randoop test module: {self.RANDOOP_MODULE_NAME}")
             return randoop_module_editor
         else:
@@ -312,27 +328,21 @@ class PomUpdater:
             if self._needs_servlet_api(self.project_root):
                 print("adding servlet dependency")
                 self.editor.add_dependency(
-                    group_id="javax.servlet", 
-                    artifact_id="javax.servlet-api",
-                    version="4.0.1",
-                    scope="test" )
+                    group_id="javax.servlet", artifact_id="javax.servlet-api", version="4.0.1", scope="test"
+                )
                 self.editor._save()
-            if self._needs_slf4j_api(self.project_root):                
+            if self._needs_slf4j_api(self.project_root):
                 self.editor.add_dependency(
-                    group_id="org.slf4j", 
-                    artifact_id="slf4j-api",
-                    version="1.7.36",
-                    scope="test" )                
+                    group_id="org.slf4j", artifact_id="slf4j-api", version="1.7.36", scope="test"
+                )
                 self.editor.add_dependency(
-                    group_id="org.slf4j", 
-                    artifact_id="slf4j-simple",
-                    version="1.7.36",
-                    scope="test")
+                    group_id="org.slf4j", artifact_id="slf4j-simple", version="1.7.36", scope="test"
+                )
                 self.editor._save()
             print(f"POM file at {self.editor.pom_file} updated (single-module logic).")
 
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     repository_path: str = "/home/user/java-migration-paper/data/workspace/zykzhangyukang_Xinguan"
     try:
         updater = PomUpdater(repository_path)
@@ -341,4 +351,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"An error occurred: {e}")
         import traceback
+
         traceback.print_exc()

@@ -56,8 +56,7 @@ class RandoopRunner:
         return os.pathsep.join(others + wildcard_parts)
 
     def _ensure_repo_sanity(self, repo_path: Path):
-        if Maven(target_java_version=self.target_java_version) \
-               .test(repo_path, skip_tests=True).status != 0:
+        if Maven(target_java_version=self.target_java_version).test(repo_path, skip_tests=True).status != 0:
             raise RuntimeError("Maven install failed. Skipping.")
 
         if not (repo_path / ".git").exists():
@@ -73,16 +72,9 @@ class RandoopRunner:
             + self.randoop_opts
             + [f"--classlist={class_list_file}"]
         )
-        result = subprocess.run(cmd,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                text=True)
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         if result.returncode != 0:
-            raise subprocess.CalledProcessError(
-                result.returncode, cmd,
-                output=result.stdout,
-                stderr=result.stderr
-            )
+            raise subprocess.CalledProcessError(result.returncode, cmd, output=result.stdout, stderr=result.stderr)
         return result.stdout, result.stderr
 
     def run(self, repo_path: Path) -> Path:
@@ -93,9 +85,7 @@ class RandoopRunner:
 
             self._ensure_repo_sanity(repo_path)
 
-            deps_man = RandoopDependencyManager(
-                repo_path, self.randoop_jar_path, self.target_java_version
-            )
+            deps_man = RandoopDependencyManager(repo_path, self.randoop_jar_path, self.target_java_version)
 
             # Prepare output dirs
             output_dir = repo_path / RANDOOP_SRC_TEST_JAVA
@@ -106,10 +96,7 @@ class RandoopRunner:
             for attempt in range(1, self.num_retries + 1):
                 print(f"Randoop run attempt {attempt} of {self.num_retries}…")
                 try:
-                    stdout, stderr = self.execute_randoop(
-                        deps_man.get_class_path(),
-                        deps_man.get_class_list_file()
-                    )
+                    stdout, stderr = self.execute_randoop(deps_man.get_class_path(), deps_man.get_class_list_file())
                     print("✅ Randoop completed successfully.")
                     break
                 except subprocess.CalledProcessError as e:
@@ -155,13 +142,13 @@ def main():
     repos = [Path("/home/user/java-migration-paper/data/workspace_tmp/forum-java")]  # sys.argv[1:]
     for repo in repos:
         if os.path.isdir(repo):
-
             randoop_runner = RandoopRunner(
-            target_java_version="8", randoop_jar_path=Path("/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar")
-        )
+                target_java_version="8",
+                randoop_jar_path=Path("/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar"),
+            )
 
             randoop_runner.run(repo)
-            #run_randoop_on_repo(repo, Path("/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar"))
+            # run_randoop_on_repo(repo, Path("/home/user/java-migration-paper/randoop-4.3.3/randoop-all-4.3.3.jar"))
         else:
             print(f"Path does not exist or is not a directory: {repo}")
 

@@ -1,6 +1,5 @@
 import contextlib
 import io
-import multiprocessing
 import os
 import shutil
 import traceback
@@ -13,7 +12,7 @@ from dotenv import load_dotenv
 from java_migration.eval.data_model import MigrationDatasetItem
 from java_migration.eval.env_checker import EnvironmentValidator
 from java_migration.eval.maven_build_verifier import MavenBuildVerifier
-from java_migration.eval.utils import Dataset, safe_repo_name
+from java_migration.eval.utils import safe_repo_name
 from java_migration.job_runner import JobCfg, JobResult, JobRunner, JobStatus, Worker
 
 # from java_migration.randoop import run_randoop_on_repo
@@ -24,7 +23,7 @@ from java_migration.utils import REPO_ROOT
 
 
 class TestCovExpander:
-    def __init__(self, randoop_jar_path: Path, target_jdk_version: str = "8", clear_cache: str=True):
+    def __init__(self, randoop_jar_path: Path, target_jdk_version: str = "8", clear_cache: str = True):
         self.randoop_jar_path = randoop_jar_path
         self.target_jdk_version = target_jdk_version
         self.clear_cache = clear_cache
@@ -48,7 +47,15 @@ class TestCovExpander:
         workspace = None
         try:
             output_dir = output_root / safe_repo_name(dataset_item.repo_name)
-            if not self.clear_cache and output_dir.exists() and ((output_dir / "randoop.patch").exists() or (output_dir / "stdout.txt").exists() or (output_dir / "cov_before.yaml").exists()):
+            if (
+                not self.clear_cache
+                and output_dir.exists()
+                and (
+                    (output_dir / "randoop.patch").exists()
+                    or (output_dir / "stdout.txt").exists()
+                    or (output_dir / "cov_before.yaml").exists()
+                )
+            ):
                 print(f"Skipping existing output for {dataset_item.repo_name}")
                 return
 
@@ -64,8 +71,7 @@ class TestCovExpander:
                 workspace_dir=workspace_root / safe_repo_name(dataset_item.repo_name),
             )
             build_result = self.build_verifier.verify(
-                repo_workspace.workspace_dir, target_java_version=self.target_jdk_version,
-                build_only=True
+                repo_workspace.workspace_dir, target_java_version=self.target_jdk_version, build_only=True
             )
             if not build_result.build_success:
                 raise RuntimeError(f"Build failed for repo {dataset_item.repo_name}")
@@ -87,9 +93,7 @@ class TestCovExpander:
                 workspace.clean()
 
     def _get_cov(self, workspace_dir: Path, output_path: Path):
-        test_cov = get_test_cov(
-            str(workspace_dir), use_wrapper=False, target_java_version=self.target_jdk_version
-        )
+        test_cov = get_test_cov(str(workspace_dir), use_wrapper=False, target_java_version=self.target_jdk_version)
 
         if test_cov:
             with open(output_path, "w") as fout:
@@ -103,7 +107,7 @@ class TestCovExpandWorker(Worker):
         self.test_cov_expander = TestCovExpander(randoop_jar_path, target_jdk_version, clear_cache)
 
     def __call__(self, job: JobCfg) -> JobResult:
-        try:  
+        try:
             buffer = io.StringIO()
             with contextlib.redirect_stdout(buffer):
                 self.test_cov_expander.run(job.dataset_item, job.output_root, job.workspace_root, job.cleanup_workspace)
@@ -117,12 +121,12 @@ class TestCovExpandWorker(Worker):
 def main():
     output_dir = REPO_ROOT / "output" / "cov_expand_30k"
 
-    #dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.MEDIUM))
+    # dataset = MigrationDatasetItem.from_yaml(Dataset.get_path(Dataset.MEDIUM))
     dataset = MigrationDatasetItem.from_yaml("data/30k_dataset/30k_processed.yaml")
 
     print(len(dataset))
 
-    #dataset = [x for x in dataset if "hera" in x.repo_name]
+    # dataset = [x for x in dataset if "hera" in x.repo_name]
 
     # TestCovExpander(Path(os.environ["RANDOOP_JAR_PATH"])).run(dataset[0], output_dir)
 

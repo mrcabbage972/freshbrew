@@ -25,7 +25,6 @@ class Maven:
 
     def _use_wrapper(self, repo_path: Path) -> bool:
         return (repo_path / "mvnw").exists() & (repo_path / ".mvn" / "wrapper" / "maven-wrapper.properties").exists()
-        
 
     def _get_base_cmd(self, repo_path: Path) -> str:
         if self._use_wrapper(repo_path):
@@ -52,12 +51,18 @@ class Maven:
             status=result.returncode, stdout=result.stdout.decode("utf-8"), stderr=result.stderr.decode("utf-8")
         )
 
-    def install(self, repo_path: Path, skip_tests: bool = False, ignore_test_failures: bool = False,
-     skip_its: bool = True, skip_docs: bool = True) -> CliResult:
+    def install(
+        self,
+        repo_path: Path,
+        skip_tests: bool = False,
+        ignore_test_failures: bool = False,
+        skip_its: bool = True,
+        skip_docs: bool = True,
+    ) -> CliResult:
         cmd = [
             self._get_base_cmd(repo_path),
             "install",
-            "--batch-mode",            
+            "--batch-mode",
             "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn",
             f"-Dmaven.compiler.source={self.target_java_version}",
             f"-Dmaven.compiler.target={self.target_java_version}",

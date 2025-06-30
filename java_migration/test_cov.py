@@ -10,10 +10,9 @@ from java_migration.maven.maven_project import MavenProject
 from java_migration.maven.maven_runner import Maven
 
 
-
-
 # JaCoCo plugin version to use
 JACOCO_VERSION = "0.8.8"
+
 
 def add_copy_app_classes_to_randoop_pom(project: MavenProject):
     """
@@ -30,10 +29,7 @@ def add_copy_app_classes_to_randoop_pom(project: MavenProject):
     plugins_elem = editor.ensure_element(build_elem, "m:plugins")
 
     # Check if the plugin already exists
-    plugin_xpath = (
-        "m:plugin[m:groupId='org.apache.maven.plugins' and "
-        "m:artifactId='maven-resources-plugin']"
-    )
+    plugin_xpath = "m:plugin[m:groupId='org.apache.maven.plugins' and m:artifactId='maven-resources-plugin']"
     existing_plugins = plugins_elem.xpath(plugin_xpath, namespaces=ns)
     if existing_plugins:
         plugin_elem = existing_plugins[0]
@@ -58,26 +54,19 @@ def add_copy_app_classes_to_randoop_pom(project: MavenProject):
 
         # Configuration block
         config_elem = editor.create_sub_element(exec_elem, "m:configuration")
-        editor.create_sub_element(
-            config_elem,
-            "m:outputDirectory",
-            text="${project.build.outputDirectory}"
-        )
+        editor.create_sub_element(config_elem, "m:outputDirectory", text="${project.build.outputDirectory}")
         resources_elem = editor.create_sub_element(config_elem, "m:resources")
 
         # List of modules whose classes should be copied
         modules = project.get_modules()
         for mod in modules:
             res = editor.create_sub_element(resources_elem, "m:resource")
-            editor.create_sub_element(
-                res,
-                "m:directory",
-                text=f"${{project.parent.basedir}}/{mod}/target/classes"
-            )
+            editor.create_sub_element(res, "m:directory", text=f"${{project.parent.basedir}}/{mod}/target/classes")
             editor.create_sub_element(res, "m:filtering", text="false")
 
     # Save changes
     editor._save()
+
 
 def ensure_jacoco_argline(editor: MavenPomEditor) -> bool:
     """
@@ -138,7 +127,7 @@ def ensure_jacoco_argline(editor: MavenPomEditor) -> bool:
     # or by directly setting .text
     if modified:
         print(f"Saving changes to {editor.pom_file}")
-        editor._save() # Ensure all changes are written
+        editor._save()  # Ensure all changes are written
 
     return modified
 
@@ -150,11 +139,12 @@ def _install_all_modules(repo: Path, use_wrapper: bool, target_java_version: str
     before running randoop-tests or coverage.
     """
 
-    result = Maven(target_java_version).install(repo, skip_tests=True, ignore_test_failures=True, 
-        skip_its=True, skip_docs=True)
+    result = Maven(target_java_version).install(
+        repo, skip_tests=True, ignore_test_failures=True, skip_its=True, skip_docs=True
+    )
     if result.status != 0:
-        raise RuntimeError(f"Maven install failed: {result.stdout} + \nstderr:\" + {result.stderr}")
-    
+        raise RuntimeError(f'Maven install failed: {result.stdout} + \nstderr:" + {result.stderr}')
+
     # mvn_cmd = str(repo / "mvnw") if use_wrapper and (repo / "mvnw").exists() else "mvn"
     # cmd = [
     #     mvn_cmd,
@@ -174,19 +164,23 @@ def _install_all_modules(repo: Path, use_wrapper: bool, target_java_version: str
 
 def _run_maven_with_jacoco(repo: Path, use_wrapper: bool, target_java_version) -> None:
     mvn_cmd = str(repo / "mvnw") if use_wrapper and (repo / "mvnw").exists() else "mvn"
-    goals = [        
+    goals = [
         # f"org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:prepare-agent",
-         "test",
+        "test",
         # f"org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:report",
         # f"org.jacoco:jacoco-maven-plugin:{JACOCO_VERSION}:report-aggregate",
     ]
-    cmd = [mvn_cmd] + goals + [
-        "-B",
-        "-ntp",
-        "-Dmaven.test.failure.ignore=true",
-        f"-Dmaven.compiler.source={target_java_version}",
-        f"-Dmaven.compiler.target={target_java_version}",
-    ]
+    cmd = (
+        [mvn_cmd]
+        + goals
+        + [
+            "-B",
+            "-ntp",
+            "-Dmaven.test.failure.ignore=true",
+            f"-Dmaven.compiler.source={target_java_version}",
+            f"-Dmaven.compiler.target={target_java_version}",
+        ]
+    )
     print(f"Running JaCoCo goals: {' '.join(cmd)}")
     subprocess.run(cmd, cwd=repo, check=True, capture_output=True)
 
@@ -212,7 +206,7 @@ def _parse_one_report(xml_path: Path) -> dict:
         if isinstance(node, dict):
             typ = node.get("@type")
             if typ in counters:
-                counters[typ]["missed"]  += int(node.get("@missed",  0))
+                counters[typ]["missed"] += int(node.get("@missed", 0))
                 counters[typ]["covered"] += int(node.get("@covered", 0))
             for v in node.values():
                 recurse(v)
@@ -231,52 +225,39 @@ def _aggregate_counters(all_counters: List[dict]) -> TestCoverage:
     agg = {t: {"missed": 0, "covered": 0} for t in ("LINE", "METHOD")}
     for c in all_counters:
         for t in agg:
-            agg[t]["missed"]  += c[t]["missed"]
+            agg[t]["missed"] += c[t]["missed"]
             agg[t]["covered"] += c[t]["covered"]
 
     def make_summary(d):
         total = d["missed"] + d["covered"]
-        pct   = (d["covered"] / total * 100) if total > 0 else 0.0
-        return CoverageSummary(
-            missed=d["missed"],
-            covered=d["covered"],
-            total=total,
-            percent=pct
-        )
+        pct = (d["covered"] / total * 100) if total > 0 else 0.0
+        return CoverageSummary(missed=d["missed"], covered=d["covered"], total=total, percent=pct)
 
-    return TestCoverage(
-        LINE=make_summary(agg["LINE"]),
-        METHOD=make_summary(agg["METHOD"])
-    )
+    return TestCoverage(LINE=make_summary(agg["LINE"]), METHOD=make_summary(agg["METHOD"]))
 
 
 def ensure_testng_version(root_editor):
     testng_group_id = "org.testng"
     testng_artifact_id = "testng"
-    target_testng_version = "6.14.3" # Java 8 compatible version
+    target_testng_version = "6.14.3"  # Java 8 compatible version
 
     # Check direct dependencies
     testng_dep_element = root_editor.get_dependency(testng_group_id, testng_artifact_id)
     if testng_dep_element is not None:
-        root_editor.ensure_element(
-            parent=testng_dep_element,
-            tag="m:version",
-            text=target_testng_version
-        )
+        root_editor.ensure_element(parent=testng_dep_element, tag="m:version", text=target_testng_version)
     else:
         # Check dependencyManagement if not found directly
         mgmt_xpath = f".//m:dependencyManagement/m:dependencies/m:dependency[m:groupId='{testng_group_id}' and m:artifactId='{testng_artifact_id}']"
         managed_deps = root_editor.root.xpath(mgmt_xpath, namespaces=root_editor.namespaces)
         if managed_deps:
             managed_dep_element = managed_deps[0]
-            root_editor.ensure_element(
-                parent=managed_dep_element,
-                tag="m:version",
-                text=target_testng_version
-            )
+            root_editor.ensure_element(parent=managed_dep_element, tag="m:version", text=target_testng_version)
     root_editor._save()
 
-def ensure_jacoco_plugin_configuration(editor: MavenPomEditor, prepare_agent: bool = True, report: bool = True, report_aggregate: bool = True):
+
+def ensure_jacoco_plugin_configuration(
+    editor: MavenPomEditor, prepare_agent: bool = True, report: bool = True, report_aggregate: bool = True
+):
     """
     Ensures the standard JaCoCo plugin configuration is present using a
     'remove-then-add' strategy. It first removes any existing
@@ -294,18 +275,15 @@ def ensure_jacoco_plugin_configuration(editor: MavenPomEditor, prepare_agent: bo
     desired_executions = []
 
     if prepare_agent:
-        desired_executions.append(
-        {'id': 'prepare-agent', 'goals': ['prepare-agent'], 'phase': 'initialize'})
+        desired_executions.append({"id": "prepare-agent", "goals": ["prepare-agent"], "phase": "initialize"})
 
     if report:
-        desired_executions.append(
-        {'id': 'report',        'goals': ['report'],        'phase': 'test'})
+        desired_executions.append({"id": "report", "goals": ["report"], "phase": "test"})
 
     if report_aggregate:
-        desired_executions.append(
-        {'id': 'report-aggregate','goals': ['report-aggregate'],'phase': 'test'})
+        desired_executions.append({"id": "report-aggregate", "goals": ["report-aggregate"], "phase": "test"})
 
-    initial_plugin_exists = editor.plugin_exists(group_id, artifact_id) # Check state *before* any changes
+    initial_plugin_exists = editor.plugin_exists(group_id, artifact_id)  # Check state *before* any changes
     plugin_removed_successfully = False
     plugin_added_successfully = False
 
@@ -317,20 +295,15 @@ def ensure_jacoco_plugin_configuration(editor: MavenPomEditor, prepare_agent: bo
                 parent = existing_plugin_element.getparent()
                 if parent is not None:
                     parent.remove(existing_plugin_element)
-                    editor._save() # Save the removal explicitly
-                    plugin_removed_successfully = True
+                    editor._save()  # Save the removal explicitly
             except Exception as e:
                 print(f"Warning: Failed to remove existing plugin {group_id}:{artifact_id}: {e}")
     try:
         editor.add_plugin(
-            group_id=group_id,
-            artifact_id=artifact_id,
-            version=target_version,
-            executions=desired_executions
+            group_id=group_id, artifact_id=artifact_id, version=target_version, executions=desired_executions
         )
-        plugin_added_successfully = True
     except Exception as e:
-         print(f"Error: Failed to add plugin {group_id}:{artifact_id}: {e}")
+        print(f"Error: Failed to add plugin {group_id}:{artifact_id}: {e}")
 
 
 def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version: str = "8") -> Optional[TestCoverage]:
@@ -350,13 +323,15 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version:
 
     # Downgrade TestNG if found
     ensure_testng_version(root_editor)
-   
+
     if project.is_multi_module() and "randoop-tests" in project.get_modules():
         ensure_jacoco_argline(project.get_pom_editor("randoop-tests"))
         ensure_jacoco_plugin_configuration(root_editor, prepare_agent=False, report=False, report_aggregate=True)
         add_copy_app_classes_to_randoop_pom(project)
         for module in project.get_modules():
-            ensure_jacoco_plugin_configuration(project.get_pom_editor(module), prepare_agent=True, report=True, report_aggregate=False)
+            ensure_jacoco_plugin_configuration(
+                project.get_pom_editor(module), prepare_agent=True, report=True, report_aggregate=False
+            )
     else:
         ensure_jacoco_argline(root_editor)
         ensure_jacoco_plugin_configuration(root_editor, prepare_agent=True, report=True, report_aggregate=True)
@@ -387,19 +362,17 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version:
 
     # 5) Aggregate and return
     coverage = _aggregate_counters(all_counts)
-    print(f"Aggregated Coverage → LINE: {coverage.LINE.percent:.2f}%, "
-          f"METHOD: {coverage.METHOD.percent:.2f}%")
+    print(f"Aggregated Coverage → LINE: {coverage.LINE.percent:.2f}%, METHOD: {coverage.METHOD.percent:.2f}%")
     return coverage
 
 
 if __name__ == "__main__":
     # Example invocation; replace with CLI parsing as needed
-    path    = "/home/user/java-migration-paper/data/workspace_tmp/forum-java" # Original example path
+    path = "/home/user/java-migration-paper/data/workspace_tmp/forum-java"  # Original example path
     wrapper = False
 
     coverage = get_test_cov(path, wrapper)
     if coverage:
-        print(f"Final: {coverage.LINE.covered}/{coverage.LINE.total} lines "
-              f"({coverage.LINE.percent:.2f}%)")
+        print(f"Final: {coverage.LINE.covered}/{coverage.LINE.total} lines ({coverage.LINE.percent:.2f}%)")
     else:
         print("Coverage could not be determined.")

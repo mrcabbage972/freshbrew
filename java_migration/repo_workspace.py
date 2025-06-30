@@ -32,4 +32,4 @@ class RepoWorkspace:
 
     def reset(self):
         repo = Repo(self.workspace_dir)
-        repo.git.reset('--hard')
+        repo.git.reset("--hard")

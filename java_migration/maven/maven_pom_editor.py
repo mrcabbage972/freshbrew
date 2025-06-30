@@ -19,7 +19,9 @@ class MavenPomEditor:
         if None in self.namespaces:
             self.namespaces["m"] = self.namespaces.pop(None)
 
-    def ensure_element(self, parent: Union[str, etree._Element], tag: str, text: Optional[str] = None) -> etree._Element:
+    def ensure_element(
+        self, parent: Union[str, etree._Element], tag: str, text: Optional[str] = None
+    ) -> etree._Element:
         """
         Ensure that an element with the specified tag exists under the given parent.
         The parent can be an XPath string or an lxml Element.
@@ -55,7 +57,6 @@ class MavenPomEditor:
             return new_element
         except Exception as e:
             raise ValueError(f"Error ensuring element {tag} under {parent}: {e}")
-            
 
     def create_sub_element(
         self, parent: etree._Element, tag: str, text: Optional[str] = None, attrib: Optional[Dict[str, str]] = None
@@ -76,19 +77,19 @@ class MavenPomEditor:
         return sub_elem
 
     def _qname(self, tag: str) -> str:
-            """
-            Convert a tag with a prefix (e.g. "m:dependency") to a qualified name.
-            If the tag is already qualified, return it unchanged.
-            """
-            if tag.startswith("{"):
-                return tag
-            if ":" in tag:
-                prefix, local = tag.split(":", 1)
-                ns = self.namespaces.get(prefix)
-                if ns is None:
-                    raise ValueError(f"No namespace found for prefix '{prefix}'")
-                return f"{{{ns}}}{local}"
+        """
+        Convert a tag with a prefix (e.g. "m:dependency") to a qualified name.
+        If the tag is already qualified, return it unchanged.
+        """
+        if tag.startswith("{"):
             return tag
+        if ":" in tag:
+            prefix, local = tag.split(":", 1)
+            ns = self.namespaces.get(prefix)
+            if ns is None:
+                raise ValueError(f"No namespace found for prefix '{prefix}'")
+            return f"{{{ns}}}{local}"
+        return tag
 
     def _save(self) -> None:
         """Save the modified XML tree back to the pom.xml file."""
@@ -332,7 +333,9 @@ class MavenPomEditor:
                 self.add_element("m:dependencies/m:dependency[last()]", "m:scope", text=scope)
             return new_dep
 
-    def ensure_managed_dependency(self, group_id: str, artifact_id: str, version: str, scope: Optional[str] = None) -> etree._Element:
+    def ensure_managed_dependency(
+        self, group_id: str, artifact_id: str, version: str, scope: Optional[str] = None
+    ) -> etree._Element:
         """
         Ensure a dependency exists in the <dependencyManagement><dependencies> section.
         Adds or updates the dependency. Uses ensure_element logic.
@@ -353,8 +356,7 @@ class MavenPomEditor:
         # Check if dependency already exists in management
         existing_dep = None
         found_deps = deps_elem.xpath(
-            f"m:dependency[m:groupId='{group_id}' and m:artifactId='{artifact_id}']",
-            namespaces=self.namespaces
+            f"m:dependency[m:groupId='{group_id}' and m:artifactId='{artifact_id}']", namespaces=self.namespaces
         )
         if found_deps:
             existing_dep = found_deps[0]
@@ -379,7 +381,7 @@ class MavenPomEditor:
             if scope:
                 self.create_sub_element(dep_element, "m:scope", text=scope)
 
-        self._save() # Save after ensuring the dependency
+        self._save()  # Save after ensuring the dependency
         return dep_element
 
     def ensure_property(self, property_name: str, property_value: str) -> etree._Element:
@@ -393,11 +395,11 @@ class MavenPomEditor:
         properties_elem = self.ensure_element(".", "m:properties")
         # Use ensure_element which handles creation or update of text content
         prop_elem = self.ensure_element(properties_elem, f"m:{property_name}", text=property_value)
-        self._save() # Save after ensuring the property
+        self._save()  # Save after ensuring the property
         return prop_elem
 
     def add_skip_plugin_config(self, parent_plugin_element: etree._Element):
         """Adds <configuration><skip>true</skip></configuration> to a plugin element."""
         config_elem = self.ensure_element(parent_plugin_element, "m:configuration")
         self.ensure_element(config_elem, "m:skip", text="true")
-        self._save() # Save after adding config
+        self._save()  # Save after adding config

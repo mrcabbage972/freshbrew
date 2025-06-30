@@ -1,5 +1,6 @@
 import yaml
 
+
 def get_normal_repo_name(repo_name: str) -> str:
     split_idx = repo_name.index("_")
     normal_repo_name = repo_name[:split_idx] + "/" + repo_name[split_idx + 1 :]
@@ -16,5 +17,5 @@ with open(input_dataset_path) as fin:
 for item in input_ds:
     item["repo_name"] = get_normal_repo_name(item["repo_name"])
 
-with open(output_dataset_path, 'w') as fout:
+with open(output_dataset_path, "w") as fout:
     yaml.dump(input_ds, fout)

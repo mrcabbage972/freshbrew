@@ -14,10 +14,11 @@ import argparse
 import csv
 import os
 import sys
-from typing import Iterable, Tuple, Optional
+from typing import Iterable, Tuple
 import yaml
 import dotenv
 import requests
+import time
 
 
 dotenv.load_dotenv()
@@ -30,6 +31,7 @@ def read_repos(csv_path: str) -> Iterable[str]:
     with open(csv_path, newline="", encoding="utf-8") as f:
         ds = yaml.safe_load(f)
         return [x["repo_name"] for x in ds]
+
 
 def fetch_license(repo: str, token: str | None = None) -> Tuple[str, str]:
     """
@@ -50,9 +52,7 @@ def fetch_license(repo: str, token: str | None = None) -> Tuple[str, str]:
     if resp.status_code == 403 and resp.headers.get("X-RateLimit-Remaining") == "0":
         reset = int(resp.headers.get("X-RateLimit-Reset", "0"))
         print(
-            "Rate limit exceeded. Try again after {:.0f} minutes.".format(
-                (reset - time.time()) / 60
-            ),
+            "Rate limit exceeded. Try again after {:.0f} minutes.".format((reset - time.time()) / 60),
             file=sys.stderr,
         )
         sys.exit(1)
@@ -75,14 +75,18 @@ def write_output(rows: Iterable[Tuple[str, str]], csv_path: str) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Fetch license types for GitHub repositories listed in a CSV."
+    parser = argparse.ArgumentParser(description="Fetch license types for GitHub repositories listed in a CSV.")
+    parser.add_argument(
+        "--input",
+        "-i",
+        default="/home/user/java-migration-paper/data/migration_datasets/full_dataset.yaml",
+        help="Path to input CSV (owner/repo per row)",
     )
     parser.add_argument(
-        "--input", "-i", default="/home/user/java-migration-paper/data/migration_datasets/full_dataset.yaml", help="Path to input CSV (owner/repo per row)"
-    )
-    parser.add_argument(
-        "--output", "-o", default="/home/user/java-migration-paper/data/migration_datasets/licenses.csv", help="Path to output CSV with license info"
+        "--output",
+        "-o",
+        default="/home/user/java-migration-paper/data/migration_datasets/licenses.csv",
+        help="Path to output CSV with license info",
     )
     parser.add_argument(
         "--token",
@@ -94,8 +98,7 @@ def main() -> None:
 
     if not args.token:
         print(
-            "Warning: No GitHub token provided – unauthenticated requests are "
-            "limited to 60 per hour.",
+            "Warning: No GitHub token provided – unauthenticated requests are limited to 60 per hour.",
             file=sys.stderr,
         )
 

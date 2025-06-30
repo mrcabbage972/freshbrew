@@ -22,7 +22,7 @@ import os
 import re
 import sys
 import time
-from typing import Iterable, Tuple, Optional
+from typing import Iterable, Tuple
 
 import requests
 
@@ -31,17 +31,13 @@ dotenv.load_dotenv()
 # --------------------------------------------------------------------------- #
 #   Constants
 # --------------------------------------------------------------------------- #
-API_REPO    = "https://api.github.com/repos/{owner}/{repo}"
+API_REPO = "https://api.github.com/repos/{owner}/{repo}"
 API_CONTENT = "https://api.github.com/repos/{owner}/{repo}/contents/{path}?ref={ref}"
-API_TREE    = "https://api.github.com/repos/{owner}/{repo}/git/trees/{ref}?recursive=1"
+API_TREE = "https://api.github.com/repos/{owner}/{repo}/git/trees/{ref}?recursive=1"
 
-ROOT_CANDIDATE_RGX = re.compile(
-    r"^(LICENSE|LICENCE|COPYING|COPYRIGHT|NOTICE|LEGAL|README)(\.[a-z0-9]+)?$", re.I
-)
+ROOT_CANDIDATE_RGX = re.compile(r"^(LICENSE|LICENCE|COPYING|COPYRIGHT|NOTICE|LEGAL|README)(\.[a-z0-9]+)?$", re.I)
 # anything with "license/licence"/"copying"/"notice"/"copyright"
-DEEP_CANDIDATE_RGX = re.compile(
-    r"(?:^|/)(LICENSE|LICENCE|COPYING|NOTICE|COPYRIGHT)[^/]*$", re.I
-)
+DEEP_CANDIDATE_RGX = re.compile(r"(?:^|/)(LICENSE|LICENCE|COPYING|NOTICE|COPYRIGHT)[^/]*$", re.I)
 # extensions worth inspecting
 TEXT_EXT_RGX = re.compile(r"\.(?:txt|md|rst|html?)$", re.I)
 
@@ -62,8 +58,9 @@ LICENSE_PATTERNS: dict[re.Pattern[str], str] = {
     re.compile(r"\baffero general public license\b.*3", re.I): "AGPL-3.0-or-later",
 }
 
-MAX_FILE_BYTES   = 64_000
-MAX_DEEP_CANDIDATES = 10   # keep API usage sane
+MAX_FILE_BYTES = 64_000
+MAX_DEEP_CANDIDATES = 10  # keep API usage sane
+
 
 # --------------------------------------------------------------------------- #
 #   Helpers
@@ -75,7 +72,7 @@ def api_get(url: str, token: str | None = None, *, stream=False):
     resp = requests.get(url, headers=hdrs, timeout=30, stream=stream)
     if resp.status_code == 403 and resp.headers.get("X-RateLimit-Remaining") == "0":
         wait = max(int(resp.headers.get("X-RateLimit-Reset", "0")) - time.time(), 0)
-        print(f"Rate-limit hit; retry in {wait/60:.1f} min", file=sys.stderr)
+        print(f"Rate-limit hit; retry in {wait / 60:.1f} min", file=sys.stderr)
         sys.exit(1)
     resp.raise_for_status()
     return resp
@@ -86,7 +83,6 @@ def read_repos(csv_path: str) -> Iterable[str]:
     with open(csv_path, newline="", encoding="utf-8") as f:
         ds = yaml.safe_load(f)
         return [x["repo_name"] for x in ds]
-
 
 
 def decode_base64_to_text(json_blob: dict) -> str | None:
@@ -134,9 +130,7 @@ def discover_license(owner: str, repo: str, token: str | None) -> str | None:
                         return found
 
     # 3. Deep scan – find candidate paths, then inspect first N
-    tree = api_get(
-        API_TREE.format(owner=owner, repo=repo, ref=default_branch), token
-    ).json()
+    tree = api_get(API_TREE.format(owner=owner, repo=repo, ref=default_branch), token).json()
     if not tree.get("tree"):
         return None
 
@@ -144,11 +138,7 @@ def discover_license(owner: str, repo: str, token: str | None) -> str | None:
     paths = [
         node["path"]
         for node in tree["tree"]
-        if node.get("type") == "blob"
-        and (
-            DEEP_CANDIDATE_RGX.search(node["path"])
-            or TEXT_EXT_RGX.search(node["path"])
-        )
+        if node.get("type") == "blob" and (DEEP_CANDIDATE_RGX.search(node["path"]) or TEXT_EXT_RGX.search(node["path"]))
     ][:MAX_DEEP_CANDIDATES]
 
     for path in paths:
@@ -184,18 +174,23 @@ def write_output(rows: Iterable[Tuple[str, str]], csv_path: str) -> None:
         writer.writerow(["repo", "license"])
         writer.writerows(rows)
 
+
 # --------------------------------------------------------------------------- #
 #   CLI
 # --------------------------------------------------------------------------- #
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Fetch SPDX licences for GitHub repos (deep scan fallback)."
+    parser = argparse.ArgumentParser(description="Fetch SPDX licences for GitHub repos (deep scan fallback).")
+    parser.add_argument(
+        "--input",
+        "-i",
+        default="/home/user/java-migration-paper/data/migration_datasets/full_dataset.yaml",
+        help="Path to input CSV (owner/repo per row)",
     )
     parser.add_argument(
-        "--input", "-i", default="/home/user/java-migration-paper/data/migration_datasets/full_dataset.yaml", help="Path to input CSV (owner/repo per row)"
-    )
-    parser.add_argument(
-        "--output", "-o", default="/home/user/java-migration-paper/data/migration_datasets/licenses_deep_2.csv", help="Path to output CSV with license info"
+        "--output",
+        "-o",
+        default="/home/user/java-migration-paper/data/migration_datasets/licenses_deep_2.csv",
+        help="Path to output CSV with license info",
     )
     parser.add_argument(
         "-t",
