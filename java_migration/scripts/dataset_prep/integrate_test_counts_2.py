@@ -1,8 +1,11 @@
 import yaml
+from tqdm import tqdm
 
-dataset_path = "/Users/mayvic/Documents/git/java-migration-paper/data/migration_datasets/mini_dataset.yaml"
-filtered_build_result_path = "/Users/mayvic/Documents/git/java-migration-paper/data/jdk8_build_results_filtered.yaml"
-# result_path =  "/Users/mayvic/Documents/git/java-migration-paper/data/migration_datasets/full_dataset.yaml"
+from java_migration.eval.utils import safe_repo_name
+
+dataset_path = "data/migration_datasets/full_dataset.yaml"
+filtered_build_result_path = "data/migration_datasets/jdk8_build_results_30k.yaml"
+result_path = "data/migration_datasets/full_dataset_.yaml"
 
 with open(filtered_build_result_path, "r") as fin:
     build_result = yaml.safe_load(fin.read())
@@ -10,18 +13,16 @@ with open(filtered_build_result_path, "r") as fin:
 with open(dataset_path, "r") as fin:
     dataset = yaml.safe_load(fin.read())
 
-test_counts = {}
+safe_repo_names = {safe_repo_name(x["repo_name"]): idx for idx, x in enumerate(dataset)}
 
-for repo in build_result:
+filtered_built_result = [x for x in build_result if x["repo_name"] in safe_repo_names]
+
+
+for repo in tqdm(filtered_built_result):
     if "test" in repo and "tests" in repo["test"]:
         tests = repo["test"]["tests"]
-        test_counts[repo["repo_name"]] = tests
+        dataset_idx = safe_repo_names[repo["repo_name"]]
+        dataset[dataset_idx]["test_count"] = tests
 
-dataset_idx_lookup = {x["repo_name"]: idx for idx, x in enumerate(dataset)}
-
-for repo_name, test_counts in test_counts.items():
-    if repo_name in dataset_idx_lookup:
-        dataset[dataset_idx_lookup[repo_name]]["test_count"] = test_counts
-
-with open(dataset_path, "w") as fout:
+with open(result_path, "w") as fout:
     fout.write(yaml.dump(dataset))
