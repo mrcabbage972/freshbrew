@@ -1,30 +1,210 @@
-- commit: 401cb9e51b1b4e14c9350b06f8e0029a34ce6853
-  repo_name: jirutka/spring-rest-exception-handler
-- commit: c69646098f1cf48a7163af5fbac903303938e420
-  repo_name: kohsuke/wordnet-random-name
+- commit: 262d793db60cdc1b2a3ea064d0d9aee264fa2147
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 40
+    number_of_java_files: 22
+    number_of_lines_of_code: 1689
+    number_of_modules: 1
+    number_of_unit_tests: 89
+  repo_name: Ardesco/driver-binary-downloader-maven-plugin
+  test_count:
+    tests_failed: 0
+    tests_run: 89
+    tests_skipped: 2
+    tests_successful: 87
+- commit: 6b4a7e89cbf67dab0be32e7517f3d8ae3c2b4d75
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 29
+    number_of_java_files: 378
+    number_of_lines_of_code: 71007
+    number_of_modules: 4
+    number_of_unit_tests: 76
+  repo_name: rometools/rome
+  test_count:
+    tests_failed: 0
+    tests_run: 740
+    tests_skipped: 0
+    tests_successful: 740
+- commit: 4e1ec5e381121fc9e5ad54881c84029114bafa52
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 20
+    number_of_java_files: 16
+    number_of_lines_of_code: 1241
+    number_of_modules: 1
+    number_of_unit_tests: 41
+  repo_name: mongobee/mongobee
+  test_count:
+    tests_failed: 0
+    tests_run: 41
+    tests_skipped: 1
+    tests_successful: 40
+- commit: 7661dd2c9cadd8350b5b71958a4fda308a6cdb61
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 6
+    number_of_java_files: 2
+    number_of_lines_of_code: 119
+    number_of_modules: 1
+    number_of_unit_tests: 2
+  repo_name: wilkinsona/spring-boot-sample-tomcat-jndi
+  test_count:
+    tests_failed: 0
+    tests_run: 2
+    tests_skipped: 0
+    tests_successful: 2
+- commit: 692371a515f0a645a03af97f17575c542f3307b3
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 14
+    number_of_java_files: 16
+    number_of_lines_of_code: 1867
+    number_of_modules: 1
+    number_of_unit_tests: 42
+  repo_name: meixuesong/aggregate-persistence
+  test_count:
+    tests_failed: 0
+    tests_run: 42
+    tests_skipped: 0
+    tests_successful: 42
 - commit: 6761db704876de6c8d7a5a08c330629a7c2957d0
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 8
+    number_of_java_files: 1
+    number_of_lines_of_code: 219
+    number_of_modules: 2
+    number_of_unit_tests: 30
   repo_name: JakeWharton/RxReplayingShare
-- commit: bc63e0a8f95981482771958a530e44000470d2bc
-  repo_name: Devskiller/friendly-id
-- commit: cdc1f259f727c12c0fc489a62769529e611af413
-  repo_name: code4craft/hello-design-pattern
-- commit: abd54e87d94293044c84bf71a2bda573b2f742c5
-  repo_name: jamesmorgan/ReloadablePropertiesAnnotation
-- commit: c6e2f272b3cb99b414bb1e1b0456c9d0f3efe359
-  repo_name: pivotalsoftware/ESarch
-- commit: 36fe5d05942cbd0c85852acd14971113b2702607
-  repo_name: playframework/netty-reactive-streams
-- commit: 99e113f1f71fe800037487a6ae5b2f437935bed7
-  repo_name: davidmoten/rxjava-extras
-- commit: 860ecb84b339cc2ef905b1ac600897cfd3a27c40
-  repo_name: keepcosmos/beanmother
-- commit: 7fd6de09581fee0eabf3b95125962bfbcc9e0283
-  repo_name: google/closure-stylesheets
-- commit: f9c6a00b43007695a792e8e085f62648d6249d84
-  repo_name: arocketman/Spring-oauth2-jpa-example
-- commit: a38b10014bec5ba1ef56e8bea062da7ec57db9c6
-  repo_name: cheese10yun/spring-jpa-best-practices
-- commit: 958838a693bc471a0eb19ac010a95319f6cf8444
-  repo_name: yahoo/sherlock
-- commit: c25329245d1e0f94df21ee05bbc5805a655b795a
-  repo_name: vlingo/xoom-actors
+  test_count:
+    tests_failed: 0
+    tests_run: 34
+    tests_skipped: 1
+    tests_successful: 33
+- commit: a10d07b217c28da38b6399a8282a5a2cd33109c4
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 22
+    number_of_java_files: 2
+    number_of_lines_of_code: 532
+    number_of_modules: 1
+    number_of_unit_tests: 0
+  repo_name: alexnederlof/Jasper-report-maven-plugin
+  test_count:
+    tests_failed: 0
+    tests_run: 10
+    tests_skipped: 0
+    tests_successful: 10
+- commit: 1ce6123a788c28c5c24d1783b590215b20b8a41c
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 52
+    number_of_java_files: 304
+    number_of_lines_of_code: 42689
+    number_of_modules: 2
+    number_of_unit_tests: 1029
+  repo_name: awslabs/amazon-kinesis-client
+  test_count:
+    tests_failed: 0
+    tests_run: 924
+    tests_skipped: 6
+    tests_successful: 918
+- commit: 515b781521272e779e08988bb3006c6dc454ca39
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 10
+    number_of_java_files: 3
+    number_of_lines_of_code: 902
+    number_of_modules: 1
+    number_of_unit_tests: 10
+  repo_name: davidmoten/rxjava-file
+  test_count:
+    tests_failed: 0
+    tests_run: 10
+    tests_skipped: 0
+    tests_successful: 10
+- commit: 41d2b0466a0e7d5cfb3a7e6a7d801c28820c6525
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 16
+    number_of_java_files: 41
+    number_of_lines_of_code: 4006
+    number_of_modules: 1
+    number_of_unit_tests: 113
+  repo_name: alimate/errors-spring-boot-starter
+  test_count:
+    tests_failed: 0
+    tests_run: 153
+    tests_skipped: 0
+    tests_successful: 153
+- commit: 05e7ebd511c99e7d19bd194757e8d6e92732e125
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 17
+    number_of_java_files: 194
+    number_of_lines_of_code: 24397
+    number_of_modules: 5
+    number_of_unit_tests: 15
+  repo_name: amaembo/huntbugs
+  test_count:
+    tests_failed: 0
+    tests_run: 15
+    tests_skipped: 0
+    tests_successful: 15
+- commit: 2663851363d0bc887da4efe29b340dc1b9ae24ca
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 6
+    number_of_java_files: 11
+    number_of_lines_of_code: 295
+    number_of_modules: 1
+    number_of_unit_tests: 23
+  repo_name: nurkiewicz/typeof
+  test_count:
+    tests_failed: 0
+    tests_run: 23
+    tests_skipped: 0
+    tests_successful: 23
+- commit: 3aab711e746c155b1a0359c7abb928ffeca2280e
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 0
+    number_of_java_files: 16
+    number_of_lines_of_code: 2490
+    number_of_modules: 1
+    number_of_unit_tests: 6
+  repo_name: twitter/joauth
+  test_count:
+    tests_failed: 0
+    tests_run: 308
+    tests_skipped: 0
+    tests_successful: 308
+- commit: df56dc9b3de8620024879bb979a2da3ec48c07b7
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 8
+    number_of_java_files: 15
+    number_of_lines_of_code: 641
+    number_of_modules: 1
+    number_of_unit_tests: 4
+  repo_name: bedatadriven/jackson-datatype-jts
+  test_count:
+    tests_failed: 0
+    tests_run: 20
+    tests_skipped: 0
+    tests_successful: 20
+- commit: 9879ce8da55a90e952fbf1906dee7b1e8fd87fc0
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 28
+    number_of_java_files: 176
+    number_of_lines_of_code: 7627
+    number_of_modules: 1
+    number_of_unit_tests: 466
+  repo_name: zapr-oss/druidry
+  test_count:
+    tests_failed: 0
+    tests_run: 475
+    tests_skipped: 0
+    tests_successful: 475

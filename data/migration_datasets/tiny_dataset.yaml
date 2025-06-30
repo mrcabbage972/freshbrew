@@ -1,6 +1,42 @@
-- commit: 66ae93ad9ac514c79d7821ff90129f1bc1fa0f82
-  repo_name: sonian/elasticsearch-jetty
-- commit: cc89b036d90403a9c6c98dd13800811a33a48962
-  repo_name: magro/kryo-serializers
-- commit: 1dda637edb6fea9d019bc2b921b4dd2a6ffac9f0
-  repo_name: trystan/AsciiPanel
+- commit: 51e74aab9d62b43350f60d2b89976f6d6c4adece
+  license: MIT
+  repo_features:
+    number_of_external_dependencies: 2
+    number_of_java_files: 10
+    number_of_lines_of_code: 2938
+    number_of_modules: 1
+    number_of_unit_tests: 15
+  repo_name: johannburkard/StringSearch
+  test_count:
+    tests_failed: 0
+    tests_run: 69
+    tests_skipped: 0
+    tests_successful: 69
+- commit: 1c549de6f2363d7c296037874cff944de38fb66f
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 30
+    number_of_java_files: 102
+    number_of_lines_of_code: 9629
+    number_of_modules: 5
+    number_of_unit_tests: 350
+  repo_name: Comcast/jrugged
+  test_count:
+    tests_failed: 0
+    tests_run: 350
+    tests_skipped: 0
+    tests_successful: 350
+- commit: c7450c5e861d099a98a59825d0c7b45c6fd65116
+  license: Apache-2.0
+  repo_features:
+    number_of_external_dependencies: 19
+    number_of_java_files: 42
+    number_of_lines_of_code: 6129
+    number_of_modules: 2
+    number_of_unit_tests: 386
+  repo_name: aws/aws-dynamodb-encryption-java
+  test_count:
+    tests_failed: 0
+    tests_run: 256
+    tests_skipped: 0
+    tests_successful: 256
