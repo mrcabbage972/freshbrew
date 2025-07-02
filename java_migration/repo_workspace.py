@@ -25,6 +25,7 @@ class RepoWorkspace:
                 if workspace_dir.exists():
                     shutil.rmtree(workspace_dir)
                 repo = Repo.clone_from(repo_url, workspace_dir, depth=depth)
+                print(f"Cloned repository {repo_name} to {workspace_dir}")
                 repo.git.checkout(commit_sha)
                 checkout_success = True
             except Exception:

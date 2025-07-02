@@ -64,7 +64,7 @@ class MavenTest(Tool):
         self.root_path = root_path
 
     def forward(self):  # type: ignore
-        return maven_test(self.root_path)
+        return maven_test(repo_path=self.root_path, target_java_version=str(os.getenv("TARGET_JAVA_VERSION")))
 
 
 class WriteFile(Tool):
