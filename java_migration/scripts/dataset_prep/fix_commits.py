@@ -1,13 +1,9 @@
-import json
-import tempfile
-from pathlib import Path
 
 import yaml
 from tqdm import tqdm
 
-from java_migration.repo_workspace import RepoWorkspace
+from java_migration.eval.utils import recover_safe_repo_name
 from java_migration.utils import REPO_ROOT
-from java_migration.eval.utils import  recover_safe_repo_name
 
 dataset_path = REPO_ROOT / "data/migration_datasets/full_dataset.yaml"
 
@@ -34,4 +30,3 @@ for item in tqdm(dataset):
 
 with open(result_path, "w") as fout:
     fout.write(yaml.dump(dataset))
-
