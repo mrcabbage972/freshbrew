@@ -24,5 +24,5 @@ for item in tqdm(dataset):
     except Exception as e:
         error = {"repo_name": item["repo_name"], "error": str(e.args[0]._exception)}
         print(f"Error in {item['repo_name']}: {e}")
-        with open(failed_path, "a") as fout:            
+        with open(failed_path, "a") as fout:
             fout.write(json.dumps(error) + "\n")
