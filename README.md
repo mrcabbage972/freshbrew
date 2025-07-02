@@ -61,7 +61,18 @@ DEFAULT_VERTEXAI_PROJECT=
 DEFAULT_VERTEXAI_LOCATION=
 DEFAULT_GOOGLE_APPLICATION_CREDENTIALS={path to service acount key file}
 ```
+### OpenAI
+Set the following environment variables in your `.env` file:
+```
+OPENAI_API_KEY=
+```
+Change the model_name to be openai model in the smol_default_{java_version}.yaml file
 
+### Target Java Version (Required)
+Need to add the target java version, such as 17 or 21 in your `.env` file: 
+```
+TARGET_JAVA_VERSION=
+```
 
 ## Running the Eval Script
 The eval script is at `java_migration/scripts/run_eval.py`. Currently the input dataset path is hardcoded.

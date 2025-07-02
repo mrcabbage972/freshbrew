@@ -3,3 +3,4 @@ max_num_steps: 100
 tools: [list_dir, maven_test, duckduckgo, stateful_file_tool]
 model_name: vertex_ai/gemini-2.0-flash
 prompt: Upgrade the Maven project rooted at the current working dir to use JDK 17. Ensure that the build and the tests pass. You can make source code and dependency changes. You cannot delete or comment-out tests.
+target_jdk_version: 17

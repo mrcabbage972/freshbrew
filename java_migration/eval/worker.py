@@ -1,6 +1,7 @@
 import contextlib
 import io
 import logging
+import os
 
 from smolagents import CodeAgent
 from smolagents.models import LiteLLMModel
@@ -16,6 +17,27 @@ logger = logging.getLogger(__name__)
 
 
 class Worker:
+    """
+    A worker class that processes Java migration jobs.
+    
+    This class handles the execution of migration tasks by:
+    1. Setting up a repository workspace from a git repository
+    2. Creating and running an appropriate agent (smol or dummy)
+    3. Verifying the build after migration
+    4. Capturing the migration results including output, stdout, and git diff
+    
+    The worker supports different agent types:
+    - "smol": Uses CodeAgent with LiteLLM model and custom tools
+    - "dummy": Uses DummyAgent for testing purposes
+    
+    Attributes:
+        None (stateless class)
+    
+    Methods:
+        __call__(job: JobCfg) -> JobResult: Main entry point to process a migration job
+        _get_agent(job: JobCfg): Creates and returns the appropriate agent instance
+    """
+    
     def __call__(self, job: JobCfg) -> JobResult:
         repo_workspace = None
         try:
@@ -29,7 +51,7 @@ class Worker:
                 result = agent.run(job.agent_config.prompt)
 
             logger.info("Verifying build")
-            build_result = MavenBuildVerifier().verify(job.workspace_dir)
+            build_result = MavenBuildVerifier().verify(repo_path = job.workspace_dir, target_java_version = str(job.agent_config.target_jdk_version))
 
             repo_diff = create_git_patch(job.workspace_dir)
             logger.info("Successfully finished job")
@@ -47,7 +69,10 @@ class Worker:
     def _get_agent(self, job: JobCfg):
         if job.agent_config.agent_type == "smol":
             tools = get_tools(job.agent_config.tools, job.workspace_dir)
-            model = LiteLLMModel(model_id=job.agent_config.model_name)
+            api_key = None
+            if job.agent_config.model_name.startswith("openai"):
+                api_key = os.getenv("OPENAI_API_KEY")
+            model = LiteLLMModel(model_id=job.agent_config.model_name, api_key=api_key)
             agent = CodeAgent(tools=tools, model=model, max_steps=job.agent_config.max_num_steps)
         elif job.agent_config.agent_type == "dummy":
             agent = DummyAgent()

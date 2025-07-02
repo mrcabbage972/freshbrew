@@ -47,6 +47,7 @@ class AgentConfig(BaseModel):
     model_name: str
     prompt: str = "Upgrade the project to use JDK 17. Ensure that the build and the tests pass."
     agent_type: str
+    target_jdk_version: int
 
 
 class JobCfg(BaseModel):
