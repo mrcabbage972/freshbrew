@@ -1,3 +1,5 @@
+# type: ignore
+
 import multiprocessing
 import multiprocessing.context
 from enum import Enum

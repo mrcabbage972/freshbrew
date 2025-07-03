@@ -9,7 +9,7 @@ from java_migration.utils import REPO_ROOT
 
 if __name__ == "__main__":
     load_dotenv()
-    target_jdk_version = os.getenv("TARGET_JAVA_VERSION")
+    target_jdk_version = os.environ["TARGET_JAVA_VERSION"]
 
     validator = EnvironmentValidator()
     if not validator.validate(int(target_jdk_version)):

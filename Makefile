@@ -1,6 +1,6 @@
 .PHONY: format-check format pyright ruff
 
-lint-all: format ruff-fix sort-imports pyright format-notebooks
+lint-all: format ruff-fix sort-imports pyright
 
 format-notebooks:
 	poetry run nbqa isort . && poetry run nbqa ruff . --fix
