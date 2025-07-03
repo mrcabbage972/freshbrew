@@ -46,8 +46,7 @@ exclude = ["data"]
 in-project = true
 
 [tool.pyright]
-    exclude = [
+exclude = [
       "data",
-      ".venv"
-    ],
-    include = ["java_migration"]
+      ".venv",
+    ]
