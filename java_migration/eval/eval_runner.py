@@ -59,7 +59,7 @@ def worker_wrapper(worker: Worker, job_cfg: JobCfg, results_dir: Path, progress_
 
 
 class EvalRunner:
-    def __init__(self, concurrency=4, timeout_seconds=900) -> None:
+    def __init__(self, concurrency=8, timeout_seconds=1800) -> None:
         self.concurrency = concurrency
         self.timeout_seconds = timeout_seconds
 

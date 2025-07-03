@@ -18,7 +18,14 @@ plt.rcParams.update(
 PURPLE = "#8e44ad"
 
 
-def plot_counts(bins: list[str], counts: list[float | int], xlabel: str, ylabel: str, output_path: Path, figsize: tuple[int, int] = (10, 10)):
+def plot_counts(
+    bins: list[str],
+    counts: list[float | int],
+    xlabel: str,
+    ylabel: str,
+    output_path: Path,
+    figsize: tuple[int, int] = (10, 10),
+):
     libs = bins
     samples = counts
 
@@ -65,21 +72,21 @@ def plot_histogram(
 
     # Ensure y-axis has integer ticks
     plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
-    
+
     # Apply the same grid style
     plt.grid(True, which="major", axis="y", linestyle="--", linewidth=1, alpha=0.5)
-    
+
     # Rotate x-axis labels if they overlap (optional, but good practice)
     plt.xticks(rotation=45, ha="right")
 
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.clf()
-    plt.close() # Ensure figure memory is released
+    plt.close()  # Ensure figure memory is released
 
 
 def plot_histogram_grid(
-    data_list: list[list[float| int]],
+    data_list: list[list[float | int]],
     subplot_titles: list[str],
     figure_xlabel: str | None,
     figure_ylabel: str | None,
@@ -101,7 +108,7 @@ def plot_histogram_grid(
     """
     # Create a 3x2 grid of subplots. constrained_layout helps prevent labels from overlapping.
     fig, axes = plt.subplots(3, 2, figsize=figsize, constrained_layout=True)
-    
+
     # Flatten the 3x2 array of axes to make it easy to iterate over
     axes = axes.flatten()
 
@@ -120,7 +127,7 @@ def plot_histogram_grid(
             # Apply consistent styling to each subplot
             ax.yaxis.set_major_locator(MaxNLocator(integer=True))
             ax.grid(True, which="major", axis="y", linestyle="--", linewidth=1, alpha=0.5)
-            ax.tick_params(axis='x', rotation=30)
+            ax.tick_params(axis="x", rotation=30)
         else:
             # Hide any unused subplots
             ax.set_visible(False)
