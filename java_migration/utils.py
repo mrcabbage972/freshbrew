@@ -31,6 +31,7 @@ def maven_verify(repo_path: Path, skip_tests: bool = False, target_java_version:
     ]
     if skip_tests:
         cmd.append("-DskipTests")
+        cmd.append("-DskipITs")
     result = subprocess.run(cmd, capture_output=True, cwd=repo_path)
     return result.stdout.decode("utf-8")
 
