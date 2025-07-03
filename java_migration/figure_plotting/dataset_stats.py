@@ -1,3 +1,5 @@
+# type: ignore
+
 import pandas as pd
 import yaml
 
