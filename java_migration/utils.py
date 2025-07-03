@@ -19,6 +19,20 @@ def maven_test(repo_path: Path, skip_tests: bool = False, target_java_version: s
     result = subprocess.run(cmd, capture_output=True, cwd=repo_path)
     return result.stdout.decode("utf-8")
 
+def maven_verify(repo_path: Path, skip_tests: bool = False, target_java_version: str = "17") -> str:
+    cmd = [
+        "mvn",
+        "-B",  # Batch mode
+        "verify",
+        "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn",
+        f"-Dmaven.compiler.source={target_java_version}",
+        f"-Dmaven.compiler.target={target_java_version}",
+    ]
+    if skip_tests:
+        cmd.append("-DskipTests")
+    result = subprocess.run(cmd, capture_output=True, cwd=repo_path)
+    return result.stdout.decode("utf-8")
+
 
 def validate_xml(xml_content: str):
     try:
