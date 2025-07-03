@@ -47,8 +47,12 @@ def save_job_results(job_cfg: JobCfg, job_result: JobResult, output_path: Path):
             with open(job_result_dir / "stdout.log", "w") as fout:
                 fout.write(clean_log_string(job_result.migration_result.stdout))
 
-            with open(job_result_dir / "diff.patch", "w") as fout:
+            with open(job_result_dir / "diff.patch", "w", newline="") as fout:
                 fout.write(job_result.migration_result.diff)
+                # The line below is a defensive check. Git's output should
+                # already be correct, but this guarantees it.
+                if not job_result.migration_result.diff.endswith("\n"):
+                    fout.write("\n")
 
 
 def worker_wrapper(worker: Worker, job_cfg: JobCfg, results_dir: Path, progress_queue: multiprocessing.Queue):

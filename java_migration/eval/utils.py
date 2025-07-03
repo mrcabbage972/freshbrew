@@ -74,7 +74,7 @@ def create_git_patch(repo_path: Path) -> str:
         return ""
 
     # Generate the patch for the allowed files
-    patch = repo.git.diff("--patch", *allowed_files)
+    patch = repo.git.diff("--patch", "--text", *allowed_files)
     return patch
 
 
