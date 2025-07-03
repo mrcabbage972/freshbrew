@@ -67,6 +67,20 @@ class MavenTest(Tool):
         return maven_test(repo_path=self.root_path, target_java_version=str(os.getenv("TARGET_JAVA_VERSION")))
 
 
+class MavenVerify(Tool):
+    name = "maven_verify"
+    description = "Executes `mvn verify` in the current directory and return the stdout."
+    inputs = {}
+    output_type = "string"
+
+    def __init__(self, root_path):
+        super().__init__()
+        self.root_path = root_path
+
+    def forward(self):  # type: ignore
+        return maven_verify(repo_path=self.root_path, target_java_version=str(os.getenv("TARGET_JAVA_VERSION")))
+
+
 class WriteFile(Tool):
     name = "write_file"
     description = "Write text content to a file. This replaces the file if it already exists."
@@ -317,8 +331,8 @@ def get_tools(tool_names: list[str], root_path: Path):
             tools.append(ReadFile(root_path))
         elif tool_name == "list_dir":
             tools.append(ListDir(root_path))
-        elif tool_name == "maven_test":
-            tools.append(MavenTest(root_path))
+        elif tool_name == "maven_verify":
+            tools.append(MavenVerify(root_path))
         elif tool_name == "write_file":
             tools.append(WriteFile(root_path))
         elif tool_name == "duckduckgo":
