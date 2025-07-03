@@ -53,7 +53,7 @@ class AgentConfig(BaseModel):
 class JobCfg(BaseModel):
     agent_config: AgentConfig
     repo_name: str
-    commit: str
+    commit: str | None
     workspace_dir: Path
 
 

@@ -1,3 +1,5 @@
+# type: ignore
+
 import contextlib
 import io
 import os

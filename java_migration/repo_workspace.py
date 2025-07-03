@@ -9,14 +9,14 @@ logger = getLogger(__name__)
 
 
 class RepoWorkspace:
-    def __init__(self, repo_name: str, workspace_dir: Path, commit_sha: str):
+    def __init__(self, repo_name: str, workspace_dir: Path, commit_sha: str | None = None):
         self.repo_name = repo_name
         self.workspace_dir = workspace_dir
         self.commit_sha = commit_sha
 
     @retry(stop=stop_after_attempt(3))
     @staticmethod
-    def from_git(repo_name: str, workspace_dir: Path, commit_sha: str) -> "RepoWorkspace":
+    def from_git(repo_name: str, workspace_dir: Path, commit_sha: str | None = None) -> "RepoWorkspace":
         repo_url = f"git@github.com:{repo_name}.git"
         depths = [1, None]
         checkout_success = False

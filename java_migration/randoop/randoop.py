@@ -91,7 +91,7 @@ class RandoopRunner:
             output_dir = repo_path / RANDOOP_SRC_TEST_JAVA
             output_dir.mkdir(parents=True, exist_ok=True)
 
-            PomUpdater(repo_path).update()
+            PomUpdater(str(repo_path)).update()
 
             for attempt in range(1, self.num_retries + 1):
                 print(f"Randoop run attempt {attempt} of {self.num_retries}…")
