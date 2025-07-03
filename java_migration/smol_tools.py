@@ -3,7 +3,7 @@ from pathlib import Path
 
 from smolagents import DuckDuckGoSearchTool, Tool
 
-from java_migration.utils import maven_test, validate_xml
+from java_migration.utils import maven_test, maven_verify, validate_xml
 
 
 def resolve_path(root: str, path: str) -> Path:

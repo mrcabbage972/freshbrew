@@ -19,6 +19,7 @@ def maven_test(repo_path: Path, skip_tests: bool = False, target_java_version: s
     result = subprocess.run(cmd, capture_output=True, cwd=repo_path)
     return result.stdout.decode("utf-8")
 
+
 def maven_verify(repo_path: Path, skip_tests: bool = False, target_java_version: str = "17") -> str:
     cmd = [
         "mvn",
