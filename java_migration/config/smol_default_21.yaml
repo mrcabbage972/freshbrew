@@ -1,6 +1,6 @@
 agent_type: smol
 max_num_steps: 100
-tools: [read_file, write_file, list_dir, maven_test, duckduckgo]
+tools: [read_file, write_file, list_dir, maven_verify, duckduckgo]
 model_name: vertex_ai/gemini-2.0-flash
 prompt: Upgrade the Maven project rooted at the current working dir to use JDK 21. Ensure that the build and the tests pass. You can make source code and dependency changes. You cannot delete or comment-out tests.
 target_jdk_version: 21
