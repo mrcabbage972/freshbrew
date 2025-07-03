@@ -36,7 +36,7 @@ class Maven:
     def test(self, repo_path: Path, skip_tests: bool = False, clean: bool = False) -> CliResult:
         cmd = [
             self._get_base_cmd(repo_path),
-            "test",
+            "verify",
             "--batch-mode",
             "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn",
             f"-Dmaven.compiler.source={self.target_java_version}",
@@ -44,6 +44,7 @@ class Maven:
         ]
         if skip_tests:
             cmd.append("-DskipTests")
+            cmd.append("-DskipITs")
         if clean:
             cmd.insert(1, "clean")
         result = subprocess.run(cmd, capture_output=True, cwd=str(repo_path))
