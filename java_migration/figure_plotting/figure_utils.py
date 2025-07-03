@@ -18,11 +18,14 @@ plt.rcParams.update(
 PURPLE = "#8e44ad"
 
 
-def plot_counts(count_dict: dict[str, any], xlabel: str, ylabel: str, output_path: Path):
+def plot_counts(count_dict: dict[str, int | float], xlabel: str, ylabel: str, output_path: Path, sort: bool = True):
     lib_sample_counts = []
     for lib, count in count_dict.items():
         lib_sample_counts.append((lib, count))
-    lib_sample_counts_sorted = sorted(lib_sample_counts, key=lambda x: x[1], reverse=True)
+    if sort:
+        lib_sample_counts_sorted = sorted(lib_sample_counts, key=lambda x: x[1], reverse=True)
+    else:
+        lib_sample_counts_sorted = lib_sample_counts
     libs = [item[0] for item in lib_sample_counts_sorted]
     samples = [item[1] for item in lib_sample_counts_sorted]
 
