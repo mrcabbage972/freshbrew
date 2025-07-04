@@ -68,14 +68,21 @@ class EvalRunner:
         self.timeout_seconds = timeout_seconds
 
     def run(
-        self, dataset_path: Path, agent_config_path: Path, experiment_root_dir: Path = REPO_ROOT / "data/experiments"
+        self,
+        dataset_path: Path,
+        agent_config_path: Path,
+        experiment_root_dir: Path = REPO_ROOT / "data/experiments",
+        experiment_name: str | None = None,
     ):
         dataset = self._load_dataset(dataset_path)
         agent_config = self._load_agent_config(agent_config_path)
 
-        experiment_dir = generate_experiment_dir(experiment_root_dir)
+        if not experiment_name:
+            experiment_dir = generate_experiment_dir(experiment_root_dir)
+        else:
+            experiment_dir = experiment_root_dir / experiment_name
         logger.info(f"Experiment dir: {experiment_dir}")
-        job_cfgs = self._get_job_configs(agent_config, experiment_dir / "repo", dataset)
+        job_cfgs = self._get_job_configs(agent_config, experiment_dir, dataset)
 
         logger.info("Submitting jobs")
         job_results = self._run_jobs(job_cfgs, experiment_dir / "job_results")
@@ -157,10 +164,14 @@ class EvalRunner:
         job_cfgs = [
             JobCfg(
                 agent_config=agent_config,
-                workspace_dir=experiment_dir / safe_repo_name(item.repo_name),
+                workspace_dir=experiment_dir / "repo" / safe_repo_name(item.repo_name),
                 repo_name=item.repo_name,
                 commit=item.commit,
             )
             for item in dataset
+            if not self._output_exists(experiment_dir / "job_results" / safe_repo_name(item.repo_name))
         ]
         return job_cfgs
+
+    def _output_exists(self, exp_repo_path: Path):
+        return (exp_repo_path / "result.yaml").exists()

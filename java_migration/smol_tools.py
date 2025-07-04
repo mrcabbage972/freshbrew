@@ -70,15 +70,19 @@ class MavenTest(Tool):
 class MavenVerify(Tool):
     name = "maven_verify"
     description = "Executes `mvn verify` in the current directory and return the stdout."
-    inputs = {}
+    inputs = {
+        "clean": {"type": "boolean", "description": "Whether to run a clean Maven build (True) or no (False)."},
+    }
     output_type = "string"
 
     def __init__(self, root_path):
         super().__init__()
         self.root_path = root_path
 
-    def forward(self):  # type: ignore
-        return maven_verify(repo_path=self.root_path, target_java_version=str(os.getenv("TARGET_JAVA_VERSION")))
+    def forward(self, clean: bool = False):  # type: ignore
+        return maven_verify(
+            repo_path=self.root_path, target_java_version=str(os.getenv("TARGET_JAVA_VERSION")), clean=clean
+        )
 
 
 class WriteFile(Tool):
