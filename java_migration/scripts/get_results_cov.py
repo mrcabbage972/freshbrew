@@ -1,5 +1,6 @@
 # type: ignore
 
+import logging
 import multiprocessing
 import multiprocessing.context
 import subprocess
@@ -23,6 +24,8 @@ workspace_dir = REPO_ROOT / "data" / "workspace"
 cov_data_path = REPO_ROOT / "data/migration_datasets/cov_data.csv"
 
 COV_DECREASE_FLOOR = -0.05
+
+logger = logging.getLogger(__name__)
 
 
 class PatchApplyError(Exception):
@@ -51,11 +54,8 @@ class InvalidGitRepositoryError(PatchApplyError):
 
 def apply_patch_to_repo(repo_path: Union[str, Path], patch_file_path: Union[str, Path]):
     """
-    Applies a patch file to a Git repository.
-
-    This function reads the patch file, ensures it ends with a newline,
-    and then validates that it can be applied cleanly using `git apply --check`
-    before attempting the actual application.
+    Applies a patch file to a Git repository, with a fallback to a 3-way merge
+    for patches that don't apply cleanly due to context issues (e.g., line endings).
 
     Args:
         repo_path: The file system path to the root of the Git repository.
@@ -64,9 +64,7 @@ def apply_patch_to_repo(repo_path: Union[str, Path], patch_file_path: Union[str,
     Raises:
         FileNotFoundError: If the repo_path or patch_file_path does not exist.
         InvalidGitRepositoryError: If the repo_path is not a valid Git repository.
-        CorruptPatchError: If `git apply --check` reports a bad patch format.
-        PatchConflictError: If the patch does not apply cleanly to the current HEAD.
-        PatchApplyError: For other miscellaneous `git apply` errors.
+        PatchApplyError: If the patch fails to apply even with the fallback.
     """
     repo_path = Path(repo_path).resolve()
     patch_file_path = Path(patch_file_path).resolve()
@@ -76,45 +74,38 @@ def apply_patch_to_repo(repo_path: Union[str, Path], patch_file_path: Union[str,
         raise FileNotFoundError(f"Repository path does not exist or is not a directory: {repo_path}")
     if not patch_file_path.exists() or not patch_file_path.is_file():
         raise FileNotFoundError(f"Patch file not found: {patch_file_path}")
-
-    # Check if it's a valid git repo by looking for the .git directory
     if not (repo_path / ".git").exists():
         raise InvalidGitRepositoryError(f"Not a valid Git repository: {repo_path}")
 
     # --- 2. Read patch and ensure it has a final newline ---
-    # This prevents "corrupt patch" errors for files missing the final \n
-    patch_content = patch_file_path.read_text()
+    patch_content = patch_file_path.read_text(encoding="utf-8")
     if not patch_content.endswith("\n"):
         patch_content += "\n"
 
-    # --- 3. Perform a dry run to check for conflicts or errors ---
-    # The --check flag tells git to report errors without making changes.
-    # We pass the patch content via stdin instead of a file path.
-    check_command = ["git", "apply", "--check"]
-
+    # --- 3. Attempt a strict check first ---
+    apply_command = ["git", "apply"]
     try:
-        # We run the command from within the repository's directory.
         subprocess.run(
-            check_command,
+            ["git", "apply", "--check"],
             cwd=str(repo_path),
-            check=True,  # Raises CalledProcessError on non-zero exit codes
+            check=True,
             capture_output=True,
             text=True,
-            input=patch_content,  # Pass patch content to stdin
+            input=patch_content,
+            encoding="utf-8",
         )
+        logger.info("Patch passed strict check. Applying normally.")
     except subprocess.CalledProcessError as e:
-        # Analyze stderr to provide a more specific error message.
         stderr = e.stderr.lower()
-        if "patch does not apply" in stderr:
-            raise PatchConflictError(f"Patch conflicts with the current repository state.\nDetails: {e.stderr}")
-        elif "corrupt patch" in stderr or "malformed patch" in stderr:
-            raise CorruptPatchError(f"The patch file is corrupt or malformed.\nDetails: {e.stderr}")
+        # If strict check fails for common reasons, fall back to a 3-way merge.
+        if "patch does not apply" in stderr or "malformed patch" in stderr:
+            logger.warning("Strict patch check failed. Attempting a 3-way merge application...")
+            apply_command.append("--3way")
         else:
-            raise PatchApplyError(f"Failed to check patch.\nDetails: {e.stderr}")
+            # For other, unexpected check errors, fail fast.
+            raise PatchApplyError(f"Failed to check patch with an unexpected error.\nDetails: {e.stderr}")
 
-    # --- 4. If the check passes, apply the patch for real ---
-    apply_command = ["git", "apply"]
-
+    # --- 4. Apply the patch using the selected strategy ---
     try:
         subprocess.run(
             apply_command,
@@ -122,13 +113,13 @@ def apply_patch_to_repo(repo_path: Union[str, Path], patch_file_path: Union[str,
             check=True,
             capture_output=True,
             text=True,
-            input=patch_content,  # Pass patch content to stdin
+            input=patch_content,
+            encoding="utf-8",
         )
-        print("Patch applied successfully.")
+        logger.info("Patch applied successfully.")
     except subprocess.CalledProcessError as e:
-        # This error is less likely since the check passed, but it's good practice
-        # to handle it just in case of race conditions or other issues.
-        raise PatchApplyError(f"An unexpected error occurred during patch application.\nDetails: {e.stderr}")
+        # This error is raised if the standard apply fails OR the 3-way merge fails.
+        raise PatchApplyError(f"The patch could not be applied, even with fallback attempts.\nDetails: {e.stderr}")
 
 
 class JobCfg(BaseModel):
