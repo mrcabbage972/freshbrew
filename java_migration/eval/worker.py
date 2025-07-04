@@ -52,7 +52,7 @@ class Worker:
 
             logger.info("Verifying build")
             build_result = MavenBuildVerifier().verify(
-                repo_path=job.workspace_dir, target_java_version=str(job.agent_config.target_jdk_version)
+                repo_path=job.workspace_dir, target_java_version=str(job.agent_config.target_jdk_version), clean=True
             )
 
             repo_diff = create_git_patch(job.workspace_dir)
