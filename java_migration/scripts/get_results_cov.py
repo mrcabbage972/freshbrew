@@ -2,49 +2,52 @@
 
 import multiprocessing
 import multiprocessing.context
+import subprocess
 from enum import Enum
 from pathlib import Path
-import pandas as pd
+from typing import Union
 
+import pandas as pd
 import yaml
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from tqdm import tqdm
 
-from java_migration.eval.utils import recover_safe_repo_name
 from java_migration.eval.data_model import MigrationDatasetItem
-from java_migration.eval.utils import safe_repo_name
+from java_migration.eval.utils import recover_safe_repo_name, safe_repo_name
 from java_migration.repo_workspace import RepoWorkspace
 from java_migration.test_cov import get_test_cov
 from java_migration.utils import REPO_ROOT
 
-import subprocess
-from typing import Union
-
 workspace_dir = REPO_ROOT / "data" / "workspace"
 cov_data_path = REPO_ROOT / "data/migration_datasets/cov_data.csv"
 
+COV_DECREASE_FLOOR = -0.05
 
-import subprocess
-import os
-from pathlib import Path
-from typing import Union
 
 class PatchApplyError(Exception):
     """Base exception for patch application failures."""
+
     pass
+
 
 class PatchConflictError(PatchApplyError):
     """Raised when the patch cannot be applied due to conflicts."""
+
     pass
+
 
 class CorruptPatchError(PatchApplyError):
     """Raised when the patch file is corrupt or malformed."""
+
     pass
+
 
 class InvalidGitRepositoryError(PatchApplyError):
     """Raised when the target directory is not a valid Git repository."""
+
     pass
+
 
 def apply_patch_to_repo(repo_path: Union[str, Path], patch_file_path: Union[str, Path]):
     """
@@ -81,14 +84,14 @@ def apply_patch_to_repo(repo_path: Union[str, Path], patch_file_path: Union[str,
     # --- 2. Read patch and ensure it has a final newline ---
     # This prevents "corrupt patch" errors for files missing the final \n
     patch_content = patch_file_path.read_text()
-    if not patch_content.endswith('\n'):
-        patch_content += '\n'
+    if not patch_content.endswith("\n"):
+        patch_content += "\n"
 
     # --- 3. Perform a dry run to check for conflicts or errors ---
     # The --check flag tells git to report errors without making changes.
     # We pass the patch content via stdin instead of a file path.
     check_command = ["git", "apply", "--check"]
-    
+
     try:
         # We run the command from within the repository's directory.
         subprocess.run(
@@ -97,7 +100,7 @@ def apply_patch_to_repo(repo_path: Union[str, Path], patch_file_path: Union[str,
             check=True,  # Raises CalledProcessError on non-zero exit codes
             capture_output=True,
             text=True,
-            input=patch_content # Pass patch content to stdin
+            input=patch_content,  # Pass patch content to stdin
         )
     except subprocess.CalledProcessError as e:
         # Analyze stderr to provide a more specific error message.
@@ -119,7 +122,7 @@ def apply_patch_to_repo(repo_path: Union[str, Path], patch_file_path: Union[str,
             check=True,
             capture_output=True,
             text=True,
-            input=patch_content # Pass patch content to stdin
+            input=patch_content,  # Pass patch content to stdin
         )
         print("Patch applied successfully.")
     except subprocess.CalledProcessError as e:
@@ -142,9 +145,17 @@ class JobStatus(Enum):
     SUCCESS = 2
 
 
+class CovResult(BaseModel):
+    cov_before: float
+    cov_after: float
+    cov_percent_change: float
+    cov_guard_pass: bool
+
+
 class JobResult(BaseModel):
     status: JobStatus
     error: str | None = None
+    cov_result: CovResult | None = None
 
 
 class Worker:
@@ -155,14 +166,16 @@ class Worker:
         workspace = None
         try:
             repo_dir = job.output_root / safe_repo_name(job.dataset_item.repo_name)
-            post_cov_file_path = repo_dir / "post_cov.yaml"
+            post_cov_file_path = repo_dir / "cov.yaml"
             if post_cov_file_path.exists():
                 print(f"Repo {job.dataset_item.repo_name} already processed, skipping")
-                return JobResult(status=JobStatus.SKIP)
+                with open(post_cov_file_path) as fin:
+                    cov_result = CovResult.model_validate(yaml.safe_load(fin.read()))
+                return JobResult(status=JobStatus.SKIP, cov_result=cov_result)
 
             results_file_path = repo_dir / "result.yaml"
             result_dict = yaml.safe_load(results_file_path.read_text())
-            if not result_dict["build_result"]["test_success"] is True:
+            if result_dict["build_result"]["test_success"] is not True:
                 print(f"Repo {job.dataset_item.repo_name} did not pass tests, skipping")
                 return JobResult(status=JobStatus.SKIP)
 
@@ -192,18 +205,28 @@ class Worker:
             # if build_result.test_results.tests_run == 0:
             #     print(f"Repo {job.dataset_item.repo_name} no tests run, skipping")
             #     return JobResult(status=JobStatus.SKIP)
-            test_cov, test_stdout, test_stderr, coverage_stdout, coverage_stderr = get_test_cov(
+            test_cov = get_test_cov(
                 str(workspace.workspace_dir), use_wrapper=False, target_java_version=job.target_java_version
             )
-
-            repo_dir.mkdir(parents=True, exist_ok=True)
-            if test_cov:
-                with open(post_cov_file_path, "w") as fout:
-                    yaml.dump(test_cov.model_dump(), fout)
+            if test_cov is None:
+                raise ValueError("Post-migration test coverage result missing")
 
             cur_pre_cov = self.pre_cov[job.dataset_item.repo_name]
 
-            return JobResult(status=JobStatus.SUCCESS)
+            cov_percent_change = test_cov.LINE.percent / cur_pre_cov - 1
+
+            # output_dict = {"line_cov": {"before": cur_pre_cov, "after": test_cov.LINE.percent}}
+            cov_result = CovResult(
+                cov_before=cur_pre_cov,
+                cov_after=test_cov.LINE.percent,
+                cov_percent_change=cov_percent_change,
+                cov_guard_pass=cov_percent_change > COV_DECREASE_FLOOR,
+            )
+
+            with open(post_cov_file_path, "w") as fout:
+                yaml.dump(cov_result.model_dump(), fout)
+
+            return JobResult(status=JobStatus.SUCCESS, cov_result=cov_result)
 
         except Exception as e:
             print(f"Failed processing repo {job.dataset_item.repo_name} with error {str(e)}")
@@ -264,7 +287,7 @@ def main():
     workspace_dir.mkdir(parents=True, exist_ok=True)
 
     dataset = MigrationDatasetItem.from_yaml(REPO_ROOT / "data/migration_datasets/full_dataset.yaml")
-    dataset = [dataset[0]]
+    dataset = [x for x in dataset if x.repo_name == "abahgat/suffixtree"]
 
     job_cfgs = [
         JobCfg(
