@@ -277,7 +277,7 @@ def _run_jobs(
 
 def main():
     load_dotenv()
-    experiment_path = REPO_ROOT / "data" / "experiments/2025-07-03/13-42-13-interesting-lederberg/job_results"
+    experiment_path = REPO_ROOT / "data" / "experiments/2025-07-03/13-42-13-interesting-lederberg"
     target_java_version = "17"
 
     df_cov = pd.read_csv(cov_data_path)
@@ -292,7 +292,7 @@ def main():
     job_cfgs = [
         JobCfg(
             dataset_item=item,
-            output_root=experiment_path,
+            output_root=experiment_path / "job_results",
             workspace_root=workspace_dir,
             cleanup_workspace=True,
             target_java_version=target_java_version,
@@ -301,8 +301,21 @@ def main():
     ]
 
     results = _run_jobs(job_cfgs, pre_cov, concurrency=8, timeout_seconds=300)
-    print(results)
-    pass
+
+    summary = {"repo_results": {}}
+    passed = 0
+    total = 0
+    for job_cfg, result in zip(job_cfgs, results):
+        if result.cov_result is not None:
+            summary["repo_results"][job_cfg.dataset_item.repo_name] = result.cov_result.model_dump()
+            if result.cov_result.cov_guard_pass:
+                passed += 1
+            total += 1
+    summary["cov_guard_pass_rate"] = 1.0 * passed / total
+
+    summary_path = experiment_path / "cov_results.yaml"
+    with open(summary_path, "w") as fout:
+        yaml.dump(summary, fout)
 
 
 if __name__ == "__main__":
