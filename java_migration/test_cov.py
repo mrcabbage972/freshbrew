@@ -1,5 +1,6 @@
 # type: ignore
 
+import logging
 import subprocess
 from pathlib import Path
 from typing import List, Optional
@@ -10,6 +11,9 @@ from java_migration.eval.data_model import CoverageSummary, TestCoverage
 from java_migration.maven.maven_pom_editor import MavenPomEditor
 from java_migration.maven.maven_project import MavenProject
 from java_migration.maven.maven_runner import Maven
+
+logger = logging.getLogger(__name__)
+
 
 # JaCoCo plugin version to use
 JACOCO_VERSION = "0.8.8"
@@ -92,7 +96,7 @@ def ensure_jacoco_argline(editor: MavenPomEditor) -> bool:
         plugin_element = editor.get_plugin(group_id, artifact_id)
 
         if plugin_element is not None:
-            print(f"Checking plugin: {group_id}:{artifact_id} in {editor.pom_file}")
+            logger.info(f"Checking plugin: {group_id}:{artifact_id} in {editor.pom_file}")
             # 1. Ensure the <configuration> element exists within the plugin
             #    ensure_element returns the element, creating it if necessary.
             #    Note: ensure_element calls _save() internally if it *creates* the element.
@@ -104,7 +108,7 @@ def ensure_jacoco_argline(editor: MavenPomEditor) -> bool:
 
             if not argline_elements:
                 # 3a. <argLine> does not exist - create it with ${argLine}
-                print(f"  Adding <argLine>{argline_prop}</argLine>")
+                logger.info(f"  Adding <argLine>{argline_prop}</argLine>")
                 # Use create_sub_element as ensure_element might overwrite text if called with text=
                 editor.create_sub_element(config_element, "m:argLine", text=argline_prop)
                 modified = True
@@ -118,16 +122,16 @@ def ensure_jacoco_argline(editor: MavenPomEditor) -> bool:
                     # Add a space only if current_text is not empty/whitespace
                     separator = " " if current_text.strip() else ""
                     new_text = current_text.strip() + separator + argline_prop
-                    print(f"  Updating <argLine> to: {new_text}")
+                    logger.info(f"  Updating <argLine> to: {new_text}")
                     argline_element.text = new_text
                     modified = True
                 else:
-                    print(f"  <argLine> already contains {argline_prop}")
+                    logger.info(f"  <argLine> already contains {argline_prop}")
 
     # Save the file *if* any modifications were made by create_sub_element
     # or by directly setting .text
     if modified:
-        print(f"Saving changes to {editor.pom_file}")
+        logger.info(f"Saving changes to {editor.pom_file}")
         editor._save()  # Ensure all changes are written
 
     return modified
@@ -159,7 +163,7 @@ def _install_all_modules(repo: Path, use_wrapper: bool, target_java_version: str
     #     f"-Dmaven.compiler.target={target_java_version}",
     #     "-Dmaven.test.failure.ignore=true",
     # ]
-    # print(f"Installing modules: {' '.join(cmd)}")
+    # logger.info(f"Installing modules: {' '.join(cmd)}")
     # subprocess.run(cmd, cwd=repo, check=True, capture_output=True)
 
 
@@ -182,7 +186,7 @@ def _run_maven_with_jacoco(repo: Path, use_wrapper: bool, target_java_version) -
             f"-Dmaven.compiler.target={target_java_version}",
         ]
     )
-    print(f"Running JaCoCo goals: {' '.join(cmd)}")
+    logger.info(f"Running JaCoCo goals: {' '.join(cmd)}")
     subprocess.run(cmd, cwd=repo, check=True, capture_output=True)
 
 
@@ -296,13 +300,13 @@ def ensure_jacoco_plugin_configuration(
                     parent.remove(existing_plugin_element)
                     editor._save()  # Save the removal explicitly
             except Exception as e:
-                print(f"Warning: Failed to remove existing plugin {group_id}:{artifact_id}: {e}")
+                logger.info(f"Warning: Failed to remove existing plugin {group_id}:{artifact_id}: {e}")
     try:
         editor.add_plugin(
             group_id=group_id, artifact_id=artifact_id, version=target_version, executions=desired_executions
         )
     except Exception as e:
-        print(f"Error: Failed to add plugin {group_id}:{artifact_id}: {e}")
+        logger.info(f"Error: Failed to add plugin {group_id}:{artifact_id}: {e}")
 
 
 def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version: str = "8") -> Optional[TestCoverage]:
@@ -344,7 +348,7 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version:
     # 3) Find generated jacoco.xml files
     reports = _find_jacoco_reports(repo)
     if not reports:
-        print("❗ No jacoco.xml files found under target/site/jacoco*")
+        logger.info("❗ No jacoco.xml files found under target/site/jacoco*")
         return None
 
     # 4) Parse each, collect counters
@@ -353,15 +357,15 @@ def get_test_cov(repo_path: str, use_wrapper: bool = False, target_java_version:
         try:
             all_counts.append(_parse_one_report(rpt))
         except Exception as e:
-            print(f"Warning: failed to parse {rpt}: {e}")
+            logger.info(f"Warning: failed to parse {rpt}: {e}")
 
     if not all_counts:
-        print("❗ No valid coverage data could be parsed.")
+        logger.info("❗ No valid coverage data could be parsed.")
         return None
 
     # 5) Aggregate and return
     coverage = _aggregate_counters(all_counts)
-    print(f"Aggregated Coverage → LINE: {coverage.LINE.percent:.2f}%, METHOD: {coverage.METHOD.percent:.2f}%")
+    logger.info(f"Aggregated Coverage → LINE: {coverage.LINE.percent:.2f}%, METHOD: {coverage.METHOD.percent:.2f}%")
     return coverage
 
 
@@ -372,6 +376,6 @@ if __name__ == "__main__":
 
     coverage = get_test_cov(path, wrapper)
     if coverage:
-        print(f"Final: {coverage.LINE.covered}/{coverage.LINE.total} lines ({coverage.LINE.percent:.2f}%)")
+        logger.info(f"Final: {coverage.LINE.covered}/{coverage.LINE.total} lines ({coverage.LINE.percent:.2f}%)")
     else:
-        print("Coverage could not be determined.")
+        logger.info("Coverage could not be determined.")

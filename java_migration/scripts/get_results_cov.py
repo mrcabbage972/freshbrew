@@ -190,8 +190,10 @@ class Worker:
                 commit_sha=job.dataset_item.commit,
             )
 
-            apply_patch_to_repo(workspace.workspace_dir, patch_path)
-
+            try:
+                apply_patch_to_repo(workspace.workspace_dir, patch_path)
+            except PatchApplyError as e:
+                return JobResult(status=JobStatus.FAIL, error=f"Failed applying patch: {str(e)}")
             # build_result = MavenBuildVerifier().verify(workspace.workspace_dir, target_java_version=job.target_java_version)
             # if not build_result.build_success:
             #     print(f"Repo {job.dataset_item.repo_name} build failed, skipping")
@@ -209,7 +211,7 @@ class Worker:
                 str(workspace.workspace_dir), use_wrapper=False, target_java_version=job.target_java_version
             )
             if test_cov is None:
-                raise ValueError("Post-migration test coverage result missing")
+                return JobResult(status=JobStatus.FAIL, error="Failed calculating coverage")
 
             cur_pre_cov = self.pre_cov[job.dataset_item.repo_name]
 
@@ -287,7 +289,7 @@ def main():
     workspace_dir.mkdir(parents=True, exist_ok=True)
 
     dataset = MigrationDatasetItem.from_yaml(REPO_ROOT / "data/migration_datasets/full_dataset.yaml")
-    dataset = [x for x in dataset if x.repo_name == "abahgat/suffixtree"]
+    # dataset = [x for x in dataset if x.repo_name == "abahgat/suffixtree"]
 
     job_cfgs = [
         JobCfg(
@@ -300,18 +302,24 @@ def main():
         for item in dataset
     ]
 
-    results = _run_jobs(job_cfgs, pre_cov, concurrency=8, timeout_seconds=300)
+    results = _run_jobs(job_cfgs, pre_cov, concurrency=16, timeout_seconds=60)
 
     summary = {"repo_results": {}}
     passed = 0
     total = 0
+    job_fails = 0
     for job_cfg, result in zip(job_cfgs, results):
+        summary["repo_results"][job_cfg.dataset_item.repo_name] = {"status": str(result.status)}
+        if result.status == JobStatus.FAIL:
+            summary["repo_results"][job_cfg.dataset_item.repo_name]["error"] = result.error
+            job_fails += 1
         if result.cov_result is not None:
-            summary["repo_results"][job_cfg.dataset_item.repo_name] = result.cov_result.model_dump()
+            summary["repo_results"][job_cfg.dataset_item.repo_name]["coverage"] = result.cov_result.model_dump()
             if result.cov_result.cov_guard_pass:
                 passed += 1
             total += 1
     summary["cov_guard_pass_rate"] = 1.0 * passed / total
+    summary["job_fails"] = job_fails
 
     summary_path = experiment_path / "cov_results.yaml"
     with open(summary_path, "w") as fout:
