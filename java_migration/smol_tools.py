@@ -71,7 +71,7 @@ class MavenVerify(Tool):
     name = "maven_verify"
     description = "Executes `mvn verify` in the current directory and return the stdout."
     inputs = {
-        "clean": {"type": "boolean", "description": "Whether to run a clean Maven build (True) or no (False)."},
+        "clean": {"type": "boolean", "description": "Whether to run a clean Maven build (True) or no (False).", "nullable": "true"},
     }
     output_type = "string"
 

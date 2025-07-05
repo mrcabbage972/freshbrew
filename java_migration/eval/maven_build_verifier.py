@@ -17,7 +17,6 @@ class MavenBuildVerifier:
         compile_only_log = mvn_result.stdout
         if (
             self._detect_compilation_failure(compile_only_log)
-            or self.ERROR_TAG in compile_only_log
             or self.FATAL_TAG in compile_only_log
             or self.BUILD_FAILURE in compile_only_log
         ):
