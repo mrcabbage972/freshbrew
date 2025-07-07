@@ -12,6 +12,7 @@ from java_migration.eval.data_model import (
     JobCfg,
     JobResult,
     MigrationDatasetItem,
+    MigrationResult,
     StageMetrics,
 )
 from java_migration.eval.utils import clean_log_string, generate_experiment_dir, safe_repo_name
@@ -19,6 +20,10 @@ from java_migration.eval.worker import Worker
 from java_migration.utils import REPO_ROOT
 
 logger = logging.getLogger(__name__)
+
+
+def _output_exists(exp_repo_path: Path):
+    return (exp_repo_path / "result.yaml").exists()
 
 
 def listener(progress_queue: multiprocessing.Queue, total: int):
@@ -56,6 +61,13 @@ def save_job_results(job_cfg: JobCfg, job_result: JobResult, output_path: Path):
 
 
 def worker_wrapper(worker: Worker, job_cfg: JobCfg, results_dir: Path, progress_queue: multiprocessing.Queue):
+    cur_result_dir = results_dir / safe_repo_name(job_cfg.repo_name)
+    if _output_exists(cur_result_dir):
+        progress_queue.put(1)
+        logger.info(f"Returning saved result for repo {job_cfg.repo_name}")
+        migration_result = MigrationResult.from_dir(cur_result_dir)
+        return JobResult(run_success=True, migration_result=migration_result)
+
     result = worker(job_cfg)
     progress_queue.put(1)
     save_job_results(job_cfg, result, results_dir)
@@ -169,9 +181,5 @@ class EvalRunner:
                 commit=item.commit,
             )
             for item in dataset
-            if not self._output_exists(experiment_dir / "job_results" / safe_repo_name(item.repo_name))
         ]
         return job_cfgs
-
-    def _output_exists(self, exp_repo_path: Path):
-        return (exp_repo_path / "result.yaml").exists()

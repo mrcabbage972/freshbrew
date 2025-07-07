@@ -96,20 +96,6 @@
     tests_run: 246
     tests_skipped: 0
     tests_successful: 246
-- commit: 7fa8c085f45977be1db980731f4faf580925db08
-  license: Apache-2.0
-  repo_features:
-    number_of_external_dependencies: 10
-    number_of_java_files: 1
-    number_of_lines_of_code: 262
-    number_of_modules: 1
-    number_of_unit_tests: 32
-  repo_name: Netflix/curator
-  test_count:
-    tests_failed: 0
-    tests_run: 44
-    tests_skipped: 2
-    tests_successful: 42
 - commit: 3aab711e746c155b1a0359c7abb928ffeca2280e
   license: Apache-2.0
   repo_features:
@@ -418,20 +404,6 @@
     tests_run: 1862
     tests_skipped: 9
     tests_successful: 1853
-- commit: b73cd3ceb17d0a5122216f2cacc86c4f864ee957
-  license: Apache-2.0
-  repo_features:
-    number_of_external_dependencies: 2
-    number_of_java_files: 141
-    number_of_lines_of_code: 25030
-    number_of_modules: 1
-    number_of_unit_tests: 2132
-  repo_name: pveentjer/Multiverse
-  test_count:
-    tests_failed: 0
-    tests_run: 3015
-    tests_skipped: 81
-    tests_successful: 2934
 - commit: d5bb0867acd3e897c3a55b23de59bdea46ba6bc7
   license: Apache-2.0
   repo_features:
