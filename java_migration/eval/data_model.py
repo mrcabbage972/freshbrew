@@ -39,6 +39,7 @@ class BuildResults(BaseModel):
     build_success: bool | None
     test_success: bool | None
     test_results: TestResults | None
+    build_time: float | None = None
 
 
 class AgentConfig(BaseModel):
@@ -76,6 +77,7 @@ class MigrationResult(BaseModel):
             build_success=result_dict["build_result"].get("build_success"),
             test_success=result_dict["build_result"].get("test_success"),
             test_results=test_result,
+            build_time=result_dict["build_result"].get("build_time"),
         )
         return MigrationResult(build_result=build_result, diff=diff, stdout=stdout, output="")
 

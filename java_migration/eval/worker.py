@@ -2,6 +2,7 @@ import contextlib
 import io
 import logging
 import os
+import time
 
 from smolagents import CodeAgent
 from smolagents.models import LiteLLMModel
@@ -51,9 +52,12 @@ class Worker:
                 result = agent.run(job.agent_config.prompt)
 
             logger.info("Verifying build")
+            start_time = time.perf_counter()
             build_result = MavenBuildVerifier().verify(
                 repo_path=job.workspace_dir, target_java_version=str(job.agent_config.target_jdk_version), clean=True
             )
+            total_time = time.perf_counter() - start_time
+            build_result.build_time = total_time
 
             repo_diff = create_git_patch(job.workspace_dir)
             logger.info("Successfully finished job")
