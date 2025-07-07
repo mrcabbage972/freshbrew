@@ -20,7 +20,9 @@ def maven_test(repo_path: Path, skip_tests: bool = False, target_java_version: s
     return result.stdout.decode("utf-8")
 
 
-def maven_verify(repo_path: Path, skip_tests: bool = False, target_java_version: str = "17") -> str:
+def maven_verify(
+    repo_path: Path, skip_tests: bool = False, target_java_version: str = "17", clean: bool = False
+) -> str:
     cmd = [
         "mvn",
         "-B",  # Batch mode
@@ -32,6 +34,8 @@ def maven_verify(repo_path: Path, skip_tests: bool = False, target_java_version:
     if skip_tests:
         cmd.append("-DskipTests")
         cmd.append("-DskipITs")
+    if clean:
+        cmd.insert(1, "clean")
     result = subprocess.run(cmd, capture_output=True, cwd=repo_path)
     return result.stdout.decode("utf-8")
 

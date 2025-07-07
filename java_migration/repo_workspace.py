@@ -25,8 +25,12 @@ class RepoWorkspace:
                 if workspace_dir.exists():
                     shutil.rmtree(workspace_dir)
                 repo = Repo.clone_from(repo_url, workspace_dir, depth=depth)
-                print(f"Cloned repository {repo_name} to {workspace_dir}")
-                repo.git.checkout(commit_sha)
+                with repo.config_writer(config_level="repository") as cw:
+                    cw.set_value("core", "autocrlf", "true")
+                logger.info("Set core.autocrlf=true for the local repository.")
+                if commit_sha is not None:
+                    logger.info("Checking out commit")
+                    repo.git.checkout(commit_sha)
                 checkout_success = True
             except Exception:
                 continue

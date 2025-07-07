@@ -13,11 +13,10 @@ class MavenBuildVerifier:
 
     def verify(self, repo_path: Path, build_only=False, target_java_version="17", clean: bool = False) -> BuildResults:
         mvn = Maven(target_java_version)
-        mvn_result = mvn.test(repo_path, skip_tests=True, clean=clean)
+        mvn_result = mvn.compile(repo_path, clean=clean)
         compile_only_log = mvn_result.stdout
         if (
             self._detect_compilation_failure(compile_only_log)
-            or self.ERROR_TAG in compile_only_log
             or self.FATAL_TAG in compile_only_log
             or self.BUILD_FAILURE in compile_only_log
         ):

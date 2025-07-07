@@ -1,8 +1,11 @@
+import logging
 import os
 import subprocess
 from pathlib import Path
 
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 
 class CliResult(BaseModel):
@@ -32,6 +35,22 @@ class Maven:
             return "./mvnw"
         else:
             return "mvn"
+
+    def compile(self, repo_path: Path, clean: bool = False) -> CliResult:
+        cmd = [
+            self._get_base_cmd(repo_path),
+            "compile",
+            "--batch-mode",
+            "-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn",
+            f"-Dmaven.compiler.source={self.target_java_version}",
+            f"-Dmaven.compiler.target={self.target_java_version}",
+        ]
+        if clean:
+            cmd.insert(1, "clean")
+        result = subprocess.run(cmd, capture_output=True, cwd=str(repo_path))
+        return CliResult(
+            status=result.returncode, stdout=result.stdout.decode("utf-8"), stderr=result.stderr.decode("utf-8")
+        )
 
     def test(self, repo_path: Path, skip_tests: bool = False, clean: bool = False) -> CliResult:
         cmd = [
@@ -93,7 +112,7 @@ class Maven:
             f"-Dmaven.compiler.target={self.target_java_version}",
         ]
 
-        print(f"Running command: {' '.join(cmd)}")
+        logger.info(f"Running command: {' '.join(cmd)}")
 
         result = subprocess.run(cmd, capture_output=True, cwd=str(repo_path))
         return CliResult(
