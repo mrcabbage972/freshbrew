@@ -63,17 +63,47 @@ class MigrationResult(BaseModel):
     stdout: str
     diff: str
 
-    # def __repr__(self) -> str:
-    #     status_str = "Success" if self.build_success else "Failure"
-    #     output_str = f"output='{escape_newlines(collapse_middle(self.output))}'"
-    #     stdout_str = f", stdout='{escape_newlines(collapse_middle(self.stdout))}'" if self.stdout is not None else ""
-    #     diff_str = f", diff='{escape_newlines(collapse_middle(self.diff))}'" if self.diff is not None else ""
+    @classmethod
+    def from_dir(cls, result_dir: Path) -> "MigrationResult":
+        diff = (result_dir / "diff.patch").read_text()
+        stdout = (result_dir / "stdout.log").read_text()
+        buid_result_log = (result_dir / "build.log").read_text()
+        result_dict = yaml.safe_load((result_dir / "result.yaml").read_text())
 
-    #     parts = [status_str, output_str, stdout_str, diff_str]
-    #     non_empty_parts = [part for part in parts if part]
-    #     combined_str = ", ".join(non_empty_parts)
+        test_result = TestResults.model_validate(result_dict["test_results"]) if "test_results" in result_dict else None
+        build_result = BuildResults(
+            build_log=buid_result_log,
+            build_success=result_dict["build_result"].get("build_success"),
+            test_success=result_dict["build_result"].get("test_success"),
+            test_results=test_result,
+        )
+        return MigrationResult(build_result=build_result, diff=diff, stdout=stdout, output="")
 
-    #     return f"JobResult({combined_str})"
+
+#         class TestResults(BaseModel):
+#     tests_run: int
+#     failures: int
+#     errors: int
+#     skipped: int
+
+
+# class BuildResults(BaseModel):
+#     build_log: str
+#     build_success: bool | None
+#     test_success: bool | None
+#     test_results: TestResults | None
+
+# def __repr__(self) -> str:
+#     status_str = "Success" if self.build_success else "Failure"
+#     output_str = f"output='{escape_newlines(collapse_middle(self.output))}'"
+#     stdout_str = f", stdout='{escape_newlines(collapse_middle(self.stdout))}'" if self.stdout is not None else ""
+#     diff_str = f", diff='{escape_newlines(collapse_middle(self.diff))}'" if self.diff is not None else ""
+
+#     parts = [status_str, output_str, stdout_str, diff_str]
+#     non_empty_parts = [part for part in parts if part]
+#     combined_str = ", ".join(non_empty_parts)
+
+#     return f"JobResult({combined_str})"
 
 
 class JobResult(BaseModel):
