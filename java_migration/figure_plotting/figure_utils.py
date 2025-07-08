@@ -150,8 +150,6 @@ def plot_histogram_grid(
     plt.clf()
     plt.close(fig)
 
-from matplotlib.ticker import ScalarFormatter
-
 def plot_boxplot_grid(
     data_list: list[list[float | int]],
     subplot_titles: list[str],
@@ -163,34 +161,35 @@ def plot_boxplot_grid(
     figs_x: int = 2,
     figs_y: int = 3,
 ):
-    """
-    Plots a generic, publication-quality grid of box plots.
-    Tick locations can be controlled via the `tick_definitions` dictionary.
-    """
+    """Plots a generic, publication-quality grid of box plots."""
     fig, axes = plt.subplots(figs_x, figs_y, figsize=figsize, constrained_layout=True)
     axes = axes.flatten()
 
-    # Style Dictionaries
+    # --- Style Dictionaries for ACM Paper Quality ---
     boxprops = dict(facecolor=PURPLE, color=PURPLE, alpha=0.9, linewidth=1.5)
     medianprops = dict(color="#ffc107", linewidth=2.5, zorder=10)
-    flierprops = dict(marker='.', markerfacecolor='k', markersize=5, alpha=0.1)
+    # Outliers are now solid, small circles for clear visibility
+    flierprops = dict(marker='o', markerfacecolor='k', markersize=5.5, alpha=0.35, markeredgewidth=1)
     whiskerprops = dict(linewidth=1.5)
     capprops = dict(linewidth=1.5)
 
     for i, ax in enumerate(axes):
         if i < len(data_list):
+            # --- BUG FIX: Plot one dataset at a time ---
+            # Pass the single dataset for the current subplot, wrapped in a list
             ax.boxplot(
-                data_list[i], vert=True, patch_artist=True, boxprops=boxprops,
+                [data_list[i]],
+                vert=True, patch_artist=True, boxprops=boxprops,
                 medianprops=medianprops, flierprops=flierprops,
                 whiskerprops=whiskerprops, capprops=capprops, showfliers=True,
             )
 
+            # --- BUG FIX: Set one title at a time ---
             ax.set_title(subplot_titles[i], fontsize=22, pad=10)
             ax.set_xticks([])
             ax.grid(True, which="major", axis="y", linestyle="--", linewidth=1, alpha=0.5)
             ax.tick_params(axis='y', labelsize=20)
 
-            # Apply scales and ticks based on provided arguments
             if log_scale_indices and i in log_scale_indices:
                 ax.set_yscale('log')
                 ax.yaxis.set_major_formatter(ScalarFormatter())

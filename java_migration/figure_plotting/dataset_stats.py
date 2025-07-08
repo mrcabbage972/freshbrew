@@ -82,7 +82,7 @@ plot_counts(
 
 
 tick_definitions = {
-    0: [1, 5, 25, 50, 100],            # External Dependencies
+    0: [1, 5, 10, 50, 100],            # External Dependencies
     1: [1, 10, 100, 1000],              # Java Files
     2: [1, 10, 100, 1000, 10000, 100000],   # Lines of Code
     3: [1, 10, 20, 30, 40],              # Modules (Linear)
