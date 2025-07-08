@@ -27,3 +27,17 @@ plot_histogram_grid(
     figs_x=2,
     figs_y=1,
 )
+
+num_toks = [[log.steps[-1].meta.input_tokens//1000 for log in logs]]
+
+plot_histogram_grid(
+    num_toks,
+    ["Gemini 2.0 Flash"],
+    figure_xlabel="Tokens (thousands)",
+    figure_ylabel="Repositories",
+    output_path=REPO_ROOT / "java_migration/figures" / "trace_tokens_hist.pdf",
+    bins=10,
+    figsize=(20, 12),
+    figs_x=2,
+    figs_y=1,
+)
