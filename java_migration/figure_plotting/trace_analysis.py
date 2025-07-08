@@ -28,7 +28,7 @@ plot_histogram_grid(
     figs_y=1,
 )
 
-num_toks = [[log.steps[-1].meta.input_tokens//1000 for log in logs]]
+num_toks = [[log.steps[-1].meta.input_tokens // 1000 for log in logs]]
 
 plot_histogram_grid(
     num_toks,
