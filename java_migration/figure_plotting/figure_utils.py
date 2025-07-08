@@ -4,6 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import MaxNLocator, MultipleLocator
 
+
+from matplotlib.ticker import ScalarFormatter, MaxNLocator, LogLocator
+
+from matplotlib.ticker import ScalarFormatter
+
 plt.rcParams.update(
     {
         "font.size": 24,  # base font size
@@ -142,5 +147,81 @@ def plot_histogram_grid(
 
     # Save the entire figure to a single file
     plt.savefig(output_path, dpi=300)
+    plt.clf()
+    plt.close(fig)
+
+
+# In figure_utils.py
+# In figure_utils.py
+# In figure_utils.py
+
+from matplotlib.ticker import ScalarFormatter
+
+def plot_boxplot_grid(
+    data_list: list[list[float | int]],
+    subplot_titles: list[str],
+    figure_ylabel: str | None,
+    output_path: Path,
+    tick_definitions: dict[int, list] | None = None,
+    log_scale_indices: list[int] | None = None,
+    figsize: tuple[int, int] = (20, 12),
+    figs_x: int = 2,
+    figs_y: int = 3,
+):
+    """
+    Plots a generic, publication-quality grid of box plots with a robust,
+    high-contrast style.
+    """
+    fig, axes = plt.subplots(figs_x, figs_y, figsize=figsize, constrained_layout=True)
+    axes = axes.flatten()
+
+    # --- Style Dictionaries for a Professional, High-Contrast Look ---
+    # A single, solid box color is standard and reliable
+    boxprops = dict(facecolor=PURPLE, color='black', alpha=0.8, linewidth=1.5)
+    # A thick, contrasting median line for clear visibility
+    medianprops = dict(color="#ffc107", linewidth=2.5)
+    # Outliers are visible circles with an edge
+    flierprops = dict(marker='o', markerfacecolor='black', markersize=5,
+                      markeredgecolor='white', markeredgewidth=0.5, alpha=0.5)
+    # Prominent black whiskers and caps
+    whiskerprops = dict(linewidth=1.5, color='black')
+    capprops = dict(linewidth=1.5, color='black')
+
+    for i, ax in enumerate(axes):
+        if i < len(data_list):
+            # --- A single, direct, and robust call to boxplot ---
+            # No manual drawing or invisible artists are needed.
+            ax.boxplot(
+                [data_list[i]],
+                vert=True,
+                patch_artist=True,
+                showfliers=True,
+                boxprops=boxprops,
+                medianprops=medianprops,
+                flierprops=flierprops,
+                whiskerprops=whiskerprops,
+                capprops=capprops,
+            )
+
+            # --- Standard plot setup ---
+            ax.set_title(subplot_titles[i], fontsize=22, pad=10)
+            ax.set_xticks([])
+            ax.grid(True, which="major", axis="y", linestyle="--", linewidth=1, alpha=0.5)
+            ax.tick_params(axis='y', labelsize=20)
+
+            if log_scale_indices and i in log_scale_indices:
+                ax.set_yscale('log')
+                ax.yaxis.set_major_formatter(ScalarFormatter())
+                ax.tick_params(axis='y', which='minor', bottom=False, top=False)
+
+            if tick_definitions and i in tick_definitions:
+                ax.set_yticks(tick_definitions[i])
+        else:
+            ax.set_visible(False)
+
+    if figure_ylabel:
+        fig.supylabel(figure_ylabel, fontsize=28)
+
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.clf()
     plt.close(fig)

@@ -4,7 +4,7 @@ import pandas as pd
 import yaml
 
 from java_migration.eval.utils import recover_safe_repo_name
-from java_migration.figure_plotting.figure_utils import plot_counts, plot_histogram, plot_histogram_grid
+from java_migration.figure_plotting.figure_utils import plot_counts, plot_histogram, plot_histogram_grid, plot_boxplot_grid
 from java_migration.utils import REPO_ROOT
 
 
@@ -78,4 +78,31 @@ plot_counts(
     ylabel="Repositories",
     output_path=REPO_ROOT / "java_migration/figures" / "license_stats.pdf",
     figsize=(8, 8),
+)
+
+
+tick_definitions = {
+    0: [1, 5, 10, 50, 100],            # External Dependencies
+    1: [1, 10, 100, 1000],              # Java Files
+    2: [1, 10, 100, 1000, 10000, 100000],   # Lines of Code
+    3: [1, 10, 20, 30, 40],              # Modules (Linear)
+    4: [1, 10, 100, 1000, 10000],       # Unit Tests
+    5: [50, 60, 70, 80, 90, 100]        # Test Coverage (Linear)
+}
+
+# Define which subplots should use a log scale
+log_scale_indices = [0, 1, 2, 4]
+
+
+# --- Call the generic function with your configurations ---
+plot_boxplot_grid(
+    data_list=data_list,
+    subplot_titles=titles,
+    figure_ylabel="Value Distribution",
+    output_path=REPO_ROOT / "java_migration/figures" / "dataset_boxplots.pdf",
+    tick_definitions=tick_definitions,
+    log_scale_indices=log_scale_indices,
+    figs_x=1,
+    figs_y=6,
+    figsize=(20,6)
 )
