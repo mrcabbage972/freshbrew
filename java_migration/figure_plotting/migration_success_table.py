@@ -53,7 +53,6 @@ pivoted_df = pivoted_df[
 latex_string = r"""
 \begin{table*}[htbp]
 \centering
-\caption{Performance on Migration}
 \begin{tabular}{
     l    
     c c     
@@ -81,6 +80,7 @@ for index, row in pivoted_df.iterrows():
 # Add the final part of the table
 latex_string += r"""\bottomrule
 \end{tabular}
+\caption{Performance on Migration}
 \label{tab:model_performance}
 \end{table*}"""
 
