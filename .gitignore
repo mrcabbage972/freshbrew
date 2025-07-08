@@ -8,6 +8,8 @@ __pycache__/
 
 experiments/
 
+figures/
+
 # Distribution / packaging
 .Python
 build/
