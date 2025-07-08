@@ -29,8 +29,11 @@ def _output_exists(exp_repo_path: Path):
 def listener(progress_queue: multiprocessing.Queue, total: int):
     pbar = tqdm(total=total)
     for _ in range(total):
-        progress_queue.get()
-        pbar.update(1)
+        try:
+            progress_queue.get()
+            pbar.update(1)
+        except Exception as e:
+            logger.warning(f"Failed updating progress bar: {str(e)}")
     pbar.close()
 
 
@@ -63,10 +66,14 @@ def save_job_results(job_cfg: JobCfg, job_result: JobResult, output_path: Path):
 def worker_wrapper(worker: Worker, job_cfg: JobCfg, results_dir: Path, progress_queue: multiprocessing.Queue):
     cur_result_dir = results_dir / safe_repo_name(job_cfg.repo_name)
     if _output_exists(cur_result_dir):
-        progress_queue.put(1)
-        logger.info(f"Returning saved result for repo {job_cfg.repo_name}")
-        migration_result = MigrationResult.from_dir(cur_result_dir)
-        return JobResult(run_success=True, migration_result=migration_result)
+        try:
+            logger.info(f"Returning saved result for repo {job_cfg.repo_name}")
+            migration_result = MigrationResult.from_dir(cur_result_dir)
+            progress_queue.put(1)
+            return JobResult(run_success=True, migration_result=migration_result)
+        except Exception as e:
+            logger.warning(f"Failed loading saved result for repo {job_cfg.repo_name}: {str(e)}")
+
 
     result = worker(job_cfg)
     progress_queue.put(1)

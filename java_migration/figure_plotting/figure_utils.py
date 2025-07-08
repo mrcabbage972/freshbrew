@@ -93,6 +93,8 @@ def plot_histogram_grid(
     output_path: Path,
     bins: int = 15,
     figsize: tuple[int, int] = (20, 15),
+    figs_x: int = 3,
+    figs_y: int = 2,
 ):
     """
     Plots a 3x2 grid of histograms and saves it as a single file.
@@ -107,7 +109,7 @@ def plot_histogram_grid(
         figsize: The overall size of the 3x2 grid.
     """
     # Create a 3x2 grid of subplots. constrained_layout helps prevent labels from overlapping.
-    fig, axes = plt.subplots(3, 2, figsize=figsize, constrained_layout=True)
+    fig, axes = plt.subplots(figs_x, figs_y, figsize=figsize, constrained_layout=True)
 
     # Flatten the 3x2 array of axes to make it easy to iterate over
     axes = axes.flatten()
