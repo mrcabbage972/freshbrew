@@ -2,5 +2,5 @@ agent_type: smol
 max_num_steps: 100
 tools: [read_file, write_file, list_dir, maven_verify, duckduckgo]
 model_name: vertex_ai/gemini-2.0-flash
-prompt: Upgrade the Maven project rooted at the current working dir to use JDK 21. Ensure that the build and the tests pass. You can make source code and dependency changes. You cannot delete or comment-out tests.
+prompt: Upgrade the Maven project rooted at the current working dir to use JDK 21. Ensure that the build and the tests pass. You can make source code and dependency changes. You cannot delete or comment-out tests. To do a final verification of your work befor calling the `final_answer` tool, verify your work by making sure that `maven_verify` tool succeeds with the parameter `clean` set to `True`, because this is how we are going to evaluate your success. DO NOT call maven_verify with `clean=True` before ensuring it passes without it, because its slow and output a lot of tokens.
 target_jdk_version: 21

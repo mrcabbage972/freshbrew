@@ -150,6 +150,13 @@ def plot_histogram_grid(
     plt.clf()
     plt.close(fig)
 
+
+# In figure_utils.py
+# In figure_utils.py
+# In figure_utils.py
+
+from matplotlib.ticker import ScalarFormatter
+
 def plot_boxplot_grid(
     data_list: list[list[float | int]],
     subplot_titles: list[str],
@@ -161,30 +168,42 @@ def plot_boxplot_grid(
     figs_x: int = 2,
     figs_y: int = 3,
 ):
-    """Plots a generic, publication-quality grid of box plots."""
+    """
+    Plots a generic, publication-quality grid of box plots with a robust,
+    high-contrast style.
+    """
     fig, axes = plt.subplots(figs_x, figs_y, figsize=figsize, constrained_layout=True)
     axes = axes.flatten()
 
-    # --- Style Dictionaries for ACM Paper Quality ---
-    boxprops = dict(facecolor=PURPLE, color=PURPLE, alpha=0.9, linewidth=1.5)
-    medianprops = dict(color="#ffc107", linewidth=2.5, zorder=10)
-    # Outliers are now solid, small circles for clear visibility
-    flierprops = dict(marker='o', markerfacecolor='k', markersize=5.5, alpha=0.35, markeredgewidth=1)
-    whiskerprops = dict(linewidth=1.5)
-    capprops = dict(linewidth=1.5)
+    # --- Style Dictionaries for a Professional, High-Contrast Look ---
+    # A single, solid box color is standard and reliable
+    boxprops = dict(facecolor=PURPLE, color='black', alpha=0.8, linewidth=1.5)
+    # A thick, contrasting median line for clear visibility
+    medianprops = dict(color="#ffc107", linewidth=2.5)
+    # Outliers are visible circles with an edge
+    flierprops = dict(marker='o', markerfacecolor='black', markersize=5,
+                      markeredgecolor='white', markeredgewidth=0.5, alpha=0.5)
+    # Prominent black whiskers and caps
+    whiskerprops = dict(linewidth=1.5, color='black')
+    capprops = dict(linewidth=1.5, color='black')
 
     for i, ax in enumerate(axes):
         if i < len(data_list):
-            # --- BUG FIX: Plot one dataset at a time ---
-            # Pass the single dataset for the current subplot, wrapped in a list
+            # --- A single, direct, and robust call to boxplot ---
+            # No manual drawing or invisible artists are needed.
             ax.boxplot(
                 [data_list[i]],
-                vert=True, patch_artist=True, boxprops=boxprops,
-                medianprops=medianprops, flierprops=flierprops,
-                whiskerprops=whiskerprops, capprops=capprops, showfliers=True,
+                vert=True,
+                patch_artist=True,
+                showfliers=True,
+                boxprops=boxprops,
+                medianprops=medianprops,
+                flierprops=flierprops,
+                whiskerprops=whiskerprops,
+                capprops=capprops,
             )
 
-            # --- BUG FIX: Set one title at a time ---
+            # --- Standard plot setup ---
             ax.set_title(subplot_titles[i], fontsize=22, pad=10)
             ax.set_xticks([])
             ax.grid(True, which="major", axis="y", linestyle="--", linewidth=1, alpha=0.5)
