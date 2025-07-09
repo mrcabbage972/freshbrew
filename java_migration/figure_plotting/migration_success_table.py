@@ -7,8 +7,7 @@ experiment_paths = [
     "data/experiments/2025-07-07/20-22-09-quirky-pasteur",
     "data/experiments/2025-07-08/14-01-20-objective-northcutt",
     "data/experiments/2025-07-09/02-45-46-intelligent-benz",
-    "data/experiments/2025-07-08/21-40-26-laughing-cerf"
-    
+    "data/experiments/2025-07-08/21-40-26-laughing-cerf",
 ]
 
 exp_results = []
@@ -20,7 +19,13 @@ for experiment_path in experiment_paths:
     compile_success_rate = 1.0 * metrics["compile"]["succeeded"] / metrics["compile"]["started"]
     test_success_rate = 1.0 * metrics["test"]["succeeded"] / metrics["compile"]["started"]
 
-    num_success = len([x["status"] for x in cov["repo_results"].values() if x.get("coverage", {}).get("cov_guard_pass", "False") is True])
+    num_success = len(
+        [
+            x["status"]
+            for x in cov["repo_results"].values()
+            if x.get("coverage", {}).get("cov_guard_pass", "False") is True
+        ]
+    )
     cov_guard_pass_rate = 1.0 * num_success / (metrics["compile"]["started"] - cov["job_fails"])
 
     exp_results.append(
@@ -41,10 +46,10 @@ pivoted_df = df.pivot(
 
 
 pivoted_df = pivoted_df[
-    [       
+    [
         ("compile_success_rate", 17),
         ("test_success_rate", 17),
-         ("cov_guard_pass_rate", 17),        
+        ("cov_guard_pass_rate", 17),
         ("compile_success_rate", 21),
         ("test_success_rate", 21),
         ("cov_guard_pass_rate", 21),
