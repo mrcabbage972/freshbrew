@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 # JaCoCo plugin version to use
-JACOCO_VERSION = "0.8.8"
+JACOCO_VERSION = "0.8.9"
 
 
 def add_copy_app_classes_to_randoop_pom(project: MavenProject):
@@ -274,7 +274,7 @@ def ensure_jacoco_plugin_configuration(
     """
     group_id = "org.jacoco"
     artifact_id = "jacoco-maven-plugin"
-    target_version = "0.8.8"
+    target_version = JACOCO_VERSION
 
     # Define the standard configuration to be added
     desired_executions = []
