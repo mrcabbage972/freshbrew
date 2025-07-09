@@ -2,12 +2,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import MaxNLocator, MultipleLocator
-
-
-from matplotlib.ticker import ScalarFormatter, MaxNLocator, LogLocator
-
-from matplotlib.ticker import ScalarFormatter
+from matplotlib.ticker import MaxNLocator, MultipleLocator, ScalarFormatter
 
 plt.rcParams.update(
     {
@@ -155,7 +150,6 @@ def plot_histogram_grid(
 # In figure_utils.py
 # In figure_utils.py
 
-from matplotlib.ticker import ScalarFormatter
 
 def plot_boxplot_grid(
     data_list: list[list[float | int]],
@@ -177,15 +171,16 @@ def plot_boxplot_grid(
 
     # --- Style Dictionaries for a Professional, High-Contrast Look ---
     # A single, solid box color is standard and reliable
-    boxprops = dict(facecolor=PURPLE, color='black', alpha=0.8, linewidth=1.5)
+    boxprops = dict(facecolor=PURPLE, color="black", alpha=0.8, linewidth=1.5)
     # A thick, contrasting median line for clear visibility
     medianprops = dict(color="#ffc107", linewidth=2.5)
     # Outliers are visible circles with an edge
-    flierprops = dict(marker='o', markerfacecolor='black', markersize=5,
-                      markeredgecolor='white', markeredgewidth=0.5, alpha=0.5)
+    flierprops = dict(
+        marker="o", markerfacecolor="black", markersize=5, markeredgecolor="white", markeredgewidth=0.5, alpha=0.5
+    )
     # Prominent black whiskers and caps
-    whiskerprops = dict(linewidth=1.5, color='black')
-    capprops = dict(linewidth=1.5, color='black')
+    whiskerprops = dict(linewidth=1.5, color="black")
+    capprops = dict(linewidth=1.5, color="black")
 
     for i, ax in enumerate(axes):
         if i < len(data_list):
@@ -207,12 +202,12 @@ def plot_boxplot_grid(
             ax.set_title(subplot_titles[i], fontsize=22, pad=10)
             ax.set_xticks([])
             ax.grid(True, which="major", axis="y", linestyle="--", linewidth=1, alpha=0.5)
-            ax.tick_params(axis='y', labelsize=20)
+            ax.tick_params(axis="y", labelsize=20)
 
             if log_scale_indices and i in log_scale_indices:
-                ax.set_yscale('log')
+                ax.set_yscale("log")
                 ax.yaxis.set_major_formatter(ScalarFormatter())
-                ax.tick_params(axis='y', which='minor', bottom=False, top=False)
+                ax.tick_params(axis="y", which="minor", bottom=False, top=False)
 
             if tick_definitions and i in tick_definitions:
                 ax.set_yticks(tick_definitions[i])
@@ -222,6 +217,6 @@ def plot_boxplot_grid(
     if figure_ylabel:
         fig.supylabel(figure_ylabel, fontsize=28)
 
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.savefig(output_path, dpi=300, bbox_inches="tight")
     plt.clf()
     plt.close(fig)

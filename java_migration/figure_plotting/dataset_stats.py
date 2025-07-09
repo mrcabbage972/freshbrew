@@ -4,7 +4,12 @@ import pandas as pd
 import yaml
 
 from java_migration.eval.utils import recover_safe_repo_name
-from java_migration.figure_plotting.figure_utils import plot_counts, plot_histogram, plot_histogram_grid, plot_boxplot_grid
+from java_migration.figure_plotting.figure_utils import (
+    plot_boxplot_grid,
+    plot_counts,
+    plot_histogram,
+    plot_histogram_grid,
+)
 from java_migration.utils import REPO_ROOT
 
 
@@ -82,12 +87,12 @@ plot_counts(
 
 
 tick_definitions = {
-    0: [1, 5, 10, 50, 100],            # External Dependencies
-    1: [1, 10, 100, 1000],              # Java Files
-    2: [1, 10, 100, 1000, 10000, 100000],   # Lines of Code
-    3: [1, 10, 20, 30, 40],              # Modules (Linear)
-    4: [1, 10, 100, 1000, 10000],       # Unit Tests
-    5: [50, 60, 70, 80, 90, 100]        # Test Coverage (Linear)
+    0: [1, 5, 10, 50, 100],  # External Dependencies
+    1: [1, 10, 100, 1000],  # Java Files
+    2: [1, 10, 100, 1000, 10000, 100000],  # Lines of Code
+    3: [1, 10, 20, 30, 40],  # Modules (Linear)
+    4: [1, 10, 100, 1000, 10000],  # Unit Tests
+    5: [50, 60, 70, 80, 90, 100],  # Test Coverage (Linear)
 }
 
 # Define which subplots should use a log scale
@@ -104,5 +109,5 @@ plot_boxplot_grid(
     log_scale_indices=log_scale_indices,
     figs_x=1,
     figs_y=6,
-    figsize=(20,6)
+    figsize=(20, 6),
 )
