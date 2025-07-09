@@ -74,10 +74,15 @@ def worker_wrapper(worker: Worker, job_cfg: JobCfg, results_dir: Path, progress_
         except Exception as e:
             logger.warning(f"Failed loading saved result for repo {job_cfg.repo_name}: {str(e)}")
 
+    try:
+        result = worker(job_cfg)
+        save_job_results(job_cfg, result, results_dir)
+    except Exception as e:
+        logger.exception(e)
+        result = JobResult(run_success=False, error=str(e))
+    finally:
+        progress_queue.put(1)
 
-    result = worker(job_cfg)
-    progress_queue.put(1)
-    save_job_results(job_cfg, result, results_dir)
     return result
 
 

@@ -76,5 +76,6 @@ plot_histogram(
     xlabel="Lines Edited",
     ylabel="Repositories",
     output_path=REPO_ROOT / "java_migration/figures" / "patch_stats.pdf",
-    bins = 10,
-    figsize = (10, 10),)
+    bins =100,
+    figsize = (10, 10),
+    x_log_scale=False)
