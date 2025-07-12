@@ -8,6 +8,12 @@ experiment_paths = [
     "data/experiments/2025-07-08/14-01-20-objective-northcutt",
     "data/experiments/2025-07-09/02-45-46-intelligent-benz",
     "data/experiments/2025-07-08/21-40-26-laughing-cerf",
+    "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-21",
+    "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-17",
+    "data/experiments/2025-07-09/smol-openai-o3-mini-target-jdk-21",
+    "data/experiments/2025-07-09/smol-openai-o3-mini-target-jdk-17",
+    "data/experiments/2025-07-09/smol-openai-gpt-4o-target-jdk-17",
+    "data/experiments/2025-07-09/smol-openai-gpt-4o-target-jdk-21"
 ]
 
 exp_results = []
