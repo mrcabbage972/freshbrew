@@ -78,7 +78,7 @@ class Worker:
             api_key = None
             if job.agent_config.model_name.startswith("openai"):
                 api_key = os.getenv("OPENAI_API_KEY")
-            model = LiteLLMModel(model_id=job.agent_config.model_name, api_key=api_key)
+            model = LiteLLMModel(model_id=job.agent_config.model_name, api_key=api_key, temperature=0.2)
             agent = CodeAgent(tools=tools, model=model, max_steps=job.agent_config.max_num_steps)
         elif job.agent_config.agent_type == "dummy":
             agent = DummyAgent()
