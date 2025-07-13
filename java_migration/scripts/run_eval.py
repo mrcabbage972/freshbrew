@@ -17,6 +17,7 @@ if __name__ == "__main__":
 
     litellm.vertex_project = os.getenv("DEFAULT_VERTEXAI_PROJECT", None)
     litellm.vertex_location = os.getenv("DEFAULT_VERTEXAI_LOCATION", None)
+    litellm.num_retries = 5
 
     dataset_path = REPO_ROOT / "data" / "migration_datasets" / "full_dataset.yaml"
     agent_cfg_path = REPO_ROOT / "java_migration" / "config" / f"smol_default_{target_jdk_version}.yaml"
