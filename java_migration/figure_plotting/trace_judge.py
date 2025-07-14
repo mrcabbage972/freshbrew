@@ -23,12 +23,8 @@ from java_migration.utils import REPO_ROOT
 
 plt.rcParams.update(
     {
-        "font.size": 24,  # base font size
-        "axes.titlesize": 24,
-        "axes.labelsize": 24,
-        "xtick.labelsize": 24,
-        "ytick.labelsize": 24,
-        "legend.fontsize": 24,
+        "font.size": 20, "axes.titlesize": 22, "axes.labelsize": 20,
+        "xtick.labelsize": 18, "ytick.labelsize": 18, "legend.fontsize": 20,
     }
 )
 
@@ -154,39 +150,42 @@ async def get_failure_verdict(semaphore: asyncio.Semaphore, run_path: Path) -> d
 
 def plot_failure_modes(df: pd.DataFrame, output_path: Path):
     """
-    Generates a publication-quality horizontal bar chart with wrapped labels.
+    Generates a horizontal bar chart showing the percentage of each failure category.
     """
     if df.empty:
         print("DataFrame is empty, skipping plot generation.")
         return
 
-    category_counts = df["category"].value_counts().sort_values(ascending=True)
+    # --- THE FIX: Calculate percentages using normalize=True ---
+    category_counts = df["category"].value_counts(normalize=True).sort_values(ascending=True)
 
-    # --- THE FIX: Wrap long labels before plotting ---
-    # Create a new list of wrapped labels. Adjust width as needed.
     wrapped_labels = [textwrap.fill(label, width=20) for label in category_counts.index]
 
-    # Adjust figure size for better vertical spacing with wrapped labels
     plt.figure(figsize=(10, 8))
     ax = plt.gca()
 
-    # Use the wrapped labels for the y-axis
     bars = ax.barh(wrapped_labels, category_counts.values, color=PURPLE, alpha=0.9)
 
-    ax.set_xlabel("Number of Failures")
+    # --- THE FIX: Update axis label and formatter ---
+    ax.set_xlabel("Percentage of Failures")
     ax.set_title("Common Failure Modes in Java Migration")
-    
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax.xaxis.set_major_formatter(PercentFormatter(1.0)) # Format axis as percentage
+
     ax.grid(True, which="major", axis="x", linestyle="--", linewidth=1, alpha=0.5)
     ax.set_ylabel(None)
-    #ax.bar_label(bars, padding=5, fontsize=16)
+
+    # --- THE FIX: Format bar labels as percentages ---
+    #ax.bar_label(bars, fmt='{:.1%}', padding=5, fontsize=16)
     
-    # Use tight_layout and bbox_inches to ensure everything fits
+    # Set x-axis limit to be slightly larger than the max percentage
+    if len(category_counts) > 0:
+        plt.xlim(0, category_counts.max() * 1.15)
+
     plt.tight_layout()
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    
     plt.close()
-    print(f"📊 Saving final failure analysis plot to {output_path}")
+    
+    print(f"📊 Saving percentage-based failure analysis plot to {output_path}")
 
 
 async def main():
