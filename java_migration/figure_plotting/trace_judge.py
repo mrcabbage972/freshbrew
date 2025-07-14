@@ -6,6 +6,7 @@ import litellm
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator, PercentFormatter
 import pandas as pd
+import textwrap
 import yaml
 from tqdm.asyncio import tqdm
 from dotenv import load_dotenv
@@ -153,7 +154,7 @@ async def get_failure_verdict(semaphore: asyncio.Semaphore, run_path: Path) -> d
 
 def plot_failure_modes(df: pd.DataFrame, output_path: Path):
     """
-    Generates a publication-quality horizontal bar chart of failure categories.
+    Generates a publication-quality horizontal bar chart with wrapped labels.
     """
     if df.empty:
         print("DataFrame is empty, skipping plot generation.")
@@ -161,33 +162,31 @@ def plot_failure_modes(df: pd.DataFrame, output_path: Path):
 
     category_counts = df["category"].value_counts().sort_values(ascending=True)
 
-    # Use a figure size that gives more vertical space for labels
-    plt.figure(figsize=(10, 7))
+    # --- THE FIX: Wrap long labels before plotting ---
+    # Create a new list of wrapped labels. Adjust width as needed.
+    wrapped_labels = [textwrap.fill(label, width=20) for label in category_counts.index]
+
+    # Adjust figure size for better vertical spacing with wrapped labels
+    plt.figure(figsize=(10, 8))
     ax = plt.gca()
 
-    bars = ax.barh(category_counts.index, category_counts.values, color=PURPLE, alpha=0.9)
+    # Use the wrapped labels for the y-axis
+    bars = ax.barh(wrapped_labels, category_counts.values, color=PURPLE, alpha=0.9)
 
     ax.set_xlabel("Number of Failures")
     ax.set_title("Common Failure Modes in Java Migration")
     
-    # Configure grid and integer ticks on the x-axis
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     ax.grid(True, which="major", axis="x", linestyle="--", linewidth=1, alpha=0.5)
-
-    # Remove the y-axis title as the axis labels are self-explanatory
     ax.set_ylabel(None)
-
-    ax.bar_label(bars, padding=5, fontsize=16)
-
-    # The tight_layout() command helps, but bbox_inches is the key for saving
+    #ax.bar_label(bars, padding=5, fontsize=16)
+    
+    # Use tight_layout and bbox_inches to ensure everything fits
     plt.tight_layout()
-
-    # --- THE FIX ---
-    # Use bbox_inches='tight' to ensure all labels are included in the saved file.
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     
     plt.close()
-    print(f"📊 Saving corrected failure analysis plot to {output_path}")
+    print(f"📊 Saving final failure analysis plot to {output_path}")
 
 
 async def main():
