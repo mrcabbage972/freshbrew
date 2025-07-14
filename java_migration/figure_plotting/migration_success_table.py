@@ -4,16 +4,20 @@ import yaml
 from java_migration.utils import REPO_ROOT
 
 experiment_paths = [
-    "data/experiments/2025-07-07/20-22-09-quirky-pasteur",
-    "data/experiments/2025-07-08/14-01-20-objective-northcutt",
-    "data/experiments/2025-07-09/02-45-46-intelligent-benz",
-    "data/experiments/2025-07-08/21-40-26-laughing-cerf",
+    # "data/experiments/2025-07-07/20-22-09-quirky-pasteur", # gemini 2.0 flash
+    # "data/experiments/2025-07-08/14-01-20-objective-northcutt", # gemini 2.0 flash
+    # "data/experiments/2025-07-09/02-45-46-intelligent-benz", # gemini-2.5-flash - high temp
+    # "data/experiments/2025-07-08/21-40-26-laughing-cerf", # gemini-2.5-flash - high temp
     "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-21",
     "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-17",
     "data/experiments/2025-07-09/smol-openai-o3-mini-target-jdk-21",
     "data/experiments/2025-07-09/smol-openai-o3-mini-target-jdk-17",
     "data/experiments/2025-07-09/smol-openai-gpt-4o-target-jdk-17",
-    "data/experiments/2025-07-09/smol-openai-gpt-4o-target-jdk-21"
+    "data/experiments/2025-07-09/smol-openai-gpt-4o-target-jdk-21",
+    "data/experiments/deepseek/home/user/java-migration-paper/data/experiments/2025-07-13/14-37-28-crazy-tharp",  # deepseek 17
+    "data/experiments/deepseek/home/user/java-migration-paper/data/experiments/2025-07-13/16-48-59-nifty-bhaskara",  # 21
+    "data/experiments/2025-07-13/12-31-56-exciting-dubinsky",  # gemini 2.5 flash 21
+    "data/experiments/2025-07-13/22-05-18-sleepy-rosalind",  # gemini 2.5 flash 17
 ]
 
 exp_results = []
@@ -76,7 +80,7 @@ latex_string = r"""
 \toprule
 \textbf{Model} & \multicolumn{3}{c}{\textbf{JDK 17 Success Rate}} & \multicolumn{3}{c}{\textbf{JDK 21 Success Rate}} \\
 \cmidrule(lr){2-4} \cmidrule(lr){5-7}
-& \textbf{Compilation} & \textbf{Tests} & \textbf{Cov Guard} & \textbf{Compilation} & \textbf{Tests} & \textbf{Cov Guard}\\
+& \textbf{Compilation} & \textbf{Tests} & \textbf{Overall Success Rate} & \textbf{Compilation} & \textbf{Tests} & \textbf{Overall Success Rate}\\
 \midrule
 """
 
