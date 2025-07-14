@@ -154,44 +154,52 @@ async def get_failure_verdict(semaphore: asyncio.Semaphore, run_path: Path) -> d
             return {"status": "error", "reason": str(e), "path": str(run_path)}
 
 
-def plot_failure_modes(df: pd.DataFrame, output_path: Path):
-    """
-    Generates a horizontal bar chart showing the percentage of each failure category.
-    """
-    if df.empty:
-        print("DataFrame is empty, skipping plot generation.")
-        return
+# def plot_grouped_failure_modes(all_results: dict[str, pd.Series], output_path: Path):
+#     """
+#     Generates a grouped horizontal bar chart, sorted by the dominant failure mode.
+#     """
+#     model_names = list(all_results.keys())
 
-    # --- THE FIX: Calculate percentages using normalize=True ---
-    category_counts = df["category"].value_counts(normalize=True).sort_values(ascending=True)
+#     # Create a DataFrame from the dictionary for easier manipulation
+#     df = pd.DataFrame(all_results).fillna(0)
 
-    # wrapped_labels = [textwrap.fill(label, width=20) for label in category_counts.index]
+#     # --- THE FIX: Sort categories by the max value in any column ---
+#     # Find the maximum percentage for each failure category across all models
+#     df["max_val"] = df.max(axis=1)
+#     # Sort the DataFrame by this new 'max_val' column
+#     df = df.sort_values(by="max_val", ascending=True)
+#     # Drop the helper column
+#     df = df.drop(columns=["max_val"])
 
-    plt.figure(figsize=(10, 8))
-    ax = plt.gca()
+#     sorted_categories = df.index.tolist()
 
-    # bars = ax.barh(wrapped_labels, category_counts.values, color=PURPLE, alpha=0.9)
+#     # --- Plotting logic remains the same, but now uses the sorted data ---
+#     wrapped_labels = [textwrap.fill(label, width=20) for label in sorted_categories]
+#     y = np.arange(len(sorted_categories))
 
-    # --- THE FIX: Update axis label and formatter ---
-    ax.set_xlabel("Percentage of Failures")
-    ax.set_title("Common Failure Modes in Java Migration")
-    ax.xaxis.set_major_formatter(PercentFormatter(1.0))  # Format axis as percentage
+#     num_models = len(model_names)
+#     bar_height = 0.8 / num_models
+#     fig, ax = plt.subplots(figsize=(12, 10))
 
-    ax.grid(True, which="major", axis="x", linestyle="--", linewidth=1, alpha=0.5)
-    ax.set_ylabel("")
+#     for i, model_name in enumerate(model_names):
+#         # Get the sorted percentages for the current model
+#         percentages = df[model_name]
+#         offset = (i - (num_models - 1) / 2) * bar_height
+#         ax.barh(y + offset, percentages, height=bar_height, label=model_name, color=CONFIG["COLORS"][i], alpha=0.9)
 
-    # --- THE FIX: Format bar labels as percentages ---
-    # ax.bar_label(bars, fmt='{:.1%}', padding=5, fontsize=16)
+#     ax.set_xlabel("Percentage of Failures")
+#     ax.set_title("Comparison of Failure Modes Across Models")
+#     ax.set_yticks(y)
+#     ax.set_yticklabels(wrapped_labels)
+#     ax.xaxis.set_major_formatter(PercentFormatter(1.0))
+#     ax.grid(True, which="major", axis="x", linestyle="--", linewidth=1, alpha=0.5)
+#     ax.legend(title="Model")
 
-    # Set x-axis limit to be slightly larger than the max percentage
-    if len(category_counts) > 0:
-        plt.xlim(0, category_counts.max() * 1.15)
+#     plt.tight_layout()
+#     plt.savefig(output_path, dpi=300, bbox_inches="tight")
+#     plt.close()
 
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches="tight")
-    plt.close()
-
-    print(f"📊 Saving percentage-based failure analysis plot to {output_path}")
+#     print(f"📊 Saving sorted failure analysis plot to {output_path}")
 
 
 def plot_grouped_failure_modes(all_results: dict[str, pd.Series], output_path: Path):
