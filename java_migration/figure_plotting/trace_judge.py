@@ -1,7 +1,7 @@
 import asyncio
 import json
 from pathlib import Path
-
+import numpy as np
 import litellm
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator, PercentFormatter
@@ -33,10 +33,14 @@ PURPLE = "#8e44ad"
 # --- 🚨 IMPORTANT: Configuration ---
 CONFIG = {
     # Recommended to use a powerful model for judging
-    "JUDGE_MODEL": "vertex_ai/gemini-2.5-pro",
+    "JUDGE_MODEL": "vertex_ai/gemini-2.5-flash",
+    "MODELS": ["Gemini 2.5 Flash", "GPT 4.1", "DeepSeek-V3"],
     "EXPERIMENT_PATHS": [
+        "data/experiments/2025-07-13/12-31-56-exciting-dubinsky", # gemini 2.5 flash 21
         "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-17",
+        "data/experiments/deepseek/home/user/java-migration-paper/data/experiments/2025-07-13/14-37-28-crazy-tharp", # deepseek 17
     ],
+    "COLORS": ["#8e44ad", "#3498db", "#2ecc71"],
     "MAX_CONCURRENT_REQUESTS": 8,  # Adjust based on your API rate limits
     "OUTPUT_DIR": REPO_ROOT / "java_migration/failure_analysis",
     "STEPS_TO_ANALYZE": 10,
@@ -87,6 +91,9 @@ def get_failed_runs(exp_paths: list[Path]) -> list[Path]:
                 continue
             try:
                 result = yaml.safe_load(result_path.read_text())
+                if result is None:
+                    print(f"Missing result for {result_path}")
+                    continue
                 if not result.get("build_result", {}).get("test_success", True):
                     failed_run_paths.append(run_dir)
             except (yaml.YAMLError, IOError):
@@ -188,65 +195,134 @@ def plot_failure_modes(df: pd.DataFrame, output_path: Path):
     print(f"📊 Saving percentage-based failure analysis plot to {output_path}")
 
 
+def plot_grouped_failure_modes(all_results: dict[str, pd.Series], output_path: Path):
+    """
+    Generates a grouped horizontal bar chart comparing failure modes across experiments.
+    """
+    model_names = list(all_results.keys())
+    
+    # Find all unique categories across all models
+    all_categories = set()
+    for series in all_results.values():
+        all_categories.update(series.index)
+    sorted_categories = sorted(list(all_categories))
+
+    # Wrap labels for readability
+    wrapped_labels = [textwrap.fill(label, width=20) for label in sorted_categories]
+    y = np.arange(len(sorted_categories))
+    
+    # --- Logic for Grouped Bars ---
+    num_models = len(model_names)
+    total_bar_height = 0.8
+    bar_height = total_bar_height / num_models
+
+    fig, ax = plt.subplots(figsize=(12, 10))
+
+    for i, model_name in enumerate(model_names):
+        # Get percentages for this model, filling missing categories with 0
+        percentages = all_results.get(model_name, pd.Series()).reindex(sorted_categories, fill_value=0)
+        
+        # Calculate vertical offset for each model's bar
+        offset = (i - (num_models - 1) / 2) * bar_height
+        
+        ax.barh(y + offset, percentages, height=bar_height, label=model_name, color=CONFIG["COLORS"][i], alpha=0.9)
+
+    ax.set_xlabel("Percentage of Failures")
+    ax.set_title("Comparison of Failure Modes Across Models")
+    
+    # Set y-ticks to be in the center of the groups
+    ax.set_yticks(y)
+    ax.set_yticklabels(wrapped_labels)
+    
+    ax.xaxis.set_major_formatter(PercentFormatter(1.0))
+    ax.grid(True, which="major", axis="x", linestyle="--", linewidth=1, alpha=0.5)
+    ax.legend(title="Model")
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
+
+    print(f"📊 Saving grouped failure analysis plot to {output_path}")
+
+
+
 async def main():
-    """Main async function to orchestrate the analysis."""
+    """Main function with caching logic."""
     print("--- Starting Failure Analysis Workflow ---")
+    litellm.set_verbose = False
+    output_dir = CONFIG["OUTPUT_DIR"]
+    output_dir.mkdir(exist_ok=True)
     
-    # Ensure a non-verbose mode for cleaner output
-    litellm.set_verbose=False
-    
-    CONFIG["OUTPUT_DIR"].mkdir(exist_ok=True)
-    output_csv_path = CONFIG["OUTPUT_DIR"] / "failure_verdicts.csv"
-   
-    if not output_csv_path.exists():
-        print("Running judge")
+    output_csv_path = output_dir / "failure_verdicts_all_models.csv"
 
-        # --- 🚨 Cost Warning ---
-        print("\n⚠️  WARNING: This script will make LLM API calls which may incur costs.")
-        
-        exp_paths = [REPO_ROOT / p for p in CONFIG["EXPERIMENT_PATHS"]]
-        failed_runs = get_failed_runs(exp_paths)
-        
-        if not failed_runs:
-            print("No failed runs found. Exiting.")
-            return
-
-        semaphore = asyncio.Semaphore(CONFIG["MAX_CONCURRENT_REQUESTS"])
-        tasks = [get_failure_verdict(semaphore, run_path) for run_path in failed_runs]
-        if "MAX_EXAMPLES" in CONFIG:
-            tasks = tasks[:CONFIG["MAX_EXAMPLES"]]
-        
-        print(f"\n🤖 Sending {len(tasks)} failed traces to LLM judge ('{CONFIG['JUDGE_MODEL']}')...")
-        results = await tqdm.gather(*tasks)
-
-        # --- Process and save results ---
-        successes = [r for r in results if r["status"] == "success"]
-        errors = [r for r in results if r["status"] == "error"]
-
-        print(f"\n--- Analysis Complete ---")
-        print(f"✅ Successfully analyzed: {len(successes)} traces")
-        print(f"❌ Failed to analyze:    {len(errors)} traces")
-        if errors:
-            print("A summary of errors can be found in the output CSV.")
-
-        if not successes:
-            print("No successful verdicts to analyze. Exiting.")
-            return
-
-        df = pd.DataFrame(successes)
-        
-        # Add errors to the CSV for later inspection
-        if errors:
-            error_df = pd.DataFrame(errors)
-            df = pd.concat([df, error_df], ignore_index=True)
-            
-        df.to_csv(output_csv_path, index=False)
-        print(f"\n💾 Full results saved to: {output_csv_path}")
+    # --- THE FIX: Caching Logic ---
+    if output_csv_path.exists():
+        print(f"✅ Found existing results file. Loading from cache: {output_csv_path}")
+        df_all = pd.read_csv(output_csv_path)
     else:
-        df = pd.read_csv(output_csv_path)
-        print("Reusing results")
+        print(f"📄 No cached results found. Running full analysis...")
+        print("\n⚠️  WARNING: This will make LLM API calls which may incur costs.")
+        
+        all_results_for_csv = []
+        for model_name, exp_path_str in zip(CONFIG["MODELS"], CONFIG["EXPERIMENT_PATHS"]):
+            print(f"\n--- Analyzing Experiment: {model_name} ---")
+            exp_path = REPO_ROOT / exp_path_str
+            failed_runs = get_failed_runs([exp_path])
+            
+            if not failed_runs:
+                print("No failed runs found for this experiment.")
+                continue
 
-    plot_failure_modes(df[df['status'] == 'success'], CONFIG["OUTPUT_DIR"] / "failure_modes.pdf")
+            semaphore = asyncio.Semaphore(CONFIG["MAX_CONCURRENT_REQUESTS"])
+            tasks = [get_failure_verdict(semaphore, run_path) for run_path in failed_runs]
+            # if "MAX_EXAMPLES" in CONFIG:
+            #     tasks = tasks[:CONFIG["MAX_EXAMPLES"]]
+            
+            results = await tqdm.gather(*tasks)
+            
+            for r in results:
+                r['model'] = model_name
+            all_results_for_csv.extend(results)
+
+        if not all_results_for_csv:
+            print("\nNo results were generated. Exiting.")
+            return
+
+        df_all = pd.DataFrame(all_results_for_csv)
+        df_all.to_csv(output_csv_path, index=False)
+        print(f"\n💾 Full analysis complete. Results saved to: {output_csv_path}")
+
+    # --- Plotting (runs every time, using data from cache or fresh run) ---
+    if df_all.empty:
+        print("No data available to plot.")
+        return
+        
+    # Filter for successful verdicts to plot
+    # The .dropna subset ensures we only consider rows where a category was successfully assigned.
+    df_success = df_all.dropna(subset=['category']).copy()
+    df_success = df_success[df_success['status'] == 'success']
+
+    if df_success.empty:
+        print("No successful verdicts found in the data. Cannot create plot.")
+        return
+        
+    # Prepare data for the grouped bar chart
+    all_verdicts_by_model = {}
+    # Use the model order from config for consistency
+    for model_name in CONFIG["MODELS"]:
+        model_df = df_success[df_success['model'] == model_name]
+        if not model_df.empty:
+            all_verdicts_by_model[model_name] = model_df['category'].value_counts(normalize=True)
+            
+    if not all_verdicts_by_model:
+        print("No data to plot after processing. Exiting.")
+        return
+
+    plot_grouped_failure_modes(
+        all_verdicts_by_model,
+        output_dir / "failure_modes_comparison.pdf"
+    )
+
 
 
 if __name__ == "__main__":
