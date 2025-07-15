@@ -1,13 +1,12 @@
 import json
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from pathlib import Path
-from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
-
+from matplotlib.patches import Patch
 
 # --- Configuration ---
 # Assuming a REPO_ROOT for context, adjust if necessary
@@ -82,11 +81,11 @@ def create_density_plot(data_df):
         alpha=0.6,
         linewidth=1.5,
         common_norm=False,  # Each density is normalized independently
-        legend=False # Turn off automatic legend to build it manually
+        legend=False,  # Turn off automatic legend to build it manually
     )
 
     # --- Formatting the plot for the paper ---
-    #ax.set_title("Distribution of Coverage Drop by Migration Type", fontsize=12)
+    # ax.set_title("Distribution of Coverage Drop by Migration Type", fontsize=12)
     ax.set_xlabel("Coverage Drop (%)")
     ax.set_ylabel("Density")
 
@@ -95,18 +94,19 @@ def create_density_plot(data_df):
 
     # FIX: Manually build the complete legend from scratch for full control.
     # Create handles for the density plots using colored patches
-    legend_patches = [Patch(facecolor=palette[label], alpha=0.6, label=label)
-                      for label in plottable_df['llm_classification'].cat.categories]
+    legend_patches = [
+        Patch(facecolor=palette[label], alpha=0.6, label=label)
+        for label in plottable_df["llm_classification"].cat.categories
+    ]
 
     # Create a handle for the threshold line
-    threshold_line = Line2D([0], [0], color='r', linestyle='--', lw=1.2, label='5% Threshold')
+    threshold_line = Line2D([0], [0], color="r", linestyle="--", lw=1.2, label="5% Threshold")
 
     # Combine all handles
     all_handles = legend_patches + [threshold_line]
 
     # Create the final legend
     ax.legend(handles=all_handles, title="Classification")
-
 
     # Set x-axis limits to be reasonable, e.g., 0 to 20 as per your sample
     ax.set_xlim(left=-1, right=15)

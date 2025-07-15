@@ -1,4 +1,3 @@
-
 import json
 
 from java_migration.utils import REPO_ROOT
