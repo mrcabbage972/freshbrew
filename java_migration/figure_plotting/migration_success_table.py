@@ -18,6 +18,8 @@ experiment_paths = [
     "data/experiments/deepseek/home/user/java-migration-paper/data/experiments/2025-07-13/16-48-59-nifty-bhaskara",  # 21
     "data/experiments/2025-07-13/12-31-56-exciting-dubinsky",  # gemini 2.5 flash 21
     "data/experiments/2025-07-13/22-05-18-sleepy-rosalind",  # gemini 2.5 flash 17
+    "data/experiments/2025-07-15/00-27-00-nifty-wozniak", # qwen 21"
+    "data/experiments/2025-07-14/19-32-21-stoic-diffie" # qwen 17
 ]
 
 exp_results = []

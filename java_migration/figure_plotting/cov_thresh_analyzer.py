@@ -16,7 +16,7 @@ INPUT_SAMPLE_FILE = REPO_ROOT / "auditing_sample.json"
 OUTPUT_RESULTS_FILE = REPO_ROOT / "audit_results.json"
 # The model to be used as the judge. See litellm docs for model strings.
 # Recommended: "claude-3-opus-20240229", "gpt-4-turbo", "gemini/gemini-1.5-pro-latest"
-MODEL_NAME = "vertex_ai/gemini-2.5-flash"
+MODEL_NAME = "vertex_ai/gemini-2.5-pro"
 # Max concurrent API calls to avoid rate limiting.
 MAX_CONCURRENT_REQUESTS = 5
 # Max tokens for context-heavy fields to avoid exceeding model limits.
