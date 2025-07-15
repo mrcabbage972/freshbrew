@@ -7,9 +7,9 @@ from java_migration.utils import REPO_ROOT
 
 # --- Configuration ---
 # The total number of samples you want in your final audit.
-TOTAL_SAMPLE_SIZE = 30
+TOTAL_SAMPLE_SIZE = 50
 # The output file where the sampled data will be saved.
-SAMPLE_FILE = "auditing_sample.csv"
+SAMPLE_FILE = "auditing_sample.json"
 # Seed for reproducibility of the random sampling.
 RANDOM_STATE = 42
 
@@ -77,6 +77,7 @@ def process_experiment_data(exp_dirs):
 
             # Get the path to the diff file
             diff_filepath = repo_path / "diff.patch"
+            build_filepath = repo_path / "build.log"
 
             all_records.append(
                 {
@@ -84,7 +85,8 @@ def process_experiment_data(exp_dirs):
                     "model": model_name,
                     "outcome": outcome,
                     "coverage_drop_percent": round(coverage_drop, 2),
-                    "diff_filepath": str(diff_filepath),
+                    "diff_patch": (diff_filepath.read_text()),
+                    "build_log": (build_filepath.read_text()),
                 }
             )
 
@@ -178,7 +180,7 @@ def main():
         print("\nCould not generate a sample from the available data.")
         return
 
-    final_sample.to_csv(SAMPLE_FILE, index=False)
+    final_sample.to_json(SAMPLE_FILE, index=False, orient="records")
     print("\n✅ Sampling complete!")
     print(f"A sample of {len(final_sample)} migration attempts has been saved to '{SAMPLE_FILE}'.")
     print("\nFinal sampled data distribution:")
