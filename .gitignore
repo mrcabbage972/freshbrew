@@ -7,9 +7,10 @@ __pycache__/
 *.so
 
 experiments/
-
+data/OpenAI_Experiment_Results/
 figures/
-
+MavenMigrate/
+MavenMigrate
 # Distribution / packaging
 .Python
 build/
