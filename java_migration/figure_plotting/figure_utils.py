@@ -3,6 +3,12 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import MaxNLocator, MultipleLocator, ScalarFormatter
+import pandas as pd
+import yaml
+
+from java_migration.utils import REPO_ROOT
+
+# --- Matplotlib Global Style ---
 
 plt.rcParams.update(
     {
@@ -220,3 +226,22 @@ def plot_boxplot_grid(
     plt.savefig(output_path, dpi=300, bbox_inches="tight")
     plt.clf()
     plt.close(fig)
+
+
+
+def get_repo_success_df(exp_path: Path) -> pd.DataFrame:
+    exp_results = []
+    full_experiment_path = REPO_ROOT / exp_path
+    exp_info = yaml.safe_load((full_experiment_path / "experiment.yaml").read_text())
+    cov = yaml.safe_load((full_experiment_path / "cov_results.yaml").read_text())
+    
+    for repo_name, result in cov["repo_results"].items():
+        success = result.get("coverage", {}).get("cov_guard_pass", False) is True
+        exp_results.append({"repo_name": repo_name, "success": success})
+    return pd.DataFrame(exp_results).set_index("repo_name")
+
+
+if __name__ == "__main__":
+    exp_path = "data/experiments/2025-07-13/22-05-18-sleepy-rosalind"  # gemini 2.5 flash 17]
+    print(get_repo_success_df(exp_path))
+    pass

@@ -9,6 +9,10 @@ from matplotlib.ticker import PercentFormatter
 from java_migration.eval.smol_log_parser import parse_log
 from java_migration.utils import REPO_ROOT
 from java_migration.figure_plotting.model_name_map import get_model_name
+from java_migration.figure_plotting.figure_utils import get_repo_success_df
+from java_migration.eval.utils import recover_safe_repo_name
+
+
 # --- Configuration ---
 exp_result_paths = [
     "data/experiments/2025-07-13/22-05-18-sleepy-rosalind",  # gemini 2.5 flash 17
@@ -42,21 +46,25 @@ def get_all_run_data(exp_path: Path) -> list[tuple[int, bool]]:
     job_results_path = exp_path / "job_results"
     if not job_results_path.exists():
         return []
+
+    success_dict = get_repo_success_df(exp_path).to_dict("index")
     all_entries = list(job_results_path.iterdir())
     for entry in all_entries:
         if not entry.is_dir():
-            continue
-        result_path = entry / "result.yaml"
+            continue        
         log_path = entry / "stdout.log"
-        if not result_path.exists() or not log_path.exists():
-            continue
-        is_success = yaml.safe_load(result_path.read_text()).get("build_result", {}).get("test_success", False)
+        repo_name = recover_safe_repo_name(entry.name)
+        if repo_name not in success_dict:
+            print(f"warning: {repo_name} missing from success dict in experiment {exp_path}")
+            #continue
+        is_success = success_dict.get(repo_name, {}).get("success", False)
         try:
             log = parse_log(log_path.read_text())
             num_steps = len(log.steps)
             if num_steps > 0:
                 run_data.append((num_steps, is_success))
         except Exception:
+            print("Failed reading data")
             continue
     return run_data
 
