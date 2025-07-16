@@ -3,12 +3,10 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 from matplotlib.ticker import PercentFormatter
 
 from java_migration.eval.smol_log_parser import parse_log
 from java_migration.utils import REPO_ROOT
-from java_migration.figure_plotting.model_name_map import get_model_name
 from java_migration.figure_plotting.figure_utils import get_repo_success_df
 from java_migration.eval.utils import recover_safe_repo_name
 
@@ -18,7 +16,6 @@ exp_result_paths = [
     "data/experiments/2025-07-13/22-05-18-sleepy-rosalind",  # gemini 2.5 flash 17
     "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-17",
     "data/experiments/deepseek/home/user/java-migration-paper/data/experiments/2025-07-13/14-37-28-crazy-tharp",  # deepseek 17
- 
 ]
 models = ["Gemini 2.5 Flash", "GPT-4.1", "DeepSeek-V3"]
 # --- NEW: Color palette for the models ---
@@ -51,12 +48,12 @@ def get_all_run_data(exp_path: Path) -> list[tuple[int, bool]]:
     all_entries = list(job_results_path.iterdir())
     for entry in all_entries:
         if not entry.is_dir():
-            continue        
+            continue
         log_path = entry / "stdout.log"
         repo_name = recover_safe_repo_name(entry.name)
         if repo_name not in success_dict:
             print(f"warning: {repo_name} missing from success dict in experiment {exp_path}")
-            #continue
+            # continue
         is_success = success_dict.get(repo_name, {}).get("success", False)
         try:
             log = parse_log(log_path.read_text())

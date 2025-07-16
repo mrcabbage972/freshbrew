@@ -3,18 +3,22 @@ import yaml
 from java_migration.eval.smol_log_parser import parse_log
 from java_migration.figure_plotting.figure_utils import plot_boxplot_grid
 from java_migration.utils import REPO_ROOT
+from java_migration.figure_plotting.figure_utils import get_repo_success_df
+from java_migration.eval.utils import recover_safe_repo_name
+
 
 exp_result_paths = [
-        "data/experiments/2025-07-13/22-05-18-sleepy-rosalind",  # gemini 2.5 flash 17
-        "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-17",
-        "data/experiments/deepseek/home/user/java-migration-paper/data/experiments/2025-07-13/14-37-28-crazy-tharp",  # deepseek 17
-   
+    "data/experiments/2025-07-13/22-05-18-sleepy-rosalind",  # gemini 2.5 flash 17
+    "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-17",
+    "data/experiments/deepseek/home/user/java-migration-paper/data/experiments/2025-07-13/14-37-28-crazy-tharp",  # deepseek 17
 ]
 
 models = ["Gemini 2.5 Flash", "GPT-4.1", "DeepSeek-V3"]
 
 
 def get_logs(exp_result_path):
+    success_dict = get_repo_success_df(exp_result_path).to_dict(orient="index")
+
     logs = []
     for entry in (exp_result_path / "job_results").iterdir():
         result_path = entry / "result.yaml"
@@ -22,7 +26,9 @@ def get_logs(exp_result_path):
         if result_dict is None:
             print(f"Missing result for {result_path}")
             continue
-        if not result_dict.get("build_result", {}).get("test_success"):
+        repo_name = recover_safe_repo_name(entry.name)
+        success = success_dict.get(repo_name, {}).get("success", False)
+        if not success:
             continue
 
         log_path = entry / "stdout.log"

@@ -1,11 +1,9 @@
-import collections
 from pathlib import Path
 import yaml
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import PercentFormatter
-from java_migration.eval.smol_log_parser import parse_log
 from java_migration.eval.utils import recover_safe_repo_name
 
 
@@ -48,7 +46,7 @@ def load_repo_stats(yaml_path: Path) -> dict[str, dict]:
     if not yaml_path.exists():
         raise FileNotFoundError(f"Repository stats file not found at: {yaml_path}")
     data = yaml.safe_load(yaml_path.read_text())
-    return {repo['repo_name']: repo['repo_features'] for repo in data}
+    return {repo["repo_name"]: repo["repo_features"] for repo in data}
 
 
 def load_success_data(exp_path: Path) -> dict[str, bool]:
@@ -65,16 +63,16 @@ def load_success_data(exp_path: Path) -> dict[str, bool]:
         result_path = entry / "result.yaml"
         if not result_path.exists():
             continue
-        
+
         # The directory name is the repo name, but with '/' replaced by '-'.
         repo_name = recover_safe_repo_name(entry.name)
         result_data = yaml.safe_load(result_path.read_text())
         if not result_data:
-            print(f"result missing")
+            print("result missing")
             continue
         is_success = result_data.get("build_result", {}).get("test_success", False)
         success_map[repo_name] = is_success
-        
+
     return success_map
 
 
@@ -83,7 +81,7 @@ def plot_feature_success_grid(
     feature_cols: list[str],
     subplot_titles: list[str],
     output_path: Path,
-    bins: int = 5, # Use 4 bins for quartiles
+    bins: int = 5,  # Use 4 bins for quartiles
 ):
     """
     Plots a grid showing success rate against binned dataset statistics.
@@ -110,10 +108,10 @@ def plot_feature_success_grid(
 
         try:
             # Create quantile-based bins directly. This returns a Series of Intervals.
-            binned_series = pd.qcut(df[feature], q=bins, duplicates='drop')
+            binned_series = pd.qcut(df[feature], q=bins, duplicates="drop")
 
             # Group the DataFrame by these interval bins and calculate the success rate.
-            binned_success = df.groupby(binned_series)['is_success'].mean()
+            binned_success = df.groupby(binned_series)["is_success"].mean()
 
             # Create clean labels for the x-axis directly from the result's index.
             bin_labels = [f"({int(interval.left)}, {int(interval.right)}]" for interval in binned_success.index]
@@ -123,7 +121,7 @@ def plot_feature_success_grid(
             ax.set_title(subplot_titles[i])
             ax.yaxis.set_major_formatter(PercentFormatter(1.0))
             ax.set_ylim(0, 1.0)
-            ax.tick_params(axis='x', rotation=30)#, ha='right')
+            ax.tick_params(axis="x", rotation=30)  # , ha='right')
             ax.grid(True, which="major", axis="y", linestyle="--", linewidth=1, alpha=0.5)
 
         except Exception as e:
@@ -154,9 +152,9 @@ if __name__ == "__main__":
     for repo_name, features in repo_features.items():
         if repo_name in success_data:
             record = {
-                'repo_name': repo_name,
-                'is_success': success_data[repo_name],
-                **features  # Unpack all features into the record
+                "repo_name": repo_name,
+                "is_success": success_data[repo_name],
+                **features,  # Unpack all features into the record
             }
             merged_data.append(record)
 
@@ -174,7 +172,7 @@ if __name__ == "__main__":
             "number_of_modules",
             "number_of_unit_tests",
         ]
-        
+
         subplot_titles = [
             "vs. External Dependencies",
             "vs. Java Files",
@@ -185,10 +183,10 @@ if __name__ == "__main__":
 
         output_dir = REPO_ROOT / "java_migration/figures"
         output_dir.mkdir(exist_ok=True)
-        
+
         plot_feature_success_grid(
             df=df,
             feature_cols=features_to_plot,
             subplot_titles=subplot_titles,
-            output_path=output_dir / "feature_success_grid.pdf"
+            output_path=output_dir / "feature_success_grid.pdf",
         )

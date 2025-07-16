@@ -228,13 +228,12 @@ def plot_boxplot_grid(
     plt.close(fig)
 
 
-
 def get_repo_success_df(exp_path: Path) -> pd.DataFrame:
     exp_results = []
     full_experiment_path = REPO_ROOT / exp_path
     exp_info = yaml.safe_load((full_experiment_path / "experiment.yaml").read_text())
     cov = yaml.safe_load((full_experiment_path / "cov_results.yaml").read_text())
-    
+
     for repo_name, result in cov["repo_results"].items():
         success = result.get("coverage", {}).get("cov_guard_pass", False) is True
         exp_results.append({"repo_name": repo_name, "success": success})
