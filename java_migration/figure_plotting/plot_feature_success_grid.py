@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import PercentFormatter
 from java_migration.eval.utils import recover_safe_repo_name
+from java_migration.figure_plotting.figure_utils import get_repo_success_df
 
 
 # Assuming figure_utils.py is in a reachable path
@@ -57,6 +58,7 @@ def load_success_data(exp_path: Path) -> dict[str, bool]:
         print(f"Warning: Job results path not found: {job_results_path}")
         return {}
 
+    success_dict = get_repo_success_df(exp_path).to_dict("index")
     for entry in job_results_path.iterdir():
         if not entry.is_dir():
             continue
@@ -66,11 +68,10 @@ def load_success_data(exp_path: Path) -> dict[str, bool]:
 
         # The directory name is the repo name, but with '/' replaced by '-'.
         repo_name = recover_safe_repo_name(entry.name)
-        result_data = yaml.safe_load(result_path.read_text())
-        if not result_data:
-            print("result missing")
-            continue
-        is_success = result_data.get("build_result", {}).get("test_success", False)
+        if repo_name not in success_dict:
+            print(f"warning: {repo_name} missing from success dict in experiment {exp_path}")
+            # continue
+        is_success = success_dict.get(repo_name, {}).get("success", False)
         success_map[repo_name] = is_success
 
     return success_map
