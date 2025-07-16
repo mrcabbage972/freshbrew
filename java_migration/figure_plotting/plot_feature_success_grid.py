@@ -87,7 +87,7 @@ def plot_feature_success_grid(
 ):
     """
     Plots a grid showing success rate against binned dataset statistics.
-    
+
     Args:
         df: DataFrame containing boolean 'is_success' and numerical feature columns.
         feature_cols: List of column names to plot.
@@ -97,48 +97,46 @@ def plot_feature_success_grid(
     """
     if len(feature_cols) > 6:
         raise ValueError("This function supports a maximum of 6 plots.")
-        
+
     figs_y = 3
     figs_x = int(np.ceil(len(feature_cols) / figs_y))
-    figsize = (20, 6 * figs_x)
+    figsize = (22, 6 * figs_x)
 
     fig, axes = plt.subplots(figs_x, figs_y, figsize=figsize, constrained_layout=True)
     axes = axes.flatten()
 
     for i, feature in enumerate(feature_cols):
         ax = axes[i]
-        
-        # Use pandas.qcut to create bins with equal numbers of samples
+
         try:
-            # Create quantile-based bins for the feature
-            df[f'{feature}_bin'] = pd.qcut(df[feature], q=bins, duplicates='drop', labels=False)
-            
-            # Calculate success rate per bin
-            binned_success = df.groupby(f'{feature}_bin')['is_success'].mean()
-            
-            # Create meaningful labels for the x-axis
-            bin_edges = pd.qcut(df[feature], q=bins, duplicates='drop').categories
-            bin_labels = [f"({int(interval.left)}, {int(interval.right)}]" for interval in bin_edges]
+            # Create quantile-based bins directly. This returns a Series of Intervals.
+            binned_series = pd.qcut(df[feature], q=bins, duplicates='drop')
+
+            # Group the DataFrame by these interval bins and calculate the success rate.
+            binned_success = df.groupby(binned_series)['is_success'].mean()
+
+            # Create clean labels for the x-axis directly from the result's index.
+            bin_labels = [f"({int(interval.left)}, {int(interval.right)}]" for interval in binned_success.index]
 
             # Plotting
             ax.bar(bin_labels, binned_success.values, width=0.7, color=PURPLE, alpha=0.9)
             ax.set_title(subplot_titles[i])
             ax.yaxis.set_major_formatter(PercentFormatter(1.0))
-            ax.set_ylim(0, 1.0) # Set y-axis from 0% to 100%
-            ax.tick_params(axis='x', rotation=30, ha='right')
+            ax.set_ylim(0, 1.0)
+            ax.tick_params(axis='x', rotation=30)#, ha='right')
             ax.grid(True, which="major", axis="y", linestyle="--", linewidth=1, alpha=0.5)
 
         except Exception as e:
             print(f"Could not plot for feature '{feature}': {e}")
             ax.set_title(f"{subplot_titles[i]}\n(Not Plotted)")
-            ax.set_visible(False) # Hide axis if plotting fails
+            ax.set_visible(False)
 
     # Hide any unused subplots
     for j in range(i + 1, len(axes)):
         axes[j].set_visible(False)
 
     fig.supylabel("Migration Success Rate", fontsize=28)
-    
+
     plt.savefig(output_path, dpi=300, bbox_inches="tight")
     plt.clf()
     plt.close(fig)

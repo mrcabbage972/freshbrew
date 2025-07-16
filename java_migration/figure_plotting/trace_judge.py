@@ -36,9 +36,9 @@ PURPLE = "#8e44ad"
 CONFIG = {
     # Recommended to use a powerful model for judging
     "JUDGE_MODEL": "vertex_ai/gemini-2.5-flash",
-    "MODELS": ["Gemini 2.5 Flash", "GPT 4.1", "DeepSeek-V3"],
+    "MODELS": ["Gemini 2.5 Flash", "GPT-4.1", "DeepSeek-V3"],
     "EXPERIMENT_PATHS": [
-        "data/experiments/2025-07-13/12-31-56-exciting-dubinsky",  # gemini 2.5 flash 21
+        "data/experiments/2025-07-13/22-05-18-sleepy-rosalind",  # gemini 2.5 flash 17
         "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-17",
         "data/experiments/deepseek/home/user/java-migration-paper/data/experiments/2025-07-13/14-37-28-crazy-tharp",  # deepseek 17
     ],
