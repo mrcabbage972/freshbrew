@@ -5,12 +5,13 @@ from java_migration.figure_plotting.figure_utils import plot_boxplot_grid
 from java_migration.utils import REPO_ROOT
 
 exp_result_paths = [
-    "data/experiments/2025-07-07/18-20-39-stoic-feistel-2",
-    "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-17",
-    "data/experiments/2025-07-09/smol-openai-o3-mini-target-jdk-17",
+        "data/experiments/2025-07-13/22-05-18-sleepy-rosalind",  # gemini 2.5 flash 17
+        "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-17",
+        "data/experiments/deepseek/home/user/java-migration-paper/data/experiments/2025-07-13/14-37-28-crazy-tharp",  # deepseek 17
+   
 ]
 
-models = ["Gemini 2.0 Flash", "GPT 4.1", "O3-mini"]
+models = ["Gemini 2.5 Flash", "GPT-4.1", "DeepSeek-V3"]
 
 
 def get_logs(exp_result_path):
@@ -18,6 +19,9 @@ def get_logs(exp_result_path):
     for entry in (exp_result_path / "job_results").iterdir():
         result_path = entry / "result.yaml"
         result_dict = yaml.safe_load(result_path.read_text())
+        if result_dict is None:
+            print(f"Missing result for {result_path}")
+            continue
         if not result_dict.get("build_result", {}).get("test_success"):
             continue
 
@@ -72,7 +76,7 @@ plot_boxplot_grid(
 plot_boxplot_grid(
     data_list=num_toks,
     subplot_titles=models,
-    figure_ylabel="Tokens",
+    figure_ylabel="Tokens (thousands)",
     output_path=REPO_ROOT / "java_migration/figures" / "token_boxplots.pdf",
     figs_x=1,
     figs_y=3,

@@ -2,6 +2,8 @@ import pandas as pd
 import yaml
 
 from java_migration.utils import REPO_ROOT
+from java_migration.figure_plotting.plot_target_ver_scatter import plot_data
+from java_migration.figure_plotting.model_name_map import get_model_name
 
 experiment_paths = [
     # "data/experiments/2025-07-07/20-22-09-quirky-pasteur", # gemini 2.0 flash
@@ -12,7 +14,8 @@ experiment_paths = [
     "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-17",
     "data/experiments/2025-07-09/smol-openai-o3-mini-target-jdk-21",
     "data/experiments/2025-07-09/smol-openai-o3-mini-target-jdk-17",
-    "data/experiments/2025-07-09/smol-openai-gpt-4o-target-jdk-17",
+    #"data/experiments/2025-07-09/smol-openai-gpt-4o-target-jdk-17",
+    "data/experiments/check_yanqi/smol-openai-gpt-4o-target-jdk-17-Temperature0.2",
     "data/experiments/2025-07-09/smol-openai-gpt-4o-target-jdk-21",
     "data/experiments/deepseek/home/user/java-migration-paper/data/experiments/2025-07-13/14-37-28-crazy-tharp",  # deepseek 17
     "data/experiments/deepseek/home/user/java-migration-paper/data/experiments/2025-07-13/16-48-59-nifty-bhaskara",  # 21
@@ -20,7 +23,11 @@ experiment_paths = [
     "data/experiments/2025-07-13/22-05-18-sleepy-rosalind",  # gemini 2.5 flash 17
     "data/experiments/2025-07-15/00-27-00-nifty-wozniak",  # qwen 21"
     "data/experiments/2025-07-14/19-32-21-stoic-diffie",  # qwen 17
+    "data/experiments/2025-07-15/11-41-38-optimistic-hertz", # arcee 17
+    "data/experiments/2025-07-15/16-38-59-frosty-shaw", # arcee 21
 ]
+
+
 
 exp_results = []
 for experiment_path in experiment_paths:
@@ -68,6 +75,9 @@ pivoted_df = pivoted_df[
     ]
 ]
 
+plot_data(
+    pivoted_df)
+
 
 # --- LaTeX Generation ---
 latex_string = r"""
@@ -89,7 +99,7 @@ latex_string = r"""
 # Dynamically create a row for each model in the DataFrame
 for index, row in pivoted_df.iterrows():
     # Format model name (e.g., 'gemini-2.0-flash' -> 'Gemini 2.0 Flash')
-    model_name = index.replace("-", " ").title()  # type: ignore
+    model_name = get_model_name(index.replace("-", " ").title())  # type: ignore
 
     # Format rates as percentages with one decimal place
     rates_percent = [f"{val * 100:.1f}\\%" for val in row]

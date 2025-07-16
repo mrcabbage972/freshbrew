@@ -8,14 +8,15 @@ from matplotlib.ticker import PercentFormatter
 
 from java_migration.eval.smol_log_parser import parse_log
 from java_migration.utils import REPO_ROOT
-
+from java_migration.figure_plotting.model_name_map import get_model_name
 # --- Configuration ---
 exp_result_paths = [
-    "data/experiments/2025-07-07/18-20-39-stoic-feistel-2",
+    "data/experiments/2025-07-13/22-05-18-sleepy-rosalind",  # gemini 2.5 flash 17
     "data/experiments/2025-07-09/smol-openai-gpt-4.1-target-jdk-17",
-    "data/experiments/2025-07-09/smol-openai-o3-mini-target-jdk-17",
+    "data/experiments/deepseek/home/user/java-migration-paper/data/experiments/2025-07-13/14-37-28-crazy-tharp",  # deepseek 17
+ 
 ]
-models = ["Gemini 2.0 Flash", "GPT 4.1", "O3-mini"]
+models = ["Gemini 2.5 Flash", "GPT-4.1", "DeepSeek-V3"]
 # --- NEW: Color palette for the models ---
 COLORS = ["#8e44ad", "#3498db", "#2ecc71"]  # Purple, Blue, Green
 
@@ -118,8 +119,8 @@ def plot_grouped_success_rate_chart(
         offset = (i - (num_models - 1) / 2) * bar_width
         ax.bar(x + offset, model_rates, width=bar_width, label=model_names[i], color=COLORS[i])
 
-    ax.set_xlabel("Number of Agent Steps (Binned)", fontsize=18)
-    ax.set_ylabel("Smoothed Success Rate", fontsize=18)
+    ax.set_xlabel("Number of Agent Steps", fontsize=18)
+    ax.set_ylabel("Success Rate", fontsize=18)
     ax.set_xticks(x)
     ax.set_xticklabels(bin_labels, rotation=45, ha="right")
     ax.yaxis.set_major_formatter(PercentFormatter(1.0))
