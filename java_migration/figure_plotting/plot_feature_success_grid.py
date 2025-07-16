@@ -83,7 +83,7 @@ def plot_feature_success_grid(
     feature_cols: list[str],
     subplot_titles: list[str],
     output_path: Path,
-    bins: int = 4, # Use 4 bins for quartiles
+    bins: int = 5, # Use 4 bins for quartiles
 ):
     """
     Plots a grid showing success rate against binned dataset statistics.
