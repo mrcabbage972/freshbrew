@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import random
 import matplotlib.cm as cm
 from java_migration.utils import REPO_ROOT
-
+from matplotlib.ticker import PercentFormatter
 from java_migration.figure_plotting.model_name_map import get_model_name
 # --- CONFIGURATION ----------------------------------------------------------
 
@@ -12,7 +12,6 @@ STYLE_WITH_DEBUG = {"color": "#ff7f0e", "label": "With Self-Debug"}  # Orange
 # Define a list of markers for individual models
 # Ensuring enough unique markers for the number of models (e.g., 25)
 MARKERS = [
-    ".",
     ",",
     "o",
     "v",
@@ -77,8 +76,8 @@ def plot_data(pivoted_df):
     ax.plot(limits, limits, "--", alpha=0.7)
 
     # Set labels and title (Corrected axis labels for clarity)
-    ax.set_xlabel("Success Rate on Java 17 (%)", fontsize=15)
-    ax.set_ylabel("Success Rate on Java 21 (%)", fontsize=15)
+    ax.set_xlabel("Success Rate on Java 17", fontsize=15)
+    ax.set_ylabel("Success Rate on Java 21", fontsize=15)
     # ax.set_title("Success Rate Gap by Self-Debug Capability", fontsize=25, fontweight='bold')
 
     # Set axis limits to be equal and cover the rate range
@@ -106,9 +105,17 @@ def plot_data(pivoted_df):
     ax.tick_params(axis="x", labelsize=20, direction="out")
     ax.tick_params(axis="y", labelsize=20, direction="out")
 
+    plt.xlim(0, 60)
+    plt.ylim(0, 60)
+
+    ax.yaxis.set_major_formatter(PercentFormatter(xmax=100))
+    ax.xaxis.set_major_formatter(PercentFormatter(xmax=100))
+
+
     fig.subplots_adjust(
         right=0.70 if n_models_to_plot <= 10 else 0.60
     )  # Reduce right boundary to make space for legends
 
-    plt.savefig(REPO_ROOT / "java_migration/figures" / "target_ver_scatter.pdf", dpi=300, bbox_inches="tight")
-    plt.show()
+    plt.savefig(REPO_ROOT / "java_migration" / "figures" / "target_ver_scatter.pdf", dpi=300, bbox_inches="tight")
+    pass
+    #plt.show()
