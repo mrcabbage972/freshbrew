@@ -110,7 +110,7 @@ def create_density_plot(data_df):
 
     # Set x-axis limits to be reasonable, e.g., 0 to 20 as per your sample
     ax.set_xlim(left=-1, right=15)
-    ax.set_xticks(np.arange(0, 15, 2.5))
+    ax.set_xticks(np.arange(-1, 15, 2.5))
 
     # Remove top and right spines for a cleaner look
     sns.despine()

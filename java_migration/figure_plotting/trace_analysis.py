@@ -79,11 +79,37 @@ plot_boxplot_grid(
     figsize=(8, 6),
 )
 
+num_toks[2] = [x for x in num_toks[2] if x < 1500]
+
 plot_boxplot_grid(
     data_list=num_toks,
     subplot_titles=models,
     figure_ylabel="Tokens (thousands)",
     output_path=REPO_ROOT / "java_migration/figures" / "token_boxplots.pdf",
+    figs_x=1,
+    figs_y=3,
+    figsize=(8, 6),
+)
+
+
+cost_map = {"Gemini 2.5 Flash": 0.3,
+            "DeepSeek": 1.25,
+            "GPT-4.1": 2}
+
+costs = [[x * 0.3 / 1000 for x in num_toks[0]],
+        [x * 2  / 1000 for x in num_toks[1]],
+        [x * 2  / 1000 for x in num_toks[2]]]
+
+
+# costs = [[x for x in costs[0] if x < 3],
+# [x for x in costs[1] if x < 3],
+# [x for x in costs[2] if x < 3]]
+
+plot_boxplot_grid(
+    data_list=costs,
+    subplot_titles=models,
+    figure_ylabel="Cost ($)",
+    output_path=REPO_ROOT / "java_migration/figures" / "costs_boxplots.pdf",
     figs_x=1,
     figs_y=3,
     figsize=(8, 6),

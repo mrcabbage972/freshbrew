@@ -119,6 +119,13 @@ def plot_grouped_feature_success_grid(
             ax.set_ylim(0, 1.0)
             ax.grid(True, which="major", axis="y", linestyle="--", linewidth=1, alpha=0.5)
 
+            if i == 0:
+                ax.set_ylabel("Success Rate")
+            if i == 1:
+                ax.set_xlabel("Binned Values")
+
+            
+
         except Exception as e:
             print(f"Could not plot for feature '{feature}': {e}")
             ax.set_title(f"{subplot_titles[i]}\n(Not Plotted)")
@@ -130,6 +137,8 @@ def plot_grouped_feature_success_grid(
     # --- LEGEND AND LAYOUT CHANGES ---
     # 1. Get handles and labels from one of the subplots
     handles, labels = axes[0].get_legend_handles_labels()
+
+    
     
     # 2. Place legend to the right of the figure, vertically centered, in a single column
     wrapped_labels = [label.replace(" 2.5 Flash", "\n2.5 Flash") for label in labels]
