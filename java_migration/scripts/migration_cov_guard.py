@@ -321,6 +321,10 @@ def main(
 
     workspace_dir.mkdir(parents=True, exist_ok=True)
 
+    result_repo_names = [
+        recover_safe_repo_name(x.name) for x in (experiment_path / "job_results").iterdir() if x.is_dir()
+    ]
+
     dataset = MigrationDatasetItem.from_yaml(dataset_path)
 
     job_cfgs = [
@@ -332,6 +336,7 @@ def main(
             target_java_version=target_java_version,
         )
         for item in dataset
+        if item.repo_name in result_repo_names
     ]
 
     results = _run_jobs(job_cfgs, pre_cov, concurrency=concurrency, timeout_seconds=120)

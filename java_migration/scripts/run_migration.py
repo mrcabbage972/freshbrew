@@ -49,7 +49,7 @@ def main(
             "-n",
             help="Use this to run a specified number of examples.",
         ),
-    ] = False,
+    ] = -1,
     retries: Annotated[int, typer.Option("--retries", "-r", help="Number of retries for API calls.")] = 5,
     concurrency: Annotated[int, typer.Option("--concurrency", "-c", help="Number of parallel workers to run.")] = 1,
 ):
