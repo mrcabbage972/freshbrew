@@ -107,6 +107,7 @@ class EvalRunner:
         else:
             experiment_dir = experiment_root_dir / experiment_name
         logger.info(f"Experiment dir: {experiment_dir}")
+        print(f"Experiment output dir: {experiment_dir}")
         job_cfgs = self._get_job_configs(agent_config, experiment_dir, dataset)
 
         if max_examples > 0:
