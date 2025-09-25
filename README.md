@@ -97,8 +97,7 @@ python java_migration/scripts/run_migration.py [OPTIONS]
 
 --dataset, -d PATH
 
-    Path to the evaluation dataset YAML file.
-[default: ./data/migration_datasets/full_dataset.yaml]
+    Path to the evaluation dataset YAML file. [default: ./data/migration_datasets/full_dataset.yaml]
 
 --agent-config, -a PATH
 
