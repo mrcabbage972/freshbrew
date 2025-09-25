@@ -8,6 +8,7 @@ from smolagents import CodeAgent
 from smolagents.models import LiteLLMModel
 
 from java_migration.dummy_agent import DummyAgent
+from java_migration.eval.agent import Agent, SmolCodeAgentWrapper
 from java_migration.eval.data_model import JobCfg, JobResult, MigrationResult
 from java_migration.eval.maven_build_verifier import MavenBuildVerifier
 from java_migration.eval.utils import create_git_patch
@@ -72,14 +73,14 @@ class Worker:
             if repo_workspace:
                 repo_workspace.clean()
 
-    def _get_agent(self, job: JobCfg):
+    def _get_agent(self, job: JobCfg) -> Agent:
         if job.agent_config.agent_type == "smol":
             tools = get_tools(job.agent_config.tools, job.workspace_dir)
             api_key = None
             if job.agent_config.model_name.startswith("openai"):
                 api_key = os.getenv("OPENAI_API_KEY")
             model = LiteLLMModel(model_id=job.agent_config.model_name, api_key=api_key, temperature=0.2)
-            agent = CodeAgent(tools=tools, model=model, max_steps=job.agent_config.max_num_steps)
+            agent = SmolCodeAgentWrapper(CodeAgent(tools=tools, model=model, max_steps=job.agent_config.max_num_steps))
         elif job.agent_config.agent_type == "dummy":
             agent = DummyAgent()
         else:
