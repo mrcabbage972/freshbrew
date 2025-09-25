@@ -56,6 +56,7 @@ In order to run migration to a specified Java version, follow the steps below.
 `update-java-alternatives --list`
 1. Set the desired Java version as default (requires root permissions):
 `sudo update-java-alternatives --set /path/to/java/version`
+1. Set the target Java version in the environment variable `TARGET_JAVA_VERSION`.
 
 ## Running the Eval Script
 The eval script is at `java_migration/scripts/run_eval.py`. Currently the input dataset path is hardcoded.
