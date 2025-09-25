@@ -42,6 +42,14 @@ def main(
             help="Path to the agent configuration YAML file. If not provided, a default is used based on the JDK version.",
         ),
     ] = None,
+    run_single: Annotated[
+        bool,
+        typer.Option(
+            "--run_sungle",
+            "-r",
+            help="Use this to run migration on a single dataset example.",
+        ),
+    ] = False,
     retries: Annotated[int, typer.Option("--retries", "-r", help="Number of retries for API calls.")] = 5,
     concurrency: Annotated[int, typer.Option("--retries", "-r", help="Number of parallel workers to run.")] = 1,
 ):
