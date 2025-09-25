@@ -1,47 +1,67 @@
 # ☕ FreshBrew: A Benchmark for Evaluating AI Agents on Java Code Migration
+## Introduction
+This project evaluates an AI agent's ability to perform Java JDK migrations. The process involves two main stages:
 
+**Running the Migration**: The primary script (run_migration.py) iterates through a dataset of Java repositories, allowing an AI agent to attempt a migration for each one. The results, including logs and code patches, are saved for each repository.
 
-## Development Environment Setup
-## Install Prerequisites
-Poetry: `curl -sSL https://install.python-poetry.org | python3 -`.
-Update apt-get: `sudo apt-get update`
+**Evaluating Test Coverage**: A secondary script (migration_cov_guard.py) analyzes the patches generated in the first stage, applies them to the original code, and measures the impact on test coverage to ensure the migration didn't break existing tests.
 
-Install JDK's
+## ⚙️ Prerequisites
+Before running the evaluation, you'll need to set up your environment with the necessary system and Python dependencies.
+
+Minimum Requirements:
+1. The operating system is expected to be Linux or MacOS.
+1. Python 3.12+ has to be installed.
+1. The Git command-line tool is required for cloning the Java repositories for evaluation.
+
+## Environment Setup
+**Install Poetry**: 
+
 ```
-sudo apt-get install temurin-8-jdk
-sudo apt-get install temurin-17-jdk
-sudo apt-get install temurin-21-jdk
+curl -sSL https://install.python-poetry.org | python3 -
 ```
 
-Install Maven:
+**Install JDK's:**
 ```
 sudo apt-get update
+sudo apt-get install temurin-8-jdk temurin-17-jdk temurin-21-jdk
+```
+
+**Install Maven:**
+```
 sudo apt-get install maven
 ```
-## Environment Setup
+
+**Setup the Python Project:**
+
 Run `poetry install` to setup the local development environment.
 
-To be able to smoothly clone any of the dataset repos from Github programatically, register your local SSH Key on Github. First, create key with ssh-keygen. Then follow [this](
+**Setup GitHub Access:**
+
+Register your local SSH Key on Github. First, create key with ssh-keygen. Then follow [this](
 https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) guide to register it on your Github account.
 
 Set up model credentials as follows.
 
-### Gemini - AI Studio
+**Gemini - AI Studio**
+
 Get Gemini API Key (Or any other model...) and put it in a `.env` file at the repo root. The key name for Gemini is GEMINI_API_KEY.
 
-### Gemini - Vertex
+**Gemini - Vertex**
+
 Set the following environment variables in your `.env` file:
 ```
 DEFAULT_VERTEXAI_PROJECT=
 DEFAULT_VERTEXAI_LOCATION=
 DEFAULT_GOOGLE_APPLICATION_CREDENTIALS={path to service acount key file}
 ```
-### OpenAI
+**OpenAI**
+
 Set the following environment variables in your `.env` file:
 ```
 OPENAI_API_KEY=
 ```
-Change the model_name to be openai model in the smol_default_{java_version}.yaml file
+Change the model_name to be an OpenAI model in the `smol_default_{java_version}.yaml` file
 
 ### Target Java Version (Required)
 Need to add the target Java version, such as 17 or 21 in your `.env` file: 
