@@ -1,8 +1,9 @@
 import os
+from pathlib import Path
+
 import litellm
 import typer
 from dotenv import load_dotenv
-from pathlib import Path
 from typing_extensions import Annotated
 
 from java_migration.eval.env_checker import EnvironmentValidator
@@ -34,7 +35,7 @@ def main(
         ),
     ] = REPO_ROOT / "data" / "migration_datasets" / "full_dataset.yaml",
     agent_cfg_path: Annotated[
-        Path,
+        Path | None,
         typer.Option(
             "--agent-config",
             "-a",
