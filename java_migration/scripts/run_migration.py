@@ -75,7 +75,8 @@ def main(
     print(f"🤖 Using agent config: {agent_cfg_path}")
 
     # Run the evaluation
-    EvalRunner(concurrency=concurrency).run(dataset_path, agent_cfg_path)
+    max_examples = 1 if run_single else -1
+    EvalRunner(concurrency=concurrency).run(dataset_path, agent_cfg_path, max_examples=max_examples)
     print("🎉 Evaluation run complete.")
 
 

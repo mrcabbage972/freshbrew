@@ -97,6 +97,7 @@ class EvalRunner:
         agent_config_path: Path,
         experiment_root_dir: Path = REPO_ROOT / "data/experiments",
         experiment_name: str | None = None,
+        max_examples: int = -1,
     ):
         dataset = self._load_dataset(dataset_path)
         agent_config = self._load_agent_config(agent_config_path)
@@ -107,6 +108,9 @@ class EvalRunner:
             experiment_dir = experiment_root_dir / experiment_name
         logger.info(f"Experiment dir: {experiment_dir}")
         job_cfgs = self._get_job_configs(agent_config, experiment_dir, dataset)
+
+        if max_examples > 0:
+            job_cfgs = job_cfgs[:max_examples]
 
         logger.info("Submitting jobs")
         job_results = self._run_jobs(job_cfgs, experiment_dir / "job_results")
