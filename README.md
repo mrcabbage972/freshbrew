@@ -2,7 +2,7 @@
 
 
 ## Development Environment Setup
-### Install Prerequisites
+## Install Prerequisites
 Poetry: `curl -sSL https://install.python-poetry.org | python3 -`.
 Update apt-get: `sudo apt-get update`
 
@@ -18,7 +18,7 @@ Install Maven:
 sudo apt-get update
 sudo apt-get install maven
 ```
-
+## Environment Setup
 Run `poetry install` to setup the local development environment.
 
 To be able to smoothly clone any of the dataset repos from Github programatically, register your local SSH Key on Github. First, create key with ssh-keygen. Then follow [this](
@@ -44,7 +44,7 @@ OPENAI_API_KEY=
 Change the model_name to be openai model in the smol_default_{java_version}.yaml file
 
 ### Target Java Version (Required)
-Need to add the target java version, such as 17 or 21 in your `.env` file: 
+Need to add the target Java version, such as 17 or 21 in your `.env` file: 
 ```
 TARGET_JAVA_VERSION=
 ```

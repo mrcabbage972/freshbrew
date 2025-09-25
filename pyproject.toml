@@ -26,6 +26,7 @@ nbqa = {extras = ["toolchain"], version = "^1.9.1"}
 google-cloud-aiplatform = "^1.84.0"
 xmltodict = "^0.14.2"
 lxml = "^5.3.2"
+typer = "^0.19.2"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.5"
