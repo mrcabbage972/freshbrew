@@ -1,22 +1,5 @@
-# java-migration-paper
+# FreshBrew
 
-## Datasets
-### Construction Process
-- Get top 10k repos from Github with the script `java_migration/- scripts/get_repos_from_github.py`
-- Build them with Maven on JDK8. 
-- Filter succesful.
-- Build these with JDK17. 
-- Filter on either compilation or tests failing.
-- Deduplicate
-- Add JDK8 test counts
-- Calculate repo features
-## Processed Datasets
-- `data/migration_datasets/full_dataset.yaml`: 450-ish samples
-- `data/migration_datasets/mini_dataset.yaml`: 15 samples
-- `data/migration_datasets/tiny_dataset.yaml`: 3 samples
-### Raw Data
-- The raw 10k dataset: `data/10k_repo_features.csv`
-- The filtered dataset: `data/10k_filtered.yaml`
 
 ## Development Environment Setup
 ### Install Prerequisites
@@ -36,17 +19,9 @@ sudo apt-get update
 sudo apt-get install maven
 ```
 
-Install Randoop
-```
-wget https://github.com/randoop/randoop/releases/download/v4.3.3/randoop-4.3.3.zip
-unzip randoop-4.3.3.zip 
-Set ${RANDOOP_PATH} and ${RANDOOP_JAR} in your shell.
-```
-
-## Environment Setup
 Run `poetry install` to setup the local development environment.
 
-Register your local SSH Key on Github. First, create key with ssh-keygen. Then follow [this](
+To be able to smoothly clone any of the dataset repos from Github programatically, register your local SSH Key on Github. First, create key with ssh-keygen. Then follow [this](
 https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) guide to register it on your Github account.
 
 Set up model credentials as follows.
@@ -74,6 +49,14 @@ Need to add the target java version, such as 17 or 21 in your `.env` file:
 TARGET_JAVA_VERSION=
 ```
 
+## Setting The Target Java Version
+In order to run migration to a specified Java version, follow the steps below.
+
+1. List all java versions:
+`update-java-alternatives --list`
+1. Set the desired Java version as default (requires root permissions):
+`sudo update-java-alternatives --set /path/to/java/version`
+
 ## Running the Eval Script
 The eval script is at `java_migration/scripts/run_eval.py`. Currently the input dataset path is hardcoded.
 The script prints the path where the results are written.
@@ -82,17 +65,6 @@ The results dir contains:
 - `job_results`: a folder for each repo in the dataset with run details.
 
 
-## Setting Java version
-List all java versions:
+# Test Coverage Checking
 
-`update-java-alternatives --list`
-Set java version as default (needs root permissions):
-
-`sudo update-java-alternatives --set /path/to/java/version`
-
-# Execution
-
-Test coverage checking: `get_dataset_cov.py`.
-
-Test coverage expansion with Randoop: `test_cov_expander.py'.
-
+To check the coverage, run the following script: `get_dataset_cov.py`.
