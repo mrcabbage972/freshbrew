@@ -33,7 +33,7 @@ def main(
             "-d",
             help="Path to the evaluation dataset YAML file.",
         ),
-    ] = REPO_ROOT / "data" / "migration_datasets" / "full_dataset.yaml",
+    ] = REPO_ROOT / "data" / "migration_datasets" / "tiny_dataset.yaml",
     agent_cfg_path: Annotated[
         Path | None,
         typer.Option(

@@ -21,15 +21,10 @@ Minimum Requirements:
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
-**Install JDK's:**
+**Install JDK's and Maven:**
 ```
 sudo apt-get update
-sudo apt-get install temurin-8-jdk temurin-17-jdk temurin-21-jdk
-```
-
-**Install Maven:**
-```
-sudo apt-get install maven
+sudo apt-get install temurin-8-jdk temurin-17-jdk temurin-21-jdk maven
 ```
 
 **Setup the Python Project:**
@@ -151,3 +146,6 @@ python java_migration/eval/migration_cov_guard <EXPERIMENT_PATH> <COV_DATA_PATH>
  * --cleanup / --no-cleanup      
  
         Enable or disable cleanup of the workspace after jobs complete. [default: cleanup]
+
+# Dataset
+The full FreshBrew dataset is located in `data/migration_datasets/full_dataset.yaml`. This folder also includes a few subsampled versions of the dataset for development and debugging.
