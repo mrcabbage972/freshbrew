@@ -106,6 +106,10 @@ python java_migration/scripts/run_migration.py [OPTIONS]
 
     Number of parallel workers to run. [default: 1]
 
+--num-examples INTEGER
+
+    Number of examples to execute on. [default: -1 (all)]
+
 # 🔍 Test Coverage Guard
 The script `migration_cov_guard.py` is a command-line tool designed to evaluate the results of Java migration experiments by measuring the impact of generated patches on test coverage. It acts as a "coverage guard," ensuring that code modifications do not significantly degrade the existing test coverage.
 
@@ -147,5 +151,28 @@ python java_migration/eval/migration_cov_guard <EXPERIMENT_PATH> <COV_DATA_PATH>
  
         Enable or disable cleanup of the workspace after jobs complete. [default: cleanup]
 
+# End-to-End Run Example
+This section shows how to run a quick example where we migrate a small set of Java repos and then estimate the change in their test coverage.
+
+**To run the migration**:
+```
+python java_migration/scripts/run_migration.py --jdk 17 --concurrency 5 --num-examples 5
+```
+
+The script will print the output path, which is generated automatically with the following format:
+```
+data/experiments/YYYY-MM-DD/HH-MM-SS-[RANDOMLY-GENERATED-NAME]
+```
+Where YYYY-MM-DD is the current date and HH-MM-SS is the current time.
+
+**To run the coverage change estimation**:
+```
+python java_migration/scripts/migration_cov_guard.py  [ABSOLUTE-EXPERIMENT-OUTPUT-PATH]
+```
+All results will be persisted to the experiment output path.
+
 # Dataset
 The full FreshBrew dataset is located in `data/migration_datasets/full_dataset.yaml`. This folder also includes a few subsampled versions of the dataset for development and debugging.
+
+# Extending to Other Agents
+To extend to a new agent, the developer would have to implement the simple `Agent` interface defined in `java_migration/eval/agent.py` and add it to the `_get_agent` method in `java_migration/eval/worker.py`.
