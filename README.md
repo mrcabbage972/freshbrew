@@ -58,13 +58,50 @@ In order to run migration to a specified Java version, follow the steps below.
 `sudo update-java-alternatives --set /path/to/java/version`
 1. Set the target Java version in the environment variable `TARGET_JAVA_VERSION`.
 
-## Running Java Migration
+# Running Java Migration
 The migration script is at `java_migration/scripts/run_migration.py`. 
 The results dir contains:
 - `metrics.yaml`: the aggregate metrics.
 - `job_results`: a folder for each repo in the dataset with run details.
 
 
-# Test Coverage Checking
+# Test Coverage Guard
+The script `migration_cov_guard.py` is a command-line tool designed to evaluate the results of Java migration experiments by measuring the impact of generated patches on test coverage. It acts as a "coverage guard," ensuring that code modifications do not significantly degrade the existing test coverage.
 
-To check the coverage, run the following script: `get_dataset_cov.py`.
+The script outputs a `cov_results.yaml` file in the experiment directory, summarizing the overall pass rate, the number of job failures, and detailed coverage results for each repository.
+
+To run the evaluator, use the following command structure:
+
+```bash
+python java_migration/eval/migration_cov_guard <EXPERIMENT_PATH> <COV_DATA_PATH> [OPTIONS]
+```
+
+**Arguments**:
+
+*  EXPERIMENT_PATH       (Required) 
+    
+        The root directory for the experiment results and summaries.
+*  COV_DATA_PATH       (Required) 
+        
+        Path to the input coverage data CSV file.
+*  WORKSPACE_DIR       
+        
+        Path to the directory for temporary job workspaces.  
+
+**Options**:
+*  --dataset, -d TEXT            
+
+        Path to the migration dataset YAML file.
+                                 
+ * --jdk, -j TEXT                
+ 
+        The target Java version for the migration jobs. [default: 17]
+  --concurrency, -c INTEGER     
+  
+        Number of concurrent jobs to run. [default: 1]
+ * --timeout, -t INTEGER         
+ 
+        Timeout in seconds for each individual job. [default: 120]
+ * --cleanup / --no-cleanup      
+ 
+        Enable or disable cleanup of the workspace after jobs complete. [default: cleanup]
