@@ -171,6 +171,9 @@ python java_migration/scripts/migration_cov_guard.py  [ABSOLUTE-EXPERIMENT-OUTPU
 ```
 All results will be persisted to the experiment output path.
 
+# Choosing a model to run with
+The default model is `gemini-2.5-flash`, as defined in the configuration file `java_migration/config/smol_default_[TARGET-JAVA-VERSION].yaml`. To change the model, either edit this file or create a new one and pass it to `run_migration.py` via the `agent-config` argument.
+
 # Dataset
 The full FreshBrew dataset is located in `data/migration_datasets/full_dataset.yaml`. This folder also includes a few subsampled versions of the dataset for development and debugging.
 
