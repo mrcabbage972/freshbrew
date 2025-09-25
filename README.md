@@ -78,7 +78,7 @@ In order to run migration to a specified Java version, follow the steps below.
 `sudo update-java-alternatives --set /path/to/java/version`
 1. Set the target Java version in the environment variable `TARGET_JAVA_VERSION`.
 
-# Running Java Migration
+# 🚀 Running Java Migration
 The script `run_migration.py` is the main entry point for the Java migration evaluation framework. It orchestrates the entire evaluation process by validating the local environment, configuring an LLM agent, and running the migration tasks on a specified dataset of Java repositories.
 
 For each repository, the script creates a dedicated output directory containing the generated patch file (`diff.patch`), a build log (`build.log`), the agent trajectory log (`stdout.log`) and a `result.yaml` summarizing the outcome. The main result folder also contains a `metrics.yaml` file with the aggregate success metrics.
@@ -111,7 +111,7 @@ python java_migration/scripts/run_migration.py [OPTIONS]
 
     Number of parallel workers to run. [default: 1]
 
-# Test Coverage Guard
+# 🔍 Test Coverage Guard
 The script `migration_cov_guard.py` is a command-line tool designed to evaluate the results of Java migration experiments by measuring the impact of generated patches on test coverage. It acts as a "coverage guard," ensuring that code modifications do not significantly degrade the existing test coverage.
 
 The script outputs a `cov_results.yaml` file in the experiment directory, summarizing the overall pass rate, the number of job failures, and detailed coverage results for each repository.
