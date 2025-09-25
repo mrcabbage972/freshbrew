@@ -6,9 +6,10 @@ import multiprocessing.context
 import subprocess
 from enum import Enum
 from pathlib import Path
-from typing import Union
+from typing import Annotated, Union
 
 import pandas as pd
+import typer
 import yaml
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -185,7 +186,7 @@ class Worker:
                 apply_patch_to_repo(workspace.workspace_dir, patch_path)
             except PatchApplyError as e:
                 return JobResult(status=JobStatus.FAIL, error=f"Failed applying patch: {str(e)}")
-     
+
             test_cov = get_test_cov(
                 str(workspace.workspace_dir), use_wrapper=False, target_java_version=job.target_java_version
             )
@@ -195,7 +196,7 @@ class Worker:
             cur_pre_cov = self.pre_cov[job.dataset_item.repo_name]
 
             cov_percent_change = test_cov.LINE.percent / cur_pre_cov - 1
-            
+
             cov_result = CovResult(
                 cov_before=cur_pre_cov,
                 cov_after=test_cov.LINE.percent,
@@ -255,10 +256,64 @@ def _run_jobs(
     return job_results
 
 
-def main():
+app = typer.Typer()
+
+
+@app.command()
+def main(
+    experiment_path: Annotated[
+        Path,
+        typer.Argument(help="The root directory for the experiment results and summaries."),
+    ],
+    cov_data_path: Annotated[
+        Path,
+        typer.Argument(help="Path to the input coverage data CSV file."),
+    ],
+    workspace_dir: Annotated[
+        Path,
+        typer.Argument(help="Path to the directory for temporary job workspaces."),
+    ] = REPO_ROOT / "data" / "workspace",
+    dataset_path: Annotated[
+        Path,
+        typer.Option(
+            "--dataset",
+            "-d",
+            help="Path to the migration dataset YAML file.",
+        ),
+    ] = REPO_ROOT / "data/migration_datasets/full_dataset.yaml",
+    target_java_version: Annotated[
+        str,
+        typer.Option(
+            "--jdk",
+            "-j",
+            help="The target Java version for the migration jobs.",
+        ),
+    ] = "17",
+    concurrency: Annotated[
+        int,
+        typer.Option(
+            "--concurrency",
+            "-c",
+            help="Number of concurrent jobs to run.",
+        ),
+    ] = 1,
+    timeout_seconds: Annotated[
+        int,
+        typer.Option(
+            "--timeout",
+            "-t",
+            help="Timeout in seconds for each individual job.",
+        ),
+    ] = 120,
+    cleanup_workspace: Annotated[
+        bool,
+        typer.Option(
+            "--cleanup/--no-cleanup",
+            help="Enable or disable cleanup of the workspace after jobs complete.",
+        ),
+    ] = True,
+):
     load_dotenv()
-    experiment_path = REPO_ROOT / "data" / "experiments/2025-07-03/13-42-13-interesting-lederberg"
-    target_java_version = "17"
 
     df_cov = pd.read_csv(cov_data_path)
     df_cov["repo"] = df_cov.repo.apply(recover_safe_repo_name)
@@ -266,7 +321,7 @@ def main():
 
     workspace_dir.mkdir(parents=True, exist_ok=True)
 
-    dataset = MigrationDatasetItem.from_yaml(REPO_ROOT / "data/migration_datasets/full_dataset.yaml")
+    dataset = MigrationDatasetItem.from_yaml(dataset_path)
 
     job_cfgs = [
         JobCfg(
