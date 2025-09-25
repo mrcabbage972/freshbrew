@@ -268,7 +268,7 @@ def main(
     cov_data_path: Annotated[
         Path,
         typer.Argument(help="Path to the input coverage data CSV file."),
-    ],
+    ] = REPO_ROOT / "data/migration_datasets/cov_data.csv",
     workspace_dir: Annotated[
         Path,
         typer.Argument(help="Path to the directory for temporary job workspaces."),
@@ -334,7 +334,7 @@ def main(
         for item in dataset
     ]
 
-    results = _run_jobs(job_cfgs, pre_cov, concurrency=16, timeout_seconds=60)
+    results = _run_jobs(job_cfgs, pre_cov, concurrency=concurrency, timeout_seconds=120)
 
     summary = {"repo_results": {}}
     passed = 0
@@ -350,7 +350,7 @@ def main(
             if result.cov_result.cov_guard_pass:
                 passed += 1
             total += 1
-    summary["cov_guard_pass_rate"] = 1.0 * passed / total
+    summary["cov_guard_pass_rate"] = 1.0 * passed / total if total > 0 else 0
     summary["job_fails"] = job_fails
 
     summary_path = experiment_path / "cov_results.yaml"
@@ -359,4 +359,4 @@ def main(
 
 
 if __name__ == "__main__":
-    main()
+    app()
