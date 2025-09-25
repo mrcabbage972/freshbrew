@@ -33,7 +33,7 @@ def main(
             "-d",
             help="Path to the evaluation dataset YAML file.",
         ),
-    ] = REPO_ROOT / "data" / "migration_datasets" / "tiny_dataset.yaml",
+    ] = REPO_ROOT / "data" / "migration_datasets" / "full_dataset.yaml",
     agent_cfg_path: Annotated[
         Path | None,
         typer.Option(
@@ -42,12 +42,12 @@ def main(
             help="Path to the agent configuration YAML file. If not provided, a default is used based on the JDK version.",
         ),
     ] = None,
-    run_single: Annotated[
-        bool,
+    num_examples: Annotated[
+        int,
         typer.Option(
-            "--run_sungle",
-            "-r",
-            help="Use this to run migration on a single dataset example.",
+            "--num-examples",
+            "-n",
+            help="Use this to run a specified number of examples.",
         ),
     ] = False,
     retries: Annotated[int, typer.Option("--retries", "-r", help="Number of retries for API calls.")] = 5,
@@ -75,8 +75,7 @@ def main(
     print(f"🤖 Using agent config: {agent_cfg_path}")
 
     # Run the evaluation
-    max_examples = 1 if run_single else -1
-    EvalRunner(concurrency=concurrency).run(dataset_path, agent_cfg_path, max_examples=max_examples)
+    EvalRunner(concurrency=concurrency).run(dataset_path, agent_cfg_path, max_examples=num_examples)
     print("🎉 Evaluation run complete.")
 
 
