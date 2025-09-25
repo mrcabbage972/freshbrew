@@ -2,7 +2,7 @@
 name = "java_migration"
 version = "0.1.0"
 description = "Java Migration"
-authors = ["Victor May"]
+authors = ["Anonymous"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

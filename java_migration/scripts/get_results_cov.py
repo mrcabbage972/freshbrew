@@ -267,7 +267,6 @@ def main():
     workspace_dir.mkdir(parents=True, exist_ok=True)
 
     dataset = MigrationDatasetItem.from_yaml(REPO_ROOT / "data/migration_datasets/full_dataset.yaml")
-    # dataset = [x for x in dataset if x.repo_name == "abahgat/suffixtree"]
 
     job_cfgs = [
         JobCfg(
