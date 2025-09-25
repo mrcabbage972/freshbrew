@@ -185,19 +185,7 @@ class Worker:
                 apply_patch_to_repo(workspace.workspace_dir, patch_path)
             except PatchApplyError as e:
                 return JobResult(status=JobStatus.FAIL, error=f"Failed applying patch: {str(e)}")
-            # build_result = MavenBuildVerifier().verify(workspace.workspace_dir, target_java_version=job.target_java_version)
-            # if not build_result.build_success:
-            #     print(f"Repo {job.dataset_item.repo_name} build failed, skipping")
-            #     return JobResult(status=JobStatus.SKIP)
-            # if not build_result.test_success:
-            #     print(f"Repo {job.dataset_item.repo_name} tests failed, skipping")
-            #     return JobResult(status=JobStatus.SKIP)
-            # if not build_result.test_results:
-            #     print(f"Repo {job.dataset_item.repo_name} tests result missing, skipping")
-            #     return JobResult(status=JobStatus.SKIP)
-            # if build_result.test_results.tests_run == 0:
-            #     print(f"Repo {job.dataset_item.repo_name} no tests run, skipping")
-            #     return JobResult(status=JobStatus.SKIP)
+     
             test_cov = get_test_cov(
                 str(workspace.workspace_dir), use_wrapper=False, target_java_version=job.target_java_version
             )
@@ -207,8 +195,7 @@ class Worker:
             cur_pre_cov = self.pre_cov[job.dataset_item.repo_name]
 
             cov_percent_change = test_cov.LINE.percent / cur_pre_cov - 1
-
-            # output_dict = {"line_cov": {"before": cur_pre_cov, "after": test_cov.LINE.percent}}
+            
             cov_result = CovResult(
                 cov_before=cur_pre_cov,
                 cov_after=test_cov.LINE.percent,
