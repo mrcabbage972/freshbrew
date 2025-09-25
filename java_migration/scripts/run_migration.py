@@ -51,7 +51,7 @@ def main(
         ),
     ] = False,
     retries: Annotated[int, typer.Option("--retries", "-r", help="Number of retries for API calls.")] = 5,
-    concurrency: Annotated[int, typer.Option("--retries", "-r", help="Number of parallel workers to run.")] = 1,
+    concurrency: Annotated[int, typer.Option("--concurrency", "-c", help="Number of parallel workers to run.")] = 1,
 ):
     """
     Runs the Java migration evaluation framework.
